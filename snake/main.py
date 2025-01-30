@@ -61,16 +61,16 @@ def game():
             pygame.display.update()
 
             # Handle events after the game ends
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    game_over = True
-                    game_ended = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_ended = False
-                    if event.key == pygame.K_c:
-                        game()
+            # for event in pygame.event.get():
+            #     if event.type == pygame.QUIT:
+            #         game_over = True
+            #         game_ended = False
+            #     if event.type == pygame.KEYDOWN:
+            #         if event.key == pygame.K_q:
+            #             game_over = True
+            #             game_ended = False
+            #         if event.key == pygame.K_c:
+        game()
 
         # Handle events during the game
         # for event in pygame.event.get():
@@ -91,6 +91,7 @@ def game():
         #             dx = 0
 
         # Simulate AI playing the game
+        
         actions = "left", "right", "up", "down"
         action = random.choice(actions)
         if action == "left" and dx == 0:
