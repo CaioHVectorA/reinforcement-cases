@@ -42,7 +42,7 @@ class SnakeEnv:
     def step(self, action):
         """Executa uma ação e retorna (novo estado, recompensa, done)."""
         # Inicializa a recompensa com o valor padrão
-        reward = -0.02  # Penalização base por movimento
+        reward = -0.0002  # Penalização base por movimento
 
         # Processa a ação
         if action == "left" and self.dx == 0:
@@ -60,13 +60,13 @@ class SnakeEnv:
         # Verifica colisão com as paredes
         if self.x >= WIDTH or self.x < 0 or self.y >= HEIGHT or self.y < 0:
             self.done = True
-            reward = -6  # Sobrescreve a recompensa padrão
+            reward = -0.6  # Sobrescreve a recompensa padrão
 
         # Verifica colisão com o corpo
         for segment in self.snake[:-1]:
             if segment == [self.x, self.y]:
                 self.done = True
-                reward = -10  # Sobrescreve a recompensa padrão
+                reward = -1  # Sobrescreve a recompensa padrão
 
         # Atualiza a cobra
         self.snake.append([self.x, self.y])
@@ -77,11 +77,12 @@ class SnakeEnv:
         if self.x == self.food_x and self.y == self.food_y:
             self.food_x, self.food_y = generate_food(self.snake)
             print("Comida!")
+            global eated
             eated += 1
             os.makedirs('./snake/out', exist_ok=True)
             open("./snake/out/eated.txt", "w").write(str(eated))
             self.snake_length += 1
-            reward = 10  # Sobrescreve a recompensa padrão
+            reward = 5  # Sobrescreve a recompensa padrão
 
         # Verifica timeout
         self.current_steps += 1

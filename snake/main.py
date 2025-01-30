@@ -9,7 +9,7 @@ import pygame
 # Configurações
 def main():
     EPISODES = 50000  # Número total de episódios de treinamento
-    BATCH_SIZE = 64  # Tamanho do lote para replay
+    BATCH_SIZE = 128  # Tamanho do lote para replay
     RENDER = True  # Definir como True para ver o jogo sendo jogado pelo agente
     rewards_list = []
     # Inicializa o ambiente e o agente
