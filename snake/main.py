@@ -24,9 +24,11 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 50)
 
 def draw_snake(snake):
-    """Draws the snake on the screen"""
+    """Draws the snake on the screen and their head"""
     for block in snake:
         pygame.draw.rect(screen, GREEN, [block[0], block[1], BLOCK_SIZE, BLOCK_SIZE])
+    pygame.draw.rect(screen, WHITE, [block[0], block[1], BLOCK_SIZE, BLOCK_SIZE])
+        
 
 # def display_message(msg, color):
 #     """Displays a message on the screen"""
@@ -37,7 +39,7 @@ def game():
     """Main function that controls the game"""
     game_over = False
     game_ended = False
-
+    global speed
     # Initial position of the snake
     x = WIDTH // 2
     y = HEIGHT // 2
@@ -70,7 +72,9 @@ def game():
             #             game_over = True
             #             game_ended = False
             #         if event.key == pygame.K_c:
-        game()
+            # # print("Restarting the game")
+            # # game_ended = False
+            return game()
 
         # Handle events during the game
         # for event in pygame.event.get():
@@ -91,7 +95,6 @@ def game():
         #             dx = 0
 
         # Simulate AI playing the game
-        
         actions = "left", "right", "up", "down"
         action = random.choice(actions)
         if action == "left" and dx == 0:
@@ -106,6 +109,7 @@ def game():
         elif action == "down" and dy == 0:
             dy = BLOCK_SIZE
             dx = 0
+        
 
         # Update snake position
         x += dx
