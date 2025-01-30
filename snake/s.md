@@ -50,3 +50,24 @@ Essa quantidade aumenta a cada 100 épocas. Dessa forma, conforme a cobra aprend
 
 #### Implementação
 
+A implementação foi feita em Python, utilizando o Pytorch como framework de aprendizado de máquina. O código foi dividido em partes:
+- **Agent.py**: Define a classe do agente, que é a cobra.
+- **game.py**: Define a classe do jogo, que é o ambiente.
+
+O agente é treinado por meio de um algoritmo de aprendizado por reforço chamado Deep Q-Learning. Esse algoritmo é uma extensão do Q-Learning, que é um algoritmo de aprendizado por reforço que aprende a função Q, que é a função que mapeia o estado e a ação para uma recompensa.
+
+Os hyperparâmetros iniciais do algoritmo são:
+- Número total de episódios de treinamento: 50000
+- Tamanho do lote para replay: 64
+- Fator de desconto: 0.9
+- Probabilidade de exploração: 1.0
+- Valor mínimo de epsilon: 0.01
+- Taxa de decaimento de epsilon: 0.9995
+- Taxa de aprendizado: 0.001
+
+Entretanto, foi encontrado dificuldades para treinar a cobra. O algoritmo não estava convergindo, e a cobra não estava aprendendo. 
+
+```bash
+Total epochs:  1516
+Mean reward:  -7.083192612137203
+```
