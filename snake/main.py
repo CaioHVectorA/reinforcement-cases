@@ -1,4 +1,5 @@
 import torch
+import json
 from src.consts import MULTIPLIER
 import numpy as np
 from game import SnakeEnv
@@ -6,10 +7,10 @@ from agent import Agent
 import pygame
 
 # Configurações
-EPISODES = 1000  # Número total de episódios de treinamento
+EPISODES = 50000  # Número total de episódios de treinamento
 BATCH_SIZE = 64  # Tamanho do lote para replay
 RENDER = True  # Definir como True para ver o jogo sendo jogado pelo agente
-
+rewards_list = []
 # Inicializa o ambiente e o agente
 env = SnakeEnv()
 state_size = int(40 * 30 * MULTIPLIER) # Matriz do jogo (40x30 células)
@@ -43,6 +44,7 @@ for episode in range(EPISODES):
 
         # Se o jogo acabou
         if done:
+            rewards_list.append(total_reward)
             print(f"🏆 Episódio {episode + 1}/{EPISODES} - Recompensa: {total_reward:.2f} - Epsilon: {agent.epsilon:.3f}")
             break
 
@@ -51,3 +53,4 @@ for episode in range(EPISODES):
 
 # Fecha o jogo depois do treinamento
 pygame.quit()
+json.dump(reward, open("reward.json", "w"))
