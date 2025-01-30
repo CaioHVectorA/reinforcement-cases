@@ -25,11 +25,17 @@ def generate_game_matrix(
     norm_head_y = head_y // BLOCK_SIZE
     if 0 <= norm_head_x < 40 and 0 <= norm_head_y < 30:
         matrix[norm_head_y][norm_head_x] = 2
-    
     # Mark food
     food_x, food_y = food_pos
+    mtxStr = print_matrix(matrix)
+    if mtxStr != "":
+        open('matrix.txt', 'w').write(mtxStr)
     matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3
+    
     return matrix
 def print_matrix(matrix):
+    res = ""
     for row in matrix:
-        print(row)
+        res += " ".join(str(cell) for cell in row) + "\n"
+        # print(row)
+    return res
