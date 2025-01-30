@@ -22,10 +22,11 @@ def generate_game_matrix(
     if x >= WIDTH: x = WIDTH - BLOCK_SIZE
     if y >= HEIGHT: y = HEIGHT - BLOCK_SIZE
     for i in range(snakeLength):
-        matrix[y // BLOCK_SIZE][x // BLOCK_SIZE] = 1
+        matrix[y // BLOCK_SIZE][x // BLOCK_SIZE] = 1 # Body
         x += dx*-1
         y += dy*-1
-    matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 2
+    matrix[x // BLOCK_SIZE][y // BLOCK_SIZE] = 2 # Head
+    matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3 # Food
     return matrix
     
 def print_matrix(matrix):
