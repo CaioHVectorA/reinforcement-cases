@@ -2,33 +2,34 @@ from src.consts import BLACK, BLOCK_SIZE, GREEN, HEIGHT, RED,WHITE, WIDTH
 from typing import Tuple, List
 
 def generate_game_matrix(
-        snakePos: Tuple[int, int], # 0 to WIDTH, 0 to HEIGHT
-        snakeDir: Tuple[int, int], # -10, 0, 10
-        snakeLength: int,
-        foodPos: Tuple[int, int],
-):
-    """Generates a matrix to represent the game"""
-    # Based on WIDTH 800, HEIGHT 600, BLOCK_SIZE 20
-    # The matrix will be 40x30
-    # If the snake pos is in (12,10) and moving in (10,0), and the legnth is 3
-    # The snake will be in (12,10), (13,10), (14,10)
-    # The matrix will be:
+    snake_segments: List[List[int]],  # List of [x,y] snake segments
+    food_pos: Tuple[int, int],        # (food_x, food_y)
+) -> List[List[int]]:
+    """Generates a 40x30 game matrix with snake body, head, and food positions."""
     matrix = [[0 for _ in range(WIDTH // BLOCK_SIZE)] for _ in range(HEIGHT // BLOCK_SIZE)]
-    x, y = snakePos
-    dx, dy = snakeDir
-    food_x, food_y = foodPos
-    if x < 0: x = 0
-    if y < 0: y = 0
-    if x >= WIDTH: x = WIDTH - BLOCK_SIZE
-    if y >= HEIGHT: y = HEIGHT - BLOCK_SIZE
-    for i in range(snakeLength):
-        matrix[y // BLOCK_SIZE][x // BLOCK_SIZE] = 1 # Body
-        x += dx*-1
-        y += dy*-1
-    matrix[x // BLOCK_SIZE][y // BLOCK_SIZE] = 2 # Head
-    matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3 # Food
-    return matrix
     
+    # Add logging placeholder (you can expand this)
+    # print(f"Generating matrix for snake length {len(snake_segments)}")
+    
+    # Mark snake body (all segments except head)
+    for segment in snake_segments[:-1]:
+        x, y = segment
+        norm_x = x // BLOCK_SIZE
+        norm_y = y // BLOCK_SIZE
+        if 0 <= norm_x < 40 and 0 <= norm_y < 30:
+            matrix[norm_y][norm_x] = 1
+    
+    # Mark snake head (last segment)
+    head_x, head_y = snake_segments[-1]
+    norm_head_x = head_x // BLOCK_SIZE
+    norm_head_y = head_y // BLOCK_SIZE
+    if 0 <= norm_head_x < 40 and 0 <= norm_head_y < 30:
+        matrix[norm_head_y][norm_head_x] = 2
+    
+    # Mark food
+    food_x, food_y = food_pos
+    matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3
+    return matrix
 def print_matrix(matrix):
     for row in matrix:
         print(row)
