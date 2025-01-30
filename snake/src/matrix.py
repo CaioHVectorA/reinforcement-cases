@@ -29,7 +29,9 @@ def generate_game_matrix(
     food_x, food_y = food_pos
     mtxStr = print_matrix(matrix)
     if mtxStr != "":
-        open('matrix.txt', 'w').write(mtxStr)
+        import os
+        os.makedirs('./snake/out', exist_ok=True)
+        open('./snake/out/matrix.txt', 'w').write(mtxStr)
     matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3
     
     return matrix

@@ -1,11 +1,12 @@
 import numpy as np
+import os
 from src.consts import MULTIPLIER
 import pygame
 from src.matrix import generate_game_matrix
 import random
 from src.gen_food import generate_food
 from src.consts import BLACK, BLOCK_SIZE, GREEN, RED, WHITE, WIDTH, HEIGHT, MULTIPLIER
-
+eated = 0
 class SnakeEnv:
     def __init__(self):
         pygame.init()
@@ -75,6 +76,10 @@ class SnakeEnv:
         # Verifica se comeu a comida
         if self.x == self.food_x and self.y == self.food_y:
             self.food_x, self.food_y = generate_food(self.snake)
+            print("Comida!")
+            eated += 1
+            os.makedirs('./snake/out', exist_ok=True)
+            open("./snake/out/eated.txt", "w").write(str(eated))
             self.snake_length += 1
             reward = 10  # Sobrescreve a recompensa padrão
 
