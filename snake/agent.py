@@ -26,9 +26,9 @@ class Agent:
         self.memory = deque(maxlen=10000)
         self.gamma = 0.9  # Fator de desconto
         self.epsilon = 1.0  # Probabilidade de exploração
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
+        self.epsilon_min = 0.01 # Valor mínimo de epsilon
+        self.epsilon_decay = 0.9995 # Taxa de decaimento de epsilon
+        self.learning_rate = 0.001 # Taxa de aprendizado
         self.model = DQN(state_size, action_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.criterion = nn.MSELoss()
