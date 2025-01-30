@@ -14,26 +14,36 @@ class SnakeEnv:
 
         self.clock = pygame.time.Clock()
         self.speed = 600
-        self.font = pygame.font.Font(None, 36)  # Fonte para a UI
+        self.font = pygame.font.Font(None, 36)
 
-        self.actions = ["left", "right", "up", "down"]  # Ações possíveis
-        self.epoch = 0  # Inicializa contador de épocas
-        self.total_reward = 0  # Acumulador de recompensa
-        self.reset()  # Inicia o jogo
+        self.actions = ["left", "right", "up", "down"]
+        self.epoch = 0
+        self.total_reward = 0
+        self.current_steps = 0
+        self.max_steps = 100  # Limite inicial de passos
+        self.reset()
 
     def reset(self):
-        """Reinicia o jogo e retorna o estado inicial."""
+        """Reinicia o jogo com novo cálculo do limite de tempo"""
         self.x, self.y = WIDTH // 2, HEIGHT // 2
         self.dx, self.dy = BLOCK_SIZE, 0
         self.snake = [[self.x, self.y]]
         self.snake_length = 3
         self.food_x, self.food_y = generate_food(self.snake)
         self.done = False
-        self.total_reward = 0  # Reseta a recompensa ao reiniciar
-        return self.get_state()  # Retorna o estado inicial
+        self.total_reward = 0
+        self.current_steps = 0
+        
+        # Aumenta o limite a cada 100 épocas
+        self.max_steps = 100 + ((max(self.epoch, 1) - 1) // 100) * 100
+        return self.get_state()
 
     def step(self, action):
         """Executa uma ação e retorna (novo estado, recompensa, done)."""
+        # Inicializa a recompensa com o valor padrão
+        reward = -0.02  # Penalização base por movimento
+
+        # Processa a ação
         if action == "left" and self.dx == 0:
             self.dx, self.dy = -BLOCK_SIZE, 0
         elif action == "right" and self.dx == 0:
@@ -46,52 +56,45 @@ class SnakeEnv:
         self.x += self.dx
         self.y += self.dy
 
-        # Recompensas
-        reward = -0.02  # Penalização pequena por cada movimento
-
-        # Se bateu na parede
+        # Verifica colisão com as paredes
         if self.x >= WIDTH or self.x < 0 or self.y >= HEIGHT or self.y < 0:
             self.done = True
-            reward = -6
+            reward = -6  # Sobrescreve a recompensa padrão
 
-        # Se bateu no próprio corpo
+        # Verifica colisão com o corpo
         for segment in self.snake[:-1]:
             if segment == [self.x, self.y]:
                 self.done = True
-                reward = -10
+                reward = -10  # Sobrescreve a recompensa padrão
 
         # Atualiza a cobra
         self.snake.append([self.x, self.y])
         if len(self.snake) > self.snake_length:
             del self.snake[0]
 
-        # Se comeu a comida
+        # Verifica se comeu a comida
         if self.x == self.food_x and self.y == self.food_y:
             self.food_x, self.food_y = generate_food(self.snake)
             self.snake_length += 1
-            reward = 10
+            reward = 10  # Sobrescreve a recompensa padrão
 
-        self.total_reward += reward  # Atualiza a recompensa acumulada
+        # Verifica timeout
+        self.current_steps += 1
+        if not self.done and self.current_steps >= self.max_steps:
+            print("Timeout!")
+            self.done = True
+            reward = -1  # Penalidade por timeout
 
+        self.total_reward += reward
         return self.get_state(), reward, self.done
 
     def get_state(self):
         """Retorna o estado atual como uma matriz 40x30."""
-        # state = np.zeros((40, 30))
-
-        # def normalize(num, _min):
-        #     return min(max(num // BLOCK_SIZE, 0), _min)
-
-        # for segment in self.snake:
-        #     state[normalize(segment[0], 39), normalize(segment[1], 29)] = 1
-        # state[normalize(self.x, 39), normalize(self.y, 29)] = 2  # Cabeça
-        # state[normalize(self.food_x, 39), normalize(self.food_y, 29)] = 3  # Comida
-        # return state
         matrix = generate_game_matrix(
             snake_segments=self.snake,
             food_pos=(self.food_x, self.food_y)
         )
-        return np.array(matrix)  # Convert to numpy array for compatibility
+        return np.array(matrix)
 
     def render(self):
         """Desenha o jogo na tela e exibe informações da UI."""
@@ -110,8 +113,8 @@ class SnakeEnv:
         epoch_text = self.font.render(f"Época: {self.epoch}", True, WHITE)
         reward_text = self.font.render(f"Recompensa: {self.total_reward:.2f}", True, WHITE)
 
-        self.screen.blit(epoch_text, (10, 10))  # Posição superior esquerda
-        self.screen.blit(reward_text, (10, 40))  # Logo abaixo
+        self.screen.blit(epoch_text, (10, 10))
+        self.screen.blit(reward_text, (10, 40))
 
         pygame.display.update()
         self.clock.tick(self.speed)
