@@ -8,14 +8,16 @@ def generate_game_matrix(
     snake_segments: List[List[int]],  # List of [x,y] snake segments
     food_pos: Tuple[int, int],        # (food_x, food_y)
 ) -> List[List[int]]:
-    """Generates a 40x30 game matrix with snake body, head, and food positions."""
+    """Generates a 40x30 game matrix with snake body, border head, and food positions."""
     global index
     matrix = [[0 for _ in range(WIDTH // BLOCK_SIZE)] for _ in range(HEIGHT // BLOCK_SIZE)]
-    
-    # Add logging placeholder (you can expand this)
-    # print(f"Generating matrix for snake length {len(snake_segments)}")
-    
-    # Mark snake body (all segments except head)
+    # Add border(4)
+    for i in range(40):
+        matrix[0][i] = 4
+        matrix[29][i] = 4
+    for i in range(30):
+        matrix[i][0] = 4
+        matrix[i][39] = 4
     for segment in snake_segments[:-1]:
         x, y = segment
         norm_x = x // BLOCK_SIZE
