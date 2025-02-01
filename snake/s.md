@@ -71,3 +71,15 @@ Entretanto, foi encontrado dificuldades para treinar a cobra. O algoritmo não e
 Total epochs:  1516
 Mean reward:  -7.083192612137203
 ```
+
+Depois de uma breve reflexão. Nossa matrix inclui todos os elementos, mas não inclui as bordas. Ou seja, como nossa cobra saberia que ela morre ao tocar na borda? Algo deve indicar isso para ela.
+
+Logo, temos:
+- 0: célula vazia
+- 1: corpo da cobra
+- 2: cabeça da cobra
+- 3: comida
+- 4: borda
+
+Mudando o código, a matriz agora contempla as bordas. A cobra morre ao tocar na borda, e a recompensa é -10.
+Também, eu decidi que as recompensam iam ser simplesmente 10 para comer a comida e -10 para morrer. A punição por se mover foi retirada. Ademais, não terá mais um limite de movimentos por época. A cobra jogará até morrer, o que, na minha intuição, indica que ela terá mais como denotar que as bordas são perigosas.
