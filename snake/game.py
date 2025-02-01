@@ -5,7 +5,7 @@ import pygame
 from src.matrix import generate_game_matrix
 import random
 from src.gen_food import generate_food
-from src.consts import BLACK, BLOCK_SIZE, GREEN, RED, WHITE, WIDTH, HEIGHT, MULTIPLIER
+from src.consts import BLACK, BLOCK_SIZE, GREEN, RED, WHITE, WIDTH, HEIGHT, MULTIPLIER, BLUE
 eated = 0
 class SnakeEnv:
     def __init__(self):
@@ -42,7 +42,7 @@ class SnakeEnv:
     def step(self, action):
         """Executa uma ação e retorna (novo estado, recompensa, done)."""
         # Inicializa a recompensa com o valor padrão
-        reward = -0.0002  # Penalização base por movimento
+        # reward = -0.0002  # Penalização base por movimento
 
         # Processa a ação
         if action == "left" and self.dx == 0:
@@ -60,13 +60,13 @@ class SnakeEnv:
         # Verifica colisão com as paredes
         if self.x >= WIDTH or self.x < 0 or self.y >= HEIGHT or self.y < 0:
             self.done = True
-            reward = -0.6  # Sobrescreve a recompensa padrão
+            reward = -10  # Sobrescreve a recompensa padrão
 
         # Verifica colisão com o corpo
         for segment in self.snake[:-1]:
             if segment == [self.x, self.y]:
                 self.done = True
-                reward = -1  # Sobrescreve a recompensa padrão
+                reward = -10  # Sobrescreve a recompensa padrão
 
         # Atualiza a cobra
         self.snake.append([self.x, self.y])
@@ -82,14 +82,14 @@ class SnakeEnv:
             os.makedirs('./snake/out', exist_ok=True)
             open("./snake/out/eated.txt", "w").write(str(eated))
             self.snake_length += 1
-            reward = 5  # Sobrescreve a recompensa padrão
+            reward = 10  # Sobrescreve a recompensa padrão
 
         # Verifica timeout
         self.current_steps += 1
-        if not self.done and self.current_steps >= self.max_steps:
-            print("Timeout!")
-            self.done = True
-            reward = -1  # Penalidade por timeout
+        # if not self.done and self.current_steps >= self.max_steps:
+        #     print("Timeout!")
+        #     self.done = True
+        #     reward = -1  # Penalidade por timeout
 
         self.total_reward += reward
         return self.get_state(), reward, self.done
@@ -110,6 +110,11 @@ class SnakeEnv:
                 exit()
 
         self.screen.fill(BLACK)
+        # Draw borders
+        pygame.draw.rect(self.screen, BLUE, [0, 0, WIDTH, BLOCK_SIZE])
+        pygame.draw.rect(self.screen, BLUE, [0, 0, BLOCK_SIZE, HEIGHT])
+        pygame.draw.rect(self.screen, BLUE, [0, HEIGHT - BLOCK_SIZE, WIDTH, BLOCK_SIZE])
+        pygame.draw.rect(self.screen, BLUE, [WIDTH - BLOCK_SIZE, 0, BLOCK_SIZE, HEIGHT])
         pygame.draw.rect(self.screen, RED, [self.food_x, self.food_y, BLOCK_SIZE, BLOCK_SIZE])
         for segment in self.snake:
             pygame.draw.rect(self.screen, GREEN, [segment[0], segment[1], BLOCK_SIZE, BLOCK_SIZE])

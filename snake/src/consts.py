@@ -2,7 +2,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (200, 0, 0)
 GREEN = (60, 255, 60)
-
+BLUE = (0, 0, 255)
 # Screen settings
 MULTIPLIER = 1
 WIDTH = int(800 * MULTIPLIER)
