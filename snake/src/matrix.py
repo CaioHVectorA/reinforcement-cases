@@ -1,11 +1,15 @@
 from src.consts import BLACK, BLOCK_SIZE, GREEN, HEIGHT, RED,WHITE, WIDTH
+import os
+import json
 from typing import Tuple, List
-
+# index = 0
+matrixes = []
 def generate_game_matrix(
     snake_segments: List[List[int]],  # List of [x,y] snake segments
     food_pos: Tuple[int, int],        # (food_x, food_y)
 ) -> List[List[int]]:
     """Generates a 40x30 game matrix with snake body, head, and food positions."""
+    global index
     matrix = [[0 for _ in range(WIDTH // BLOCK_SIZE)] for _ in range(HEIGHT // BLOCK_SIZE)]
     
     # Add logging placeholder (you can expand this)
@@ -29,9 +33,11 @@ def generate_game_matrix(
     food_x, food_y = food_pos
     mtxStr = print_matrix(matrix)
     if mtxStr != "":
-        import os
-        os.makedirs('./snake/out', exist_ok=True)
-        open('./snake/out/matrix.txt', 'w').write(mtxStr)
+        # index += 1
+        os.makedirs(f'./snake/out/', exist_ok=True)
+        matrixes.append(matrix)
+        if len(matrixes) == 100:
+            open(f'./snake/out/matrix.json', 'w').write(json.dumps(matrixes))
     matrix[food_y // BLOCK_SIZE][food_x // BLOCK_SIZE] = 3
     
     return matrix
