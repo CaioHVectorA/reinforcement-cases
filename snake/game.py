@@ -17,7 +17,7 @@ class SnakeEnv:
         self.speed = 600
         self.font = pygame.font.Font(None, 36)
 
-        self.actions = ["left", "right", "up", "down"]
+        self.actions = ["left", "right", 'straight']
         self.epoch = 0
         self.total_reward = 0
         self.current_steps = 0
@@ -45,14 +45,22 @@ class SnakeEnv:
         reward = 0
 
         # Processa a ação
-        if action == "left" and self.dx == 0:
-            self.dx, self.dy = -BLOCK_SIZE, 0
-        elif action == "right" and self.dx == 0:
-            self.dx, self.dy = BLOCK_SIZE, 0
-        elif action == "up" and self.dy == 0:
-            self.dx, self.dy = 0, -BLOCK_SIZE
-        elif action == "down" and self.dy == 0:
-            self.dx, self.dy = 0, BLOCK_SIZE
+        if action == "left":
+            if self.dx == 0:  # Moving vertically
+                self.dx, self.dy = -self.dy, self.dx
+            else:  # Moving horizontally
+                self.dx, self.dy = self.dy, -self.dx
+        elif action == "right":
+            if self.dx == 0:  # Moving vertically
+                self.dx, self.dy = self.dy, -self.dx
+            else:  # Moving horizontally
+                self.dx, self.dy = -self.dy, self.dx
+        elif action == "straight":
+            pass
+        # elif action == "up" and self.dy == 0:
+        #     self.dx, self.dy = 0, -BLOCK_SIZE
+        # elif action == "down" and self.dy == 0:
+        #     self.dx, self.dy = 0, BLOCK_SIZE
 
         self.x += self.dx
         self.y += self.dy

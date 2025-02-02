@@ -1,6 +1,6 @@
 import torch
 import json
-from src.consts import MULTIPLIER
+from src.consts import MULTIPLIER, maxHeight, maxWidth
 import numpy as np
 from game import SnakeEnv
 from agent import Agent
@@ -14,8 +14,8 @@ def main():
     rewards_list = []
     # Inicializa o ambiente e o agente
     env = SnakeEnv()
-    state_size = int(40 * 30 * MULTIPLIER) # Matriz do jogo (40x30 células)
-    action_size = 4  # 4 direções possíveis (cima, baixo, esquerda, direita)
+    state_size = int((maxWidth+1) * (maxHeight+1) * MULTIPLIER) # Matriz do jogo (40x30 células)
+    action_size = 3  # 4 direções possíveis (virar a esquerda, virar a direita, fazer nada)
     agent = Agent(state_size, action_size)
 
     # Loop de treinamento
