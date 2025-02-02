@@ -92,3 +92,5 @@ O que será que está errado? O que fazer?
 Bem, procurando por exemplos de RL com o Snake Game, notei que não estavam utilizando a matrix 40x30 Como o input. Na verdade, eles estavam utilizando dados como a direção da cobra, a posição da comida, e se eça estava perto de uma parede. 
 
 Certo! Sem escolhas, irei tentar. Dessa forma, saberei se o problema é o algoritmo ou a representação do estado.
+
+Mas antes, eu quis fazer um teste. No tutorial, eu notei que a cobra usava ações diferentes: ao invés do WASD, ela apenas tinhas as ações: Virar para a esquerda, virar para a direita e continuar em frente. Eu quis testar isso e ver o efeito. Ademais, eu restringi a janela para 400x300, para facilitar os testes como um todo.
