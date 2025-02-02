@@ -42,7 +42,7 @@ class SnakeEnv:
     def step(self, action):
         """Executa uma ação e retorna (novo estado, recompensa, done)."""
         # Inicializa a recompensa com o valor padrão
-        # reward = -0.0002  # Penalização base por movimento
+        reward = 0
 
         # Processa a ação
         if action == "left" and self.dx == 0:
