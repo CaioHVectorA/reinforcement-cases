@@ -1,5 +1,5 @@
 ## Snake Game - Aprendizado por reforço
-
+> (30/01)
 O aprendizado por reforço é uma técnica de aprendizado de máquina que visa ensinar um agente a tomar decisões a partir de um estado e um  conjunto de ações possíveis, num determinado ambiente. Inicialmente, ele opta por aleatoriedade, mas com o tempo, ele aprende a tomar decisões melhores, baseadas em recompensas e punições.
 
 Ou seja, num espectro filosófico, o Aprendizado por reforço simula o comportamento de um ser vivo. Por exemplo, um cachorro aprende a sentar quando recebe um petisco, e aprende a não latir quando é repreendido. 
@@ -35,7 +35,7 @@ Dessa forma, podemos mapear a posição da cobra na matriz 40x30. Por consequint
 Trabalhando nessa espécie de tabuleiro, também poderemos, posteriormente, adicionar obstáculos e mais coisas.
 
 ### Projetando o aprendizado
-
+> (31/01)
 Bem, queremos que nossa AISnake aprenda a jogar bem o jogo da cobrinha, ou seja, de forma otimizada, e isso quer dizer que ela deve se alimentar o mais rápido possível e não morrer. Para isso, precisamos definir as recompensas e punições que a cobra receberá.
 
 #### Recompensas
@@ -71,9 +71,9 @@ Entretanto, foi encontrado dificuldades para treinar a cobra. O algoritmo não e
 Total epochs:  1516
 Mean reward:  -7.083192612137203
 ```
+> (01/02)
 
 Depois de uma breve reflexão. Nossa matrix inclui todos os elementos, mas não inclui as bordas. Ou seja, como nossa cobra saberia que ela morre ao tocar na borda? Algo deve indicar isso para ela.
-
 Logo, temos:
 - 0: célula vazia
 - 1: corpo da cobra
@@ -83,3 +83,12 @@ Logo, temos:
 
 Mudando o código, a matriz agora contempla as bordas. A cobra morre ao tocar na borda, e a recompensa é -10.
 Também, eu decidi que as recompensam iam ser simplesmente 10 para comer a comida e -10 para morrer. A punição por se mover foi retirada. Ademais, não terá mais um limite de movimentos por época. A cobra jogará até morrer, o que, na minha intuição, indica que ela terá mais como denotar que as bordas são perigosas.
+
+
+> (02/02)
+Ainda assim, o algoritmo não convergiu. A cobra não aprendeu a jogar. 
+O que será que está errado? O que fazer?
+
+Bem, procurando por exemplos de RL com o Snake Game, notei que não estavam utilizando a matrix 40x30 Como o input. Na verdade, eles estavam utilizando dados como a direção da cobra, a posição da comida, e se eça estava perto de uma parede. 
+
+Certo! Sem escolhas, irei tentar. Dessa forma, saberei se o problema é o algoritmo ou a representação do estado.
