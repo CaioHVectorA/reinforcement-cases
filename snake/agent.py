@@ -23,12 +23,12 @@ class Agent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=10000)
-        self.gamma = 0.9  # Fator de desconto
+        self.memory = deque(maxlen=24000)
+        self.gamma = 0.85  # Fator de desconto
         self.epsilon = 1.0  # Probabilidade de exploração
         self.epsilon_min = 0.01 # Valor mínimo de epsilon
-        self.epsilon_decay = 0.9995 # Taxa de decaimento de epsilon
-        self.learning_rate = 0.001 # Taxa de aprendizado
+        self.epsilon_decay = 0.999 # Taxa de decaimento de epsilon
+        self.learning_rate = 0.008 # Taxa de aprendizado
         self.model = DQN(state_size, action_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.criterion = nn.MSELoss()

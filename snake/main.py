@@ -14,8 +14,9 @@ def main():
     rewards_list = []
     # Inicializa o ambiente e o agente
     env = SnakeEnv()
-    state_size = int((maxWidth+1) * (maxHeight+1) * MULTIPLIER) # Matriz do jogo (40x30 células)
-    action_size = 3  # 4 direções possíveis (virar a esquerda, virar a direita, fazer nada)
+    # State será mudado para [[dx,dy,distance to food, is food left, is food right, is food up, is food down, is wall left, is wall right, is wall up, is wall down]]
+    state_size = 11  # Número de parâmetros no estado
+    action_size = 3  # 3 direções possíveis (virar a esquerda, virar a direita, fazer nada)
     agent = Agent(state_size, action_size)
 
     # Loop de treinamento
@@ -23,7 +24,6 @@ def main():
         env.epoch = episode + 1  # Atualiza a época na UI
         state = np.array(env.reset()).flatten()  # Obtém o estado inicial e achata para vetor
         total_reward = 0
-
         while True:
             if RENDER:
                 env.render()  # Mostra o jogo na tela

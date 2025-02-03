@@ -96,3 +96,97 @@ Certo! Sem escolhas, irei tentar. Dessa forma, saberei se o problema é o algori
 Mas antes, eu quis fazer um teste. No tutorial, eu notei que a cobra usava ações diferentes: ao invés do WASD, ela apenas tinhas as ações: Virar para a esquerda, virar para a direita e continuar em frente. Eu quis testar isso e ver o efeito. Ademais, eu restringi a janela para 400x300, para facilitar os testes como um todo.
 
 Não melhorou muito, mas a cobra se movimentava de forma mais natural.
+
+Implementando o novo estado, da seguinte forma:
+```python
+distance_to_food = np.sqrt((self.food_x - self.x) ** 2 + (self.food_y - self.y) ** 2) / (WIDTH + HEIGHT)
+is_food_left = self.food_x < self.x
+is_food_right = self.food_x > self.x
+is_food_up = self.food_y < self.y
+is_food_down = self.food_y > self.y
+is_wall_left = self.x - BLOCK_SIZE < 0
+is_wall_right = self.x + BLOCK_SIZE >= WIDTH
+is_wall_up = self.y - BLOCK_SIZE < 0
+is_wall_down = self.y + BLOCK_SIZE >= HEIGHT
+
+state = [
+    self.dx / BLOCK_SIZE,
+    self.dy / BLOCK_SIZE,
+    distance_to_food,
+    is_food_left,
+    is_food_right,
+    is_food_up,
+    is_food_down,
+    is_wall_left,
+    is_wall_right,
+    is_wall_up,
+    is_wall_down
+]
+return np.array(state)
+```
+
+Empiricamente, notei que o estado anterior não tratava um caso específico: Caso a cobra se "enrolasse" em si mesma, ela não saberia que estava fazendo tal, uma vez que a Matrix só ilustrava a cabeça e o corpo da cobra de forma reta; Certamente, isso estava influenciando negativamente.
+
+Mas essa refatoração será feita depois, quando voltarmos ao estado de matrix (eu não vou desistir dela!). Por enquanto, vamos ver se a cobra aprende com esse novo estado.
+
+![alt text](image.png)
+
+Ótimo! Finalmente, a cobra aprendeu minimamente. 
+
+Mas, assim como o estado anterior, esse novo estado não contempla a situação de a cobra se enrolar em si mesma. Ela faz algo e as vezes consegue comer cinco maçãs, mas outras vezes ela morre sem comer nenhuma.
+
+Antes de fazer qualquer coisa, eis o resultado da troca de estado inicial:
+```python
+Total epochs:  5253
+Mean reward:  9.023415191319247
+```
+A partir dessa época, o epsilon tendia a 0, o que significa que a cobra não estava mais explorando, mas sim, agindo de acordo com o que aprendeu. Ela chega a comer dez maçãs, mas ainda assim as vezes morre sem comer nenhuma. Isso é estranho.
+
+Eis alguns gráficos:
+Na escala de 1000 épocas:
+![alt text](image-1.png)
+
+Na escala de 500 épocas:
+![alt text](image-2.png)
+
+Na escala de 100 épocas:
+![alt text](image-3.png)
+E por fim, na escala de 10 épocas:
+![alt text](image-4.png)
+
+Certo, é esperado que ela tenha variabilidade, mas será que precisa ser tão variável? Ela morrer pela parede não é esperado.
+
+Bem, Vamos mudar um pouco o estado:
+```python
+distance_to_food = np.sqrt((self.food_x - self.x) ** 2 + (self.food_y - self.y) ** 2) / (WIDTH + HEIGHT)
+is_food_left = self.food_x < self.x
+is_food_right = self.food_x > self.x
+is_food_up = self.food_y < self.y
+is_food_down = self.food_y > self.y
+is_danger_left = any([self.x - BLOCK_SIZE == x and self.y == y for x, y in self.body[1:]])
+is_danger_right = any([self.x + BLOCK_SIZE == x and self.y == y for x, y in self.body[1:]])
+is_danger_up = any([self.y - BLOCK_SIZE == y and self.x == x for x, y in self.body[1:]])
+is_danger_down = any([self.y + BLOCK_SIZE == y and self.x == x for x, y in self.body[1:]])
+```
+
+E, mexer um pouco nos hipermarametros:
+Antes estavam assim:
+```python
+self.memory = deque(maxlen=10000)
+self.gamma = 0.9  # Fator de desconto
+self.epsilon = 1.0  # Probabilidade de exploração
+self.epsilon_min = 0.01 # Valor mínimo de epsilon
+self.epsilon_decay = 0.9995 # Taxa de decaimento de epsilon
+self.learning_rate = 0.001 # Taxa de aprendizado
+```
+
+O epsilon decaía absurdamente lentamente; O Gamma podia estar alto, visto que queremos que a cobra se importe com o futuro, mas não tanto. O tamanho da memória podia ser maior,  e a taxa de aprendizado podia ser maior.
+
+```python
+self.memory = deque(maxlen=24000)
+self.gamma = 0.85  # Fator de desconto
+self.epsilon = 1.0  # Probabilidade de exploração
+self.epsilon_min = 0.01 # Valor mínimo de epsilon
+self.epsilon_decay = 0.999 # Taxa de decaimento de epsilon
+self.learning_rate = 0.008 # Taxa de aprendizado
+```

@@ -84,7 +84,6 @@ class SnakeEnv:
         # Verifica se comeu a comida
         if self.x == self.food_x and self.y == self.food_y:
             self.food_x, self.food_y = generate_food(self.snake)
-            print("Comida!")
             global eated
             eated += 1
             os.makedirs('./snake/out', exist_ok=True)
@@ -103,13 +102,23 @@ class SnakeEnv:
         return self.get_state(), reward, self.done
 
     def get_state(self):
-        """Retorna o estado atual como uma matriz 40x30."""
-        matrix = generate_game_matrix(
-            snake_segments=self.snake,
-            food_pos=(self.food_x, self.food_y)
-        )
-        return np.array(matrix)
-
+        # State será mudado para [[dx,dy,distance to food, is food left, is food right, is food up, is food down, is wall left, is wall right, is wall up, is wall down]]
+        distance_to_food = np.sqrt((self.food_x - self.x) ** 2 + (self.food_y - self.y) ** 2) / (WIDTH + HEIGHT)
+        is_food_left = self.food_x < self.x
+        is_food_right = self.food_x > self.x
+        is_food_up = self.food_y < self.y
+        is_food_down = self.food_y > self.y
+        body = self.snake
+        is_danger_left = any([self.x - BLOCK_SIZE == x and self.y == y for x, y in body[1:]])
+        is_danger_right = any([self.x + BLOCK_SIZE == x and self.y == y for x, y in body[1:]])
+        is_danger_up = any([self.y - BLOCK_SIZE == y and self.x == x for x, y in body[1:]])
+        is_danger_down = any([self.y + BLOCK_SIZE == y and self.x == x for x, y in body[1:]])
+        state = [
+            self.dx / BLOCK_SIZE, self.dy / BLOCK_SIZE, distance_to_food,
+            is_food_left, is_food_right, is_food_up, is_food_down,
+            is_danger_left, is_danger_right, is_danger_up, is_danger_down
+        ] 
+        return np.array(state)
     def render(self):
         """Desenha o jogo na tela e exibe informações da UI."""
         for event in pygame.event.get():
