@@ -184,9 +184,65 @@ O epsilon decaía absurdamente lentamente; O Gamma podia estar alto, visto que q
 
 ```python
 self.memory = deque(maxlen=24000)
-self.gamma = 0.85  # Fator de desconto
+self.gamma = 0.9  # Fator de desconto
 self.epsilon = 1.0  # Probabilidade de exploração
 self.epsilon_min = 0.01 # Valor mínimo de epsilon
-self.epsilon_decay = 0.999 # Taxa de decaimento de epsilon
-self.learning_rate = 0.008 # Taxa de aprendizado
+self.epsilon_decay = 0.9992 # Taxa de decaimento de epsilon
+self.learning_rate = 0.0015 # Taxa de aprendizado
+```
+(04/02)
+Ademais, eu poderia mudar um pouco a questão do state. Assim como antes nas actions, a cobra poderia simplesmente ter como guia apenas a esquerda e direita da sua "cabeça", logo, o state poderia ser reduzido a:
+
+```python
+distance_to_food = np.sqrt((self.food_x - self.x) ** 2 + (self.food_y - self.y) ** 2) / (WIDTH + HEIGHT)
+is_food_left = 1 if self.dx == 0 and self.food_x < self.x else 0
+is_food_right = 1 if self.dx == 0 and self.food_x > self.x else 0
+is_danger_left = 1 if self.dx == 0 and (self.x == 0 or [self.x - BLOCK_SIZE, self.y] in self.snake) else 0
+is_danger_right = 1 if self.dx == 0 and (self.x == WIDTH - BLOCK_SIZE or [self.x + BLOCK_SIZE, self.y] in self.snake) else 
+state = [
+    self.dx / BLOCK_SIZE, self.dy / BLOCK_SIZE, distance_to_food, is_food_left, is_food_right, is_danger_left, is_danger_right
+] 
+```
+
+Mas, ironicamente, isso piorou o desempenho da cobra. 
+
+Eu voltei ao state anterior, e testei com os novos hyperparametros.
+
+```bash
+Total epochs:  9192
+Mean reward:  64.1481723237598
+```
+![alt text](image-5.png)
+### Análise
+
+Para a análise de dados, durante toda a implementação, eu usei o `analysis.ipynb`, que é um notebook que continha algumas celulas que liam arquivos que representavam as recompensas. As células são:
+```python
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+# Load the rewards from the file and make analysis
+rewards = open('../out/rewards.json', 'r').read()
+rewards = np.array(json.loads(rewards))
+
+print('Total epochs: ', len(rewards))
+print('Mean reward: ', np.mean(rewards))
+print('Best reward: ', np.max(rewards))
+print('Median reward: ', np.median(rewards))
+```
+
+E as células que plotavam os gráficos:
+```python
+# Cluster rewards in groups
+CLUSTER_SIZE = 1000
+grouped_rewards = []
+for i in range(0, len(rewards), CLUSTER_SIZE):
+    grouped_rewards.append(np.mean(rewards[i:i+CLUSTER_SIZE]))
+
+# Plot the rewards
+plt.plot(grouped_rewards)
+plt.ylabel('Recompensa')
+plt.xlabel(f'Épocas(1:{CLUSTER_SIZE})')
+plt.xticks(np.arange(0, len(grouped_rewards), 1))
+plt.title('Média Recompensa por época')
+plt.show()
 ```
