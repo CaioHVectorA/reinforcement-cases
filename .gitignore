@@ -1,9 +1,30 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+
+# Model checkpoints & RL artifacts
 *.pt
 *.pth
 checkpoints/
 test_checkpoints/
 .pytest_cache/
 .coverage
+.ipynb_checkpoints/
+
+# Case outputs
+snake/out/*
+matrix.txt
+rewards.json
+
+# Environments & virtualenvs
+.env
+.venv
+env/
+venv/
+ENV/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
