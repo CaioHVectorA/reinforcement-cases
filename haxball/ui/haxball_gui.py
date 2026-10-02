@@ -24,7 +24,8 @@ from haxball.core.constants import Team, GameState, FPS
 from haxball.core.disc import hex_to_rgb
 from haxball.core.stadium import Stadium
 from haxball.core.game import HaxBallGame
-from haxball.bots import HeuristicBot, WallReboundBot, GoalieBot, BaseBot
+from haxball.bots import HeuristicBot, WallReboundBot, GoalieBot, RLBot, BaseBot
+
 from haxball.gym_env.haxball_env import HaxBallEnv
 from haxball.rl.algorithms.ppo.ppo_trainer import PPOTrainer
 from haxball.rl.algorithms.standard_rl.dqn_trainer import DQNTrainer
@@ -91,7 +92,7 @@ STADIUM_CATALOG = {
 SPEED_LEVELS = [1, 2, 5, 10, 25, 50, 100]
 
 class HaxBallApp:
-    def __init__(self, width: int = 1280, height: int = 768):
+    def __init__(self, width: int = 1280, height: int = 768, mode: str = "self_play", model_path: Optional[str] = None, bot_key: str = "wall"):
         pygame.init()
         pygame.font.init()
         self.width = width
@@ -104,7 +105,7 @@ class HaxBallApp:
         self.is_paused = False
 
         # Modes: "self_play" or "human"
-        self.play_mode = "self_play"
+        self.play_mode = mode
         self.speed_multiplier = 1
 
         # Fonts
@@ -129,12 +130,15 @@ class HaxBallApp:
         self._init_game(self.current_stadium_key, self.team_format)
 
         # Bots
+        self.model_path = model_path
         self.bot_catalog = {
             "wall": WallReboundBot("WallReboundBot"),
             "heuristic": HeuristicBot("HeuristicBot"),
-            "goalie": GoalieBot("GoalieBot")
+            "goalie": GoalieBot("GoalieBot"),
+            "rl": RLBot(model_path=model_path, name="RL Bot (Trained)")
         }
-        self.active_bot_key = "wall"
+        self.active_bot_key = bot_key if (model_path is None or bot_key != "wall") else ("rl" if model_path else "wall")
+
 
         # Background RL Trainer
         self.training_thread: Optional[threading.Thread] = None

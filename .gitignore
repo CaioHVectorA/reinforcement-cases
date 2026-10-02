@@ -4,14 +4,12 @@ __pycache__/
 *$py.class
 *.so
 
-# Model checkpoints & RL artifacts
-*.pt
-*.pth
-checkpoints/
+# Model checkpoints & RL artifacts (checkpoints are allowed)
 test_checkpoints/
 .pytest_cache/
 .coverage
 .ipynb_checkpoints/
+
 
 # Case outputs
 snake/out/*
