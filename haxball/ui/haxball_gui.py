@@ -29,6 +29,11 @@ from haxball.gym_env.haxball_env import HaxBallEnv
 from haxball.rl.algorithms.ppo.ppo_trainer import PPOTrainer
 from haxball.rl.algorithms.standard_rl.dqn_trainer import DQNTrainer
 from haxball.rl.algorithms.self_play.self_play_trainer import SelfPlay2v2Trainer
+from haxball.ui.widgets import (
+    ICON_DISPATCH, draw_icon_stadium, draw_icon_lightning,
+    draw_icon_robot, draw_icon_user, draw_icon_reset,
+    draw_icon_play, draw_icon_pause, draw_icon_brain, draw_icon_help
+)
 
 MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "maps")
 
@@ -406,16 +411,18 @@ class HaxBallApp:
         self.pill_stad_r = pygame.Rect(20, 14, 250, 34)
         pygame.draw.rect(self.screen, (36, 46, 56), self.pill_stad_r, border_radius=17)
         pygame.draw.rect(self.screen, (55, 68, 85), self.pill_stad_r, width=1, border_radius=17)
-        s_txt = self.font_hud.render(f"⚽ {stad_title[:24]}", True, (220, 230, 240))
-        self.screen.blit(s_txt, s_txt.get_rect(center=self.pill_stad_r.center))
+        draw_icon_stadium(self.screen, (self.pill_stad_r.x + 18, self.pill_stad_r.centery), (100, 180, 255), size=12)
+        s_txt = self.font_hud.render(stad_title[:23], True, (220, 230, 240))
+        self.screen.blit(s_txt, (self.pill_stad_r.x + 32, self.pill_stad_r.centery - s_txt.get_height() // 2))
 
         # Speed Multiplier Pill (Clickable)
         self.pill_speed_r = pygame.Rect(self.width - 290, 14, 130, 34)
         sp_c = (230, 140, 40) if self.speed_multiplier > 1 else (55, 68, 85)
         pygame.draw.rect(self.screen, (36, 46, 56), self.pill_speed_r, border_radius=17)
         pygame.draw.rect(self.screen, sp_c, self.pill_speed_r, width=2 if self.speed_multiplier > 1 else 1, border_radius=17)
-        sp_txt = self.font_hud.render(f"⚡ Vel: {self.speed_multiplier}x", True, (255, 180, 50) if self.speed_multiplier > 1 else (200, 210, 225))
-        self.screen.blit(sp_txt, sp_txt.get_rect(center=self.pill_speed_r.center))
+        draw_icon_lightning(self.screen, (self.pill_speed_r.x + 20, self.pill_speed_r.centery), (255, 210, 60), size=13)
+        sp_txt = self.font_hud.render(f"Vel: {self.speed_multiplier}x", True, (255, 180, 50) if self.speed_multiplier > 1 else (200, 210, 225))
+        self.screen.blit(sp_txt, (self.pill_speed_r.x + 34, self.pill_speed_r.centery - sp_txt.get_height() // 2))
 
         # Mode Pill (Clickable)
         self.pill_mode_r = pygame.Rect(self.width - 150, 14, 130, 34)
@@ -423,9 +430,13 @@ class HaxBallApp:
         m_c = (60, 179, 113) if is_self_play else (58, 142, 230)
         pygame.draw.rect(self.screen, (36, 46, 56), self.pill_mode_r, border_radius=17)
         pygame.draw.rect(self.screen, m_c, self.pill_mode_r, width=2, border_radius=17)
-        m_label = "🤖 Self-Play" if is_self_play else "👤 Humano"
+        if is_self_play:
+            draw_icon_robot(self.screen, (self.pill_mode_r.x + 18, self.pill_mode_r.centery), m_c, size=12)
+        else:
+            draw_icon_user(self.screen, (self.pill_mode_r.x + 18, self.pill_mode_r.centery), m_c, size=12)
+        m_label = "Self-Play" if is_self_play else "Humano"
         m_txt = self.font_hud.render(m_label, True, m_c)
-        self.screen.blit(m_txt, m_txt.get_rect(center=self.pill_mode_r.center))
+        self.screen.blit(m_txt, (self.pill_mode_r.x + 32, self.pill_mode_r.centery - m_txt.get_height() // 2))
 
     def _draw_self_play_banner(self):
         stats = self.self_play_trainer.last_stats
@@ -436,16 +447,16 @@ class HaxBallApp:
 
         # Cognitive phase identification
         if steps < 5000:
-            phase_name = "FASE 1: Exploração Burra (Aleatório)"
+            phase_name = "FASE 1: Exploracao Burra (Aleatorio)"
             phase_color = (220, 80, 80)
         elif steps < 25000:
-            phase_name = "FASE 2: Perseguição de Bola"
+            phase_name = "FASE 2: Perseguicao da Bola"
             phase_color = (235, 150, 40)
         elif steps < 70000:
-            phase_name = "FASE 3: Alinhamento ao Gol & Espaçamento"
+            phase_name = "FASE 3: Alinhamento ao Gol e Espacamento"
             phase_color = (220, 200, 50)
         else:
-            phase_name = "FASE 4: Team-Play & Passes Coordenados"
+            phase_name = "FASE 4: Team-Play e Passes Coordenados"
             phase_color = (60, 210, 120)
 
         banner_w = 900
@@ -469,11 +480,12 @@ class HaxBallApp:
         self.screen.blit(met_surf, (banner_x + 290, banner_y + 8))
 
         # "Ficar Burro" Reset button
-        self.btn_dumb_r = pygame.Rect(banner_x + banner_w - 145, banner_y + 4, 135, 24)
+        self.btn_dumb_r = pygame.Rect(banner_x + banner_w - 150, banner_y + 4, 140, 24)
         pygame.draw.rect(self.screen, (60, 30, 35), self.btn_dumb_r, border_radius=5)
         pygame.draw.rect(self.screen, (200, 70, 70), self.btn_dumb_r, width=1, border_radius=5)
-        d_txt = self.font_telemetry.render("🔄 Ficar Burro (Reset)", True, (240, 130, 130))
-        self.screen.blit(d_txt, d_txt.get_rect(center=self.btn_dumb_r.center))
+        draw_icon_reset(self.screen, (self.btn_dumb_r.x + 14, self.btn_dumb_r.centery), (240, 130, 130), size=11)
+        d_txt = self.font_telemetry.render("Ficar Burro (Reset)", True, (240, 130, 130))
+        self.screen.blit(d_txt, (self.btn_dumb_r.x + 24, self.btn_dumb_r.centery - d_txt.get_height() // 2))
 
     def _draw_bottom_dock(self):
         dock_h = 58
@@ -483,51 +495,61 @@ class HaxBallApp:
 
         # 1. Play / Pause
         self.btn_pause_r = pygame.Rect(15, dock_y + 10, 110, 38)
-        p_txt = "▶ Play" if self.is_paused else "⏸ Pausar"
-        self._draw_btn(self.btn_pause_r, p_txt, (58, 142, 230))
+        p_txt = "Play" if self.is_paused else "Pausar"
+        p_icon = "play" if self.is_paused else "pause"
+        self._draw_btn(self.btn_pause_r, p_txt, (58, 142, 230), icon=p_icon)
 
         # 2. Reset match
         self.btn_reset_r = pygame.Rect(132, dock_y + 10, 95, 38)
-        self._draw_btn(self.btn_reset_r, "🔄 Reset", (45, 55, 68))
+        self._draw_btn(self.btn_reset_r, "Reset", (45, 55, 68), icon="reset")
 
         # 3. Choose Stadium
         self.btn_stadium_r = pygame.Rect(234, dock_y + 10, 135, 38)
-        self._draw_btn(self.btn_stadium_r, "🗺 Estádio", (45, 55, 68))
+        self._draw_btn(self.btn_stadium_r, "Estadios", (45, 55, 68), icon="stadium")
 
         # 4. Format 1v1 / 2v2 / 3v3 / 5v5
         self.btn_format_r = pygame.Rect(376, dock_y + 10, 130, 38)
-        self._draw_btn(self.btn_format_r, f"👥 {self.team_format}v{self.team_format}", (45, 55, 68))
+        self._draw_btn(self.btn_format_r, f"Formato {self.team_format}v{self.team_format}", (45, 55, 68), icon="user")
 
         # 5. Speed Multiplier (Cycle 1x -> 100x)
         self.btn_dock_speed_r = pygame.Rect(513, dock_y + 10, 130, 38)
         sp_c = (210, 120, 30) if self.speed_multiplier > 1 else (45, 55, 68)
-        self._draw_btn(self.btn_dock_speed_r, f"⚡ {self.speed_multiplier}x Acelerar", sp_c)
+        self._draw_btn(self.btn_dock_speed_r, f"Vel: {self.speed_multiplier}x", sp_c, icon="lightning")
 
         # 6. Mode Toggle (Self-Play vs Human)
         self.btn_dock_mode_r = pygame.Rect(650, dock_y + 10, 150, 38)
         is_sp = (self.play_mode == "self_play")
-        m_txt = "🤖 Self-Play IA" if is_sp else "👤 Jogo Humano"
+        m_txt = "Self-Play IA" if is_sp else "Jogo Humano"
         m_bg = (50, 140, 90) if is_sp else (58, 142, 230)
-        self._draw_btn(self.btn_dock_mode_r, m_txt, m_bg)
+        m_icon = "robot" if is_sp else "user"
+        self._draw_btn(self.btn_dock_mode_r, m_txt, m_bg, icon=m_icon)
 
         # 7. RL Training Center Modal
         self.btn_rl_r = pygame.Rect(807, dock_y + 10, 150, 38)
         rl_c = (60, 179, 113) if not self.training_active else (220, 70, 70)
-        rl_t = "🧠 Central RL" if not self.training_active else "⚡ Treinando RL..."
-        self._draw_btn(self.btn_rl_r, rl_t, rl_c)
+        rl_t = "Central RL" if not self.training_active else "Treinando..."
+        self._draw_btn(self.btn_rl_r, rl_t, rl_c, icon="brain")
 
         # 8. Help / Controls
         self.btn_help_r = pygame.Rect(self.width - 120, dock_y + 10, 105, 38)
-        self._draw_btn(self.btn_help_r, "❓ Teclas", (45, 55, 68))
+        self._draw_btn(self.btn_help_r, "Teclas", (45, 55, 68), icon="help")
 
-    def _draw_btn(self, rect: pygame.Rect, text: str, bg_color: Tuple[int, int, int]):
+    def _draw_btn(self, rect: pygame.Rect, text: str, bg_color: Tuple[int, int, int], icon: Optional[str] = None):
         mouse_pos = pygame.mouse.get_pos()
         hover = rect.collidepoint(mouse_pos)
         c = (min(255, bg_color[0] + 25), min(255, bg_color[1] + 25), min(255, bg_color[2] + 25)) if hover else bg_color
         pygame.draw.rect(self.screen, c, rect, border_radius=6)
         pygame.draw.rect(self.screen, (55, 68, 85), rect, width=1, border_radius=6)
+
         txt = self.font_bold.render(text, True, (240, 245, 250))
-        self.screen.blit(txt, txt.get_rect(center=rect.center))
+        if icon and icon in ICON_DISPATCH:
+            total_w = 14 + 8 + txt.get_width()
+            start_x = rect.centerx - total_w // 2
+            icon_center = (start_x + 7, rect.centery)
+            ICON_DISPATCH[icon](self.screen, icon_center, (240, 245, 250), size=12)
+            self.screen.blit(txt, (start_x + 18, rect.centery - txt.get_height() // 2))
+        else:
+            self.screen.blit(txt, txt.get_rect(center=rect.center))
 
     def _draw_stadium_modal(self):
         dim = pygame.Surface((self.width, self.height), pygame.SRCALPHA)

@@ -58,5 +58,27 @@ python -m unittest tests/test_haxball.py
 ## 📚 Documentação do Projeto
 
 - [**context.md**](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/context.md): Estudo aprofundado do HaxBall, física 2D detalhada, análise dos mapas oficiais 7899 e 9362, estratégias do meta competitivo e arquitetura de integração online.
-- [**agents.md**](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/agents.md): Comparação teórica e empírica entre **PPO** e **RL Padrão (DQN)**, especificação do espaço contínuo desacoplado (61 variáveis), rede com Auto-Atenção e zoo de baselines.
-- [**todo.md**](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/todo.md): Roteiro de desenvolvimento com todas as etapas concluídas e próximos passos para ligas de auto-confronto e deploy online.
+- [**agents.md**](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/agents.md): Especificação dos agentes, observação de 61 dimensões, estudo comparativo rigoroso PPO vs. DQN, dinâmica de Team-Play e especificação completa de recompensas.
+- [**todo.md**](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/todo.md): Roadmap e marcos de desenvolvimento do projeto.
+
+---
+
+## 📓 Esquema de Jupyter Notebooks (`notebooks/`)
+
+O repositório inclui 4 notebooks didáticos, analíticos e executáveis:
+
+1. **[`01_haxball_physics_and_arenas.ipynb`](notebooks/01_haxball_physics_and_arenas.ipynb):**
+   - Comparativo visual de mapas (.hbs): Futsal 2v2, Futsal 3v3 GLH (7899), Futsal 5v5 GLH (9362) e Micro 1v1.
+   - Simulação de trajetória e demonstração da lei de reflexão elástica em paredes (*tabelas* com $bCoef = 1.25$).
+   - Condução inelástica de futsal ($bCoef = 0.0$) e *kick rate-limit*.
+2. **[`02_decoupled_observations_and_attention.ipynb`](notebooks/02_decoupled_observations_and_attention.ipynb):**
+   - Espaço contínuo de 61 dimensões normalizado pelas semi-dimensões $(W, H)$ e diagonal $D$.
+   - Verificação empírica de invariância para 1v1, 2v2, 3v3 e 5v5 com slots mascarados.
+   - Rede neural `EntityAttentionPolicy` e mapas de calor de auto-atenção (*Attention Heatmaps*).
+3. **[`03_ppo_vs_dqn_comparative_benchmark.ipynb`](notebooks/03_ppo_vs_dqn_comparative_benchmark.ipynb):**
+   - Benchmark comparativo lado a lado: PPO (Ator-Crítico Contínuo) vs DQN (Value-Based Discreto de 18 ações).
+   - Curvas de Recompensa Média, Taxa de Vitórias, Função de Perda (*Loss*) e estabilidade de treinamento.
+4. **[`04_multiagent_2v2_teamplay_and_selfplay.ipynb`](notebooks/04_multiagent_2v2_teamplay_and_selfplay.ipynb):**
+   - Aprendizado Multiagente (MARL) e o dilema do "Futebol de Recreio".
+   - Modelagem de recompensas com `TeamPlayRewardEngine` (passes, assistências, penalidade de *spacing* e âncora).
+   - Treino 2v2 recursivo (*Self-Play*) com Parameter Sharing e transição pelas 4 Fases Cognitivas.
