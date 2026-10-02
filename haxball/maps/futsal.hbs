@@ -1,0 +1,96 @@
+{
+  "name": "Futsal Fast Court",
+  "width": 450,
+  "height": 220,
+  "spawnDistance": 170,
+  "bg": {
+    "type": "hockey",
+    "width": 380,
+    "height": 180,
+    "kickOffRadius": 60,
+    "cornerRadius": 0,
+    "color": "C49458"
+  },
+  "playerPhysics": {
+    "radius": 15,
+    "bCoef": 0.5,
+    "invMass": 0.5,
+    "damping": 0.96,
+    "acceleration": 0.11,
+    "kickingAcceleration": 0.08,
+    "kickingDamping": 0.96,
+    "kickStrength": 5.4,
+    "kickMargin": 4.0,
+    "kickBack": 0.0
+  },
+  "ballPhysics": {
+    "radius": 7,
+    "bCoef": 0.4,
+    "invMass": 1.35,
+    "damping": 0.988,
+    "color": "FFD700",
+    "cMask": ["all"],
+    "cGroup": ["ball"]
+  },
+  "traits": {
+    "courtWall": { "vis": true, "bCoef": 1.0, "cMask": ["all"], "cGroup": ["wall"], "color": "FFFFFF" },
+    "goalNet": { "vis": true, "bCoef": 0.1, "cMask": ["ball"], "cGroup": ["wall"], "color": "E5E5E5" },
+    "goalPost": { "radius": 7, "invMass": 0, "bCoef": 0.5, "color": "FFFFFF", "cMask": ["all"], "cGroup": ["wall"] }
+  },
+  "vertexes": [
+    // Main court perimeter
+    { "x": -380, "y": 180, "trait": "courtWall" },
+    { "x": 380, "y": 180, "trait": "courtWall" },
+    { "x": 380, "y": -180, "trait": "courtWall" },
+    { "x": -380, "y": -180, "trait": "courtWall" },
+
+    // Left Goal entrance
+    { "x": -380, "y": 60, "trait": "courtWall" },
+    { "x": -380, "y": -60, "trait": "courtWall" },
+    // Left Goal back
+    { "x": -430, "y": 60, "trait": "goalNet" },
+    { "x": -430, "y": -60, "trait": "goalNet" },
+
+    // Right Goal entrance
+    { "x": 380, "y": 60, "trait": "courtWall" },
+    { "x": 380, "y": -60, "trait": "courtWall" },
+    // Right Goal back
+    { "x": 430, "y": 60, "trait": "goalNet" },
+    { "x": 430, "y": -60, "trait": "goalNet" }
+  ],
+  "segments": [
+    // Top and Bottom boundary walls (Perfect for tabelas / wall passes)
+    { "v0": 0, "v1": 1, "trait": "courtWall" },
+    { "v0": 2, "v1": 3, "trait": "courtWall" },
+
+    // Left wall sections
+    { "v0": 3, "v1": 5, "trait": "courtWall" },
+    { "v0": 4, "v1": 0, "trait": "courtWall" },
+
+    // Left goal net
+    { "v0": 4, "v1": 6, "trait": "goalNet" },
+    { "v0": 6, "v1": 7, "trait": "goalNet" },
+    { "v0": 7, "v1": 5, "trait": "goalNet" },
+
+    // Right wall sections
+    { "v0": 1, "v1": 8, "trait": "courtWall" },
+    { "v0": 9, "v1": 2, "trait": "courtWall" },
+
+    // Right goal net
+    { "v0": 8, "v1": 10, "trait": "goalNet" },
+    { "v0": 10, "v1": 11, "trait": "goalNet" },
+    { "v0": 11, "v1": 9, "trait": "goalNet" }
+  ],
+  "goals": [
+    { "p0": [-380, 60], "p1": [-380, -60], "team": "red" },
+    { "p0": [380, 60], "p1": [380, -60], "team": "blue" }
+  ],
+  "discs": [
+    // Left Goal Posts
+    { "pos": [-380, 60], "trait": "goalPost" },
+    { "pos": [-380, -60], "trait": "goalPost" },
+    // Right Goal Posts
+    { "pos": [380, 60], "trait": "goalPost" },
+    { "pos": [380, -60], "trait": "goalPost" }
+  ]
+}
