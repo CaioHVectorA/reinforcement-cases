@@ -128,5 +128,49 @@ class TestPhysicsAndKicking(unittest.TestCase):
         self.assertEqual(step_info["scoring_team"], Team.RED)
         self.assertEqual(game.red_score, initial_score + 1)
 
+class TestTeamPlayAndSelfPlay(unittest.TestCase):
+    def test_expanded_maps_load(self):
+        maps_to_test = ["futsal_2v2.hbs", "micro_1v1.hbs", "big_stadium.hbs", "small_classic.hbs"]
+        for m in maps_to_test:
+            path = os.path.join(MAP_DIR, m)
+            stad = Stadium.load_from_file(path)
+            self.assertGreater(stad.width, 0)
+            self.assertGreater(stad.height, 0)
+            self.assertEqual(len(stad.goals), 2)
+
+    def test_team_play_reward_engine(self):
+        from haxball.rl.rewards.reward_engine import TeamPlayRewardEngine
+        stad = Stadium.load_from_file(os.path.join(MAP_DIR, "futsal_2v2.hbs"))
+        game = HaxBallGame(stadium=stad, red_players_count=2, blue_players_count=2)
+        engine = TeamPlayRewardEngine()
+        engine.reset(game)
+
+        # Place 2 red players very close to trigger anti-clustering spacing penalty
+        p1, p2 = [p for p in game.players if p.team == Team.RED]
+        p1.pos = Vec2(-50.0, 0.0)
+        p2.pos = Vec2(-40.0, 0.0)  # Dist = 10 px (< 75 px threshold)
+        game.ball.pos = Vec2(0.0, 0.0)
+
+        step_info = game.step({})
+        rewards = engine.compute_team_rewards(game, step_info)
+        # Should have crowding penalty
+        self.assertIn(p1.player_id, rewards)
+        self.assertIn(p2.player_id, rewards)
+
+    def test_self_play_trainer_steps_and_reset(self):
+        from haxball.rl.algorithms.self_play.self_play_trainer import SelfPlay2v2Trainer
+        stad = Stadium.load_from_file(os.path.join(MAP_DIR, "futsal_2v2.hbs"))
+        game = HaxBallGame(stadium=stad, red_players_count=2, blue_players_count=2)
+        trainer = SelfPlay2v2Trainer(game=game, rollout_steps=32)
+
+        # Multi-step acceleration test
+        stats = trainer.step_multistep(10)
+        self.assertEqual(stats["total_steps"], 10)
+
+        # Reset to dumb
+        trainer.reset_policy_to_random()
+        self.assertEqual(trainer.total_env_steps, 0)
+        self.assertEqual(trainer.last_stats["total_steps"], 0)
+
 if __name__ == "__main__":
     unittest.main()

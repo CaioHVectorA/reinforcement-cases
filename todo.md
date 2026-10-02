@@ -14,8 +14,11 @@ Este documento organiza as etapas concluídas e o plano de evolução do projeto
 - [x] **Fase 6: Interface Gráfica Completa (GUI Control Center) com Visual HaxBall**
 - [x] **Fase 7: Controle Híbrido (WASD + Setas do Teclado) e Modos de Jogo**
 - [x] **Fase 8: Ponte de Integração para Salas Online (HaxBall Headless Host API)**
-- [ ] **Fase 9: Treinamento em Larga Escala e Liga de Auto-Confronto (*Self-Play League*)**
-- [ ] **Fase 10: Avaliação Humana e Clonagem Comportamental com Replays (`.hbr2`)**
+- [x] **Fase 9: Treino Recursivo 2x2 (Self-Play Ao Vivo) com Aceleração de até 100x**
+- [x] **Fase 10: Modelagem de "Team Play" (Anti-Clustering, Passes, Cobertura e Assists)**
+- [x] **Fase 11: Catálogo Expandido de Estádios (Futsal 2v2, Micro 1v1, Big Stadium, Small Classic)**
+- [ ] **Fase 12: Liga de Auto-Confronto (*Self-Play League*) com Elo Rating**
+- [ ] **Fase 13: Clonagem Comportamental com Replays Oficiais (`.hbr2`)**
 
 ---
 

@@ -1,0 +1,83 @@
+{
+  "name": "Futsal 2v2 Arena",
+  "width": 530,
+  "height": 235,
+  "spawnDistance": 220,
+  "bg": {
+    "type": "hockey",
+    "width": 450,
+    "height": 200,
+    "kickOffRadius": 65,
+    "cornerRadius": 0,
+    "color": "556877"
+  },
+  "playerPhysics": {
+    "radius": 15,
+    "bCoef": 0.0,
+    "invMass": 0.5,
+    "damping": 0.96,
+    "acceleration": 0.11,
+    "kickingAcceleration": 0.08,
+    "kickingDamping": 0.96,
+    "kickStrength": 5.5,
+    "kickMargin": 4.0,
+    "kickBack": 0.0
+  },
+  "ballPhysics": {
+    "radius": 6.5,
+    "bCoef": 0.5,
+    "invMass": 1.45,
+    "damping": 0.99,
+    "color": "FFFFFF",
+    "cMask": ["all"],
+    "cGroup": ["ball"]
+  },
+  "traits": {
+    "ballArea": { "vis": false, "bCoef": 1.0, "cMask": ["ball"], "cGroup": ["wall"] },
+    "futsalWall": { "vis": true, "bCoef": 1.25, "cMask": ["all"], "cGroup": ["wall"], "color": "FFFFFF" },
+    "goalNet": { "vis": true, "bCoef": 0.1, "cMask": ["ball"], "cGroup": ["wall"], "color": "CCCCCC" },
+    "goalPost": { "radius": 7, "invMass": 0, "bCoef": 0.5, "color": "FFFFFF", "cMask": ["all"], "cGroup": ["wall"] }
+  },
+  "vertexes": [
+    { "x": -450, "y": 200, "trait": "futsalWall" },
+    { "x": 450, "y": 200, "trait": "futsalWall" },
+    { "x": 450, "y": -200, "trait": "futsalWall" },
+    { "x": -450, "y": -200, "trait": "futsalWall" },
+
+    { "x": -450, "y": 70, "trait": "futsalWall" },
+    { "x": -450, "y": -70, "trait": "futsalWall" },
+    { "x": -490, "y": 70, "trait": "goalNet" },
+    { "x": -490, "y": -70, "trait": "goalNet" },
+
+    { "x": 450, "y": 70, "trait": "futsalWall" },
+    { "x": 450, "y": -70, "trait": "futsalWall" },
+    { "x": 490, "y": 70, "trait": "goalNet" },
+    { "x": 490, "y": -70, "trait": "goalNet" }
+  ],
+  "segments": [
+    { "v0": 0, "v1": 1, "trait": "futsalWall" },
+    { "v0": 2, "v1": 3, "trait": "futsalWall" },
+
+    { "v0": 3, "v1": 5, "trait": "futsalWall" },
+    { "v0": 4, "v1": 0, "trait": "futsalWall" },
+    { "v0": 5, "v1": 7, "trait": "goalNet" },
+    { "v0": 7, "v1": 6, "trait": "goalNet" },
+    { "v0": 6, "v1": 4, "trait": "goalNet" },
+
+    { "v0": 1, "v1": 8, "trait": "futsalWall" },
+    { "v0": 9, "v1": 2, "trait": "futsalWall" },
+    { "v0": 8, "v1": 10, "trait": "goalNet" },
+    { "v0": 10, "v1": 11, "trait": "goalNet" },
+    { "v0": 11, "v1": 9, "trait": "goalNet" }
+  ],
+  "discs": [
+    { "pos": [-450, 70], "trait": "goalPost" },
+    { "pos": [-450, -70], "trait": "goalPost" },
+    { "pos": [450, 70], "trait": "goalPost" },
+    { "pos": [450, -70], "trait": "goalPost" }
+  ],
+  "goals": [
+    { "p0": [-452, -70], "p1": [-452, 70], "team": "red" },
+    { "p0": [452, 70], "p1": [452, -70], "team": "blue" }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Small Classic",
+  "width": 460,
+  "height": 220,
+  "spawnDistance": 180,
+  "bg": {
+    "type": "grass",
+    "width": 360,
+    "height": 180,
+    "kickOffRadius": 60,
+    "cornerRadius": 0,
+    "color": "6E8B56"
+  },
+  "playerPhysics": {
+    "radius": 15,
+    "bCoef": 0.5,
+    "invMass": 0.5,
+    "damping": 0.96,
+    "acceleration": 0.1,
+    "kickingAcceleration": 0.07,
+    "kickingDamping": 0.96,
+    "kickStrength": 5.0,
+    "kickMargin": 4.0,
+    "kickBack": 0.0
+  },
+  "ballPhysics": {
+    "radius": 8.5,
+    "bCoef": 0.5,
+    "invMass": 1.1,
+    "damping": 0.99,
+    "color": "FFFFFF",
+    "cMask": ["all"],
+    "cGroup": ["ball"]
+  },
+  "traits": {
+    "ballArea": { "vis": false, "bCoef": 1.0, "cMask": ["ball"], "cGroup": ["wall"] },
+    "goalPost": { "radius": 7, "invMass": 0, "bCoef": 0.5, "color": "FFFFFF", "cMask": ["all"], "cGroup": ["wall"] },
+    "goalNet": { "vis": true, "bCoef": 0.1, "cMask": ["ball"], "cGroup": ["wall"], "color": "FFFFFF" },
+    "pitchBorder": { "vis": true, "bCoef": 1.0, "cMask": ["all"], "cGroup": ["wall"], "color": "C7E59B" }
+  },
+  "vertexes": [
+    { "x": -360, "y": 180, "trait": "pitchBorder" },
+    { "x": 360, "y": 180, "trait": "pitchBorder" },
+    { "x": 360, "y": -180, "trait": "pitchBorder" },
+    { "x": -360, "y": -180, "trait": "pitchBorder" },
+
+    { "x": -360, "y": 55, "trait": "pitchBorder" },
+    { "x": -360, "y": -55, "trait": "pitchBorder" },
+    { "x": -400, "y": 55, "trait": "goalNet" },
+    { "x": -400, "y": -55, "trait": "goalNet" },
+
+    { "x": 360, "y": 55, "trait": "pitchBorder" },
+    { "x": 360, "y": -55, "trait": "pitchBorder" },
+    { "x": 400, "y": 55, "trait": "goalNet" },
+    { "x": 400, "y": -55, "trait": "goalNet" }
+  ],
+  "segments": [
+    { "v0": 0, "v1": 1, "trait": "pitchBorder" },
+    { "v0": 2, "v1": 3, "trait": "pitchBorder" },
+
+    { "v0": 3, "v1": 5, "trait": "pitchBorder" },
+    { "v0": 4, "v1": 0, "trait": "pitchBorder" },
+    { "v0": 5, "v1": 7, "trait": "goalNet" },
+    { "v0": 7, "v1": 6, "trait": "goalNet" },
+    { "v0": 6, "v1": 4, "trait": "goalNet" },
+
+    { "v0": 1, "v1": 8, "trait": "pitchBorder" },
+    { "v0": 9, "v1": 2, "trait": "pitchBorder" },
+    { "v0": 8, "v1": 10, "trait": "goalNet" },
+    { "v0": 10, "v1": 11, "trait": "goalNet" },
+    { "v0": 11, "v1": 9, "trait": "goalNet" }
+  ],
+  "discs": [
+    { "pos": [-360, 55], "trait": "goalPost" },
+    { "pos": [-360, -55], "trait": "goalPost" },
+    { "pos": [360, 55], "trait": "goalPost" },
+    { "pos": [360, -55], "trait": "goalPost" }
+  ],
+  "goals": [
+    { "p0": [-362, -55], "p1": [-362, 55], "team": "red" },
+    { "p0": [362, 55], "p1": [362, -55], "team": "blue" }
+  ]
+}
