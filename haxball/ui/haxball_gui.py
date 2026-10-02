@@ -6,6 +6,7 @@ Faithful to original HaxBall game look-and-feel:
 - Cognitive progression phases: from "burro" (random actions) to ball seeking,
   spacing, pass completion, and defensive covering.
 - "Ficar Burro (Reset)" button to reset policy weights back to zero on the fly.
+- Pre-trained checkpoints loader dashboard (.pt model selection & management).
 - Expanded official map catalog: 2v2 Futsal, 3v3 Futsal (7899), 5v5 Futsal (9362),
   Micro 1v1, Big Stadium, Small Classic, Classic, and Dodgeball.
 - Full hybrid controls: WASD or Arrow Keys + Space/X/C/Shift.
@@ -14,10 +15,12 @@ Faithful to original HaxBall game look-and-feel:
 from __future__ import annotations
 import os
 import sys
+import time
 import math
 import threading
 import pygame
 from typing import Dict, Tuple, Optional, Any, List
+import torch
 
 from haxball.core.vector import Vec2
 from haxball.core.constants import Team, GameState, FPS
@@ -25,7 +28,6 @@ from haxball.core.disc import hex_to_rgb
 from haxball.core.stadium import Stadium
 from haxball.core.game import HaxBallGame
 from haxball.bots import HeuristicBot, WallReboundBot, GoalieBot, RLBot, BaseBot
-
 from haxball.gym_env.haxball_env import HaxBallEnv
 from haxball.rl.algorithms.ppo.ppo_trainer import PPOTrainer
 from haxball.rl.algorithms.standard_rl.dqn_trainer import DQNTrainer
@@ -92,13 +94,20 @@ STADIUM_CATALOG = {
 SPEED_LEVELS = [1, 2, 5, 10, 25, 50, 100]
 
 class HaxBallApp:
-    def __init__(self, width: int = 1280, height: int = 768, mode: str = "self_play", model_path: Optional[str] = None, bot_key: str = "wall"):
+    def __init__(
+        self,
+        width: int = 1280,
+        height: int = 768,
+        mode: str = "self_play",
+        model_path: Optional[str] = None,
+        bot_key: str = "rl"
+    ):
         pygame.init()
         pygame.font.init()
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("HaxBall - Official Futsal Suite & Recursive Self-Play Training")
+        pygame.display.set_caption("HaxBall RL Studio - End-to-End Control Center & Battle Arena")
 
         self.clock = pygame.time.Clock()
         self.running = True
@@ -117,11 +126,18 @@ class HaxBallApp:
         self.font_title = pygame.font.SysFont("Verdana", 18, bold=True)
         self.font_player = pygame.font.SysFont("Verdana", 11, bold=True)
         self.font_telemetry = pygame.font.SysFont("Verdana", 11, bold=True)
+        self.font_small = pygame.font.SysFont("Arial", 11)
 
         # Modals
         self.show_stadium_modal = False
         self.show_rl_modal = False
         self.show_help_modal = False
+        self.rl_modal_tab = "models"  # "models", "training", "bots"
+
+        # Checkpoints & Model State
+        self.active_checkpoint_name = "Nenhum"
+        self.checkpoint_feedback = ""
+        self.feedback_time = 0.0
 
         # Current Stadium & Match
         self.current_stadium_key = "futsal_2v2"
@@ -129,16 +145,26 @@ class HaxBallApp:
         self.self_play_trainer: Optional[SelfPlay2v2Trainer] = None
         self._init_game(self.current_stadium_key, self.team_format)
 
-        # Bots
-        self.model_path = model_path
+        # Auto-detect initial model path
+        default_model = model_path
+        if default_model is None:
+            for candidate in ["checkpoints/fase5_pro_master_1M.pt", "checkpoints/meu_haxball_bot.pt"]:
+                if os.path.exists(candidate):
+                    default_model = candidate
+                    break
+
+        # Bots Catalog
+        self.model_path = default_model
         self.bot_catalog = {
+            "rl": RLBot(model_path=default_model, name="RL Bot (Trained)"),
             "wall": WallReboundBot("WallReboundBot"),
             "heuristic": HeuristicBot("HeuristicBot"),
-            "goalie": GoalieBot("GoalieBot"),
-            "rl": RLBot(model_path=model_path, name="RL Bot (Trained)")
+            "goalie": GoalieBot("GoalieBot")
         }
-        self.active_bot_key = bot_key if (model_path is None or bot_key != "wall") else ("rl" if model_path else "wall")
+        self.active_bot_key = bot_key if bot_key in self.bot_catalog else "rl"
 
+        if default_model and os.path.exists(default_model):
+            self.load_checkpoint(default_model)
 
         # Background RL Trainer
         self.training_thread: Optional[threading.Thread] = None
@@ -166,7 +192,6 @@ class HaxBallApp:
         old_policy = self.self_play_trainer.policy if self.self_play_trainer else None
         self.self_play_trainer = SelfPlay2v2Trainer(game=self.game, rollout_steps=256)
         if old_policy is not None:
-            # Preserve learned weights across stadium or format changes!
             try:
                 self.self_play_trainer.policy.load_state_dict(old_policy.state_dict())
             except Exception:
@@ -175,7 +200,6 @@ class HaxBallApp:
         self._calc_camera()
 
     def _calc_camera(self):
-        # Calculate pitch scale and center
         top_offset = 64
         bottom_bar_h = 60
         avail_w = self.width - 60
@@ -197,12 +221,88 @@ class HaxBallApp:
     def world_len_to_screen(self, length: float) -> int:
         return max(1, int(round(length * self.scale)))
 
+    def get_available_checkpoints(self) -> List[Dict[str, Any]]:
+        cp_dir = "checkpoints"
+        if not os.path.exists(cp_dir):
+            return []
+        files = [f for f in os.listdir(cp_dir) if f.endswith(".pt")]
+
+        tier_info = {
+            "fase1_iniciante_25k.pt": {"title": "Fase 1: Iniciante (25k)", "desc": "Reflexos básicos de perseguição da bola", "badge": "25k", "color": (235, 150, 40)},
+            "fase2_amador_70k.pt": {"title": "Fase 2: Amador (70k)", "desc": "Alinhamento ao gol e chutes direcionados", "badge": "70k", "color": (220, 200, 50)},
+            "fase3_intermediario_200k.pt": {"title": "Fase 3: Intermediário (200k)", "desc": "Cobertura de trave e finalizações perigosas", "badge": "200k", "color": (58, 142, 230)},
+            "fase4_veterano_500k.pt": {"title": "Fase 4: Veterano (500k)", "desc": "Passes intencionais, desarmes e tabelas", "badge": "500k", "color": (155, 100, 230)},
+            "fase5_pro_master_1M.pt": {"title": "Fase 5: Pro Master (1M)", "desc": "Inteligência máxima com antecipação", "badge": "1M ★", "color": (60, 210, 120)},
+            "meu_haxball_bot.pt": {"title": "Modelo Atual Recente", "desc": "Último checkpoint salvo do auto-confronto", "badge": "Recente", "color": (80, 190, 160)},
+        }
+
+        results = []
+        ordered_keys = ["fase1_iniciante_25k.pt", "fase2_amador_70k.pt", "fase3_intermediario_200k.pt", "fase4_veterano_500k.pt", "fase5_pro_master_1M.pt", "meu_haxball_bot.pt"]
+
+        for k in ordered_keys:
+            if k in files:
+                info = tier_info[k]
+                full_p = os.path.join(cp_dir, k)
+                results.append({
+                    "filename": k,
+                    "title": info["title"],
+                    "desc": info["desc"],
+                    "badge": info["badge"],
+                    "color": info["color"],
+                    "size_kb": int(os.path.getsize(full_p) / 1024)
+                })
+
+        for f in sorted(files):
+            if f not in ordered_keys:
+                full_p = os.path.join(cp_dir, f)
+                results.append({
+                    "filename": f,
+                    "title": f"Custom: {f}",
+                    "desc": "Modelo customizado salvo",
+                    "badge": "Custom",
+                    "color": (160, 170, 185),
+                    "size_kb": int(os.path.getsize(full_p) / 1024)
+                })
+
+        return results
+
+    def load_checkpoint(self, filename: str):
+        full_path = os.path.join("checkpoints", filename) if not os.path.isabs(filename) else filename
+        if os.path.exists(full_path):
+            state_dict = torch.load(full_path, map_location="cpu")
+            if "rl" in self.bot_catalog:
+                self.bot_catalog["rl"].policy.load_state_dict(state_dict)
+                self.bot_catalog["rl"].policy.eval()
+            if self.self_play_trainer:
+                self.self_play_trainer.policy.load_state_dict(state_dict)
+            self.active_checkpoint_name = os.path.basename(full_path)
+            self.active_bot_key = "rl"
+            self.checkpoint_feedback = f"Carregado: {self.active_checkpoint_name}"
+            self.feedback_time = time.time()
+            print(f"[GUI] Checkpoint carregado com sucesso: {self.active_checkpoint_name}")
+
+    def save_current_checkpoint(self, custom_name: Optional[str] = None):
+        os.makedirs("checkpoints", exist_ok=True)
+        if custom_name is None:
+            custom_name = f"treino_gui_{int(time.time())}.pt"
+        full_path = os.path.join("checkpoints", custom_name)
+        if self.self_play_trainer:
+            torch.save(self.self_play_trainer.policy.state_dict(), full_path)
+            self.active_checkpoint_name = custom_name
+            self.checkpoint_feedback = f"Salvo: {custom_name}"
+            self.feedback_time = time.time()
+            print(f"[GUI] Checkpoint salvo em: {full_path}")
+
+    def cycle_bot(self):
+        keys = list(self.bot_catalog.keys())
+        idx = keys.index(self.active_bot_key) if self.active_bot_key in keys else 0
+        self.active_bot_key = keys[(idx + 1) % len(keys)]
+
     def get_player_inputs(self) -> Dict[int, Tuple[float, float, bool]]:
         keys = pygame.key.get_pressed()
         mx = 0.0
         my = 0.0
 
-        # Move: WASD or Arrow keys!
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             mx -= 1.0
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -212,7 +312,6 @@ class HaxBallApp:
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             my -= 1.0
 
-        # Kick: Space, X, C, Shift
         kick = (
             keys[pygame.K_SPACE] or
             keys[pygame.K_x] or
@@ -223,7 +322,7 @@ class HaxBallApp:
 
         inputs: Dict[int, Tuple[float, float, bool]] = {}
 
-        # Red Team
+        # Red Team (Player 0 is Human)
         red_players = [p for p in self.game.players if p.team == Team.RED]
         for i, p in enumerate(red_players):
             if i == 0:
@@ -232,10 +331,10 @@ class HaxBallApp:
                 bot = self.bot_catalog["heuristic"]
                 inputs[p.player_id] = bot.act(self.game, p)
 
-        # Blue Team
+        # Blue Team (Opponent Bots)
         blue_players = [p for p in self.game.players if p.team == Team.BLUE]
         for i, p in enumerate(blue_players):
-            bot = self.bot_catalog[self.active_bot_key]
+            bot = self.bot_catalog.get(self.active_bot_key, self.bot_catalog["rl"])
             inputs[p.player_id] = bot.act(self.game, p)
 
         return inputs
@@ -245,36 +344,92 @@ class HaxBallApp:
             return
 
         if self.play_mode == "self_play":
-            # Live Multi-Agent Recursive Self-Play Training
             if self.self_play_trainer:
                 self.self_play_trainer.step_multistep(self.speed_multiplier)
         else:
-            # Human Play mode with speed multiplier
             for _ in range(self.speed_multiplier):
                 inputs = self.get_player_inputs()
                 self.game.step(inputs)
 
     def draw(self):
-        # Authentic HaxBall dark theme background
-        self.screen.fill((28, 36, 43))
+        self.screen.fill((26, 33, 42))
 
-        # 1. Pitch & Field markings
-        self._draw_pitch()
+        stad = self.game.stadium
+        p_top_left = self.world_to_screen(Vec2(-stad.width, stad.height))
+        p_bottom_right = self.world_to_screen(Vec2(stad.width, -stad.height))
+        pitch_rect = pygame.Rect(
+            p_top_left[0],
+            p_top_left[1],
+            p_bottom_right[0] - p_top_left[0],
+            p_bottom_right[1] - p_top_left[1]
+        )
 
-        # 2. Authentic Top Scoreboard
+        pitch_color = hex_to_rgb(stad.color) if hasattr(stad, 'color') and stad.color else (45, 60, 75)
+        pygame.draw.rect(self.screen, pitch_color, pitch_rect)
+        pygame.draw.rect(self.screen, (255, 255, 255), pitch_rect, width=2)
+
+        # Center line & circle
+        c_top = self.world_to_screen(Vec2(0, stad.height))
+        c_bottom = self.world_to_screen(Vec2(0, -stad.height))
+        pygame.draw.line(self.screen, (255, 255, 255), c_top, c_bottom, width=2)
+
+        c_center = self.world_to_screen(Vec2(0, 0))
+        c_radius = self.world_len_to_screen(60.0)
+        pygame.draw.circle(self.screen, (255, 255, 255), c_center, c_radius, width=2)
+        pygame.draw.circle(self.screen, (255, 255, 255), c_center, 4)
+
+        # Segments & Goals
+        for seg in stad.segments:
+            if not seg.vis:
+                continue
+            p0 = self.world_to_screen(seg.p0)
+            p1 = self.world_to_screen(seg.p1)
+            c = hex_to_rgb(seg.color) if seg.color else (255, 255, 255)
+            if seg.curve == 0.0:
+                pygame.draw.line(self.screen, c, p0, p1, width=2)
+            else:
+                self._draw_curved_segment(seg, c)
+
+        for goal in stad.goals:
+            p0 = self.world_to_screen(goal.p0)
+            p1 = self.world_to_screen(goal.p1)
+            g_c = (229, 110, 86) if goal.team == Team.RED else (86, 137, 229)
+            pygame.draw.line(self.screen, g_c, p0, p1, width=4)
+
+        # Discs & Ball
+        for disc in self.game.discs:
+            pos = self.world_to_screen(disc.pos)
+            rad = self.world_len_to_screen(disc.radius)
+            c = hex_to_rgb(disc.color) if disc.color else (255, 255, 255)
+            pygame.draw.circle(self.screen, c, pos, rad)
+            pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
+
+        # Players
+        for player in self.game.players:
+            pos = self.world_to_screen(player.pos)
+            rad = self.world_len_to_screen(player.radius)
+            c = (229, 110, 86) if player.team == Team.RED else (86, 137, 229)
+
+            if player.kick:
+                pygame.draw.circle(self.screen, (255, 255, 255), pos, rad + 3, width=2)
+
+            pygame.draw.circle(self.screen, c, pos, rad)
+            pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
+
+            num_str = str(player.player_id)
+            num_surf = self.font_player.render(num_str, True, (255, 255, 255))
+            self.screen.blit(num_surf, num_surf.get_rect(center=pos))
+
+        # Overlays
         self._draw_scoreboard()
-
-        # 3. HUD Overlays (Stadium pill, Mode, Speed)
         self._draw_hud_overlay()
 
-        # 4. Live Training Telemetry Banner (in self-play mode)
         if self.play_mode == "self_play" and self.self_play_trainer:
             self._draw_self_play_banner()
 
-        # 5. Bottom Dock
         self._draw_bottom_dock()
 
-        # 6. Modals (if active)
+        # Modals
         if self.show_stadium_modal:
             self._draw_stadium_modal()
         elif self.show_rl_modal:
@@ -284,98 +439,15 @@ class HaxBallApp:
 
         pygame.display.flip()
 
-    def _draw_pitch(self):
-        stad = self.game.stadium
-
-        # Pitch floor
-        bg_rgb = hex_to_rgb(stad.bg_color)
-        bg_w = self.world_len_to_screen(stad.bg_width * 2.0)
-        bg_h = self.world_len_to_screen(stad.bg_height * 2.0)
-
-        pitch_rect = pygame.Rect(
-            int(self.center_x - bg_w / 2.0),
-            int(self.center_y - bg_h / 2.0),
-            bg_w,
-            bg_h
-        )
-        pygame.draw.rect(self.screen, bg_rgb, pitch_rect)
-        pygame.draw.rect(self.screen, (245, 245, 245), pitch_rect, width=2)
-
-        # Center line and kickoff circle
-        c_top = (int(self.center_x), int(self.center_y - bg_h / 2.0))
-        c_bottom = (int(self.center_x), int(self.center_y + bg_h / 2.0))
-        pygame.draw.line(self.screen, (255, 255, 255, 200), c_top, c_bottom, width=2)
-
-        ko_rad = self.world_len_to_screen(stad.bg_kickoff_radius)
-        pygame.draw.circle(self.screen, (255, 255, 255), (int(self.center_x), int(self.center_y)), ko_rad, width=2)
-        pygame.draw.circle(self.screen, (255, 255, 255), (int(self.center_x), int(self.center_y)), 4)
-
-        # Stadium Segments (Walls & lines)
-        for seg in self.game.physics.segments:
-            if not seg.vis:
-                continue
-
-            color = seg.color_rgb
-            if seg.is_curved:
-                self._draw_curved_segment(seg, color)
-            else:
-                p0_s = self.world_to_screen(seg.p0)
-                p1_s = self.world_to_screen(seg.p1)
-                pygame.draw.line(self.screen, color, p0_s, p1_s, width=2)
-
-        # Goal posts (Static discs)
-        for d in self.game.physics.discs:
-            if d.is_static:
-                c_s = self.world_to_screen(d.pos)
-                r_s = self.world_len_to_screen(d.radius)
-                pygame.draw.circle(self.screen, d.color_rgb, c_s, r_s)
-                pygame.draw.circle(self.screen, (30, 30, 30), c_s, r_s, width=2)
-
-        # Ball
-        if self.game.ball:
-            b_s = self.world_to_screen(self.game.ball.pos)
-            b_r = self.world_len_to_screen(self.game.ball.radius)
-            pygame.draw.circle(self.screen, (15, 20, 25), (b_s[0] + 1, b_s[1] + 1), b_r)
-            pygame.draw.circle(self.screen, self.game.ball.color_rgb, b_s, b_r)
-            pygame.draw.circle(self.screen, (25, 25, 25), b_s, b_r, width=2)
-            pygame.draw.circle(self.screen, (60, 60, 60), b_s, max(1, b_r // 3))
-
-        # Players
-        for p in self.game.players:
-            p_s = self.world_to_screen(p.pos)
-            p_r = self.world_len_to_screen(p.radius)
-
-            # Kick flash outer glow
-            if p.kick_flash > 0:
-                pygame.draw.circle(self.screen, (255, 255, 255), p_s, p_r + 4, width=3)
-
-            # Body circle
-            pygame.draw.circle(self.screen, p.color_rgb, p_s, p_r)
-            pygame.draw.circle(self.screen, (25, 25, 25), p_s, p_r, width=2)
-            inner_r = max(1, p_r - 4)
-            pygame.draw.circle(self.screen, (255, 255, 255), p_s, inner_r, width=1)
-
-            # Player number
-            num_surf = self.font_player.render(str(p.player_number), True, (255, 255, 255))
-            self.screen.blit(num_surf, num_surf.get_rect(center=p_s))
-
-        # Goal celebration overlay
-        if self.game.state == GameState.GOAL_CELEBRATION:
-            team_str = "RED" if self.game.last_goal_team == Team.RED else "BLUE"
-            color = (229, 110, 86) if self.game.last_goal_team == Team.RED else (86, 137, 229)
-            txt = self.font_title.render(f"GOL! {team_str} MARCOU!", True, color)
-            box = txt.get_rect(center=(self.center_x, self.center_y - 45)).inflate(50, 20)
-            pygame.draw.rect(self.screen, (20, 24, 30), box, border_radius=8)
-            pygame.draw.rect(self.screen, color, box, width=2, border_radius=8)
-            self.screen.blit(txt, txt.get_rect(center=box.center))
-
     def _draw_curved_segment(self, seg, color):
-        steps = 14
+        center = seg.center
+        radius = seg.radius
+        if radius <= 0.0 or center is None:
+            return
+        start_a = seg.start_angle
+        span_a = seg.span_angle
+        steps = 16
         pts = []
-        center = seg.arc_center
-        start_a = seg.arc_start_angle
-        span_a = seg.arc_span_angle
-        radius = seg.arc_radius
         for i in range(steps + 1):
             t = i / steps
             ang = start_a + span_a * t
@@ -385,25 +457,21 @@ class HaxBallApp:
             pygame.draw.lines(self.screen, color, False, pts, width=2)
 
     def _draw_scoreboard(self):
-        # Authentic HaxBall Top Scoreboard
         sb_w = 260
         sb_h = 36
         sb_x = int(self.width / 2.0 - sb_w / 2.0)
         sb_y = 12
 
-        # Red score box
         red_box = pygame.Rect(sb_x, sb_y, 75, sb_h)
         pygame.draw.rect(self.screen, (229, 110, 86), red_box, border_top_left_radius=6, border_bottom_left_radius=6)
         r_txt = self.font_score.render(str(self.game.red_score), True, (255, 255, 255))
         self.screen.blit(r_txt, r_txt.get_rect(center=red_box.center))
 
-        # Time box
         time_box = pygame.Rect(sb_x + 75, sb_y, 110, sb_h)
         pygame.draw.rect(self.screen, (34, 43, 53), time_box)
         t_txt = self.font_time.render(self.game.time_string, True, (240, 240, 240))
         self.screen.blit(t_txt, t_txt.get_rect(center=time_box.center))
 
-        # Blue score box
         blue_box = pygame.Rect(sb_x + 185, sb_y, 75, sb_h)
         pygame.draw.rect(self.screen, (86, 137, 229), blue_box, border_top_right_radius=6, border_bottom_right_radius=6)
         b_txt = self.font_score.render(str(self.game.blue_score), True, (255, 255, 255))
@@ -412,14 +480,25 @@ class HaxBallApp:
     def _draw_hud_overlay(self):
         # Stadium pill on top-left
         stad_title = STADIUM_CATALOG[self.current_stadium_key]["title"]
-        self.pill_stad_r = pygame.Rect(20, 14, 250, 34)
+        self.pill_stad_r = pygame.Rect(20, 14, 230, 34)
         pygame.draw.rect(self.screen, (36, 46, 56), self.pill_stad_r, border_radius=17)
         pygame.draw.rect(self.screen, (55, 68, 85), self.pill_stad_r, width=1, border_radius=17)
         draw_icon_stadium(self.screen, (self.pill_stad_r.x + 18, self.pill_stad_r.centery), (100, 180, 255), size=12)
-        s_txt = self.font_hud.render(stad_title[:23], True, (220, 230, 240))
+        s_txt = self.font_hud.render(stad_title[:20], True, (220, 230, 240))
         self.screen.blit(s_txt, (self.pill_stad_r.x + 32, self.pill_stad_r.centery - s_txt.get_height() // 2))
 
-        # Speed Multiplier Pill (Clickable)
+        # Active Model Pill
+        self.pill_model_r = pygame.Rect(260, 14, 230, 34)
+        pygame.draw.rect(self.screen, (36, 46, 56), self.pill_model_r, border_radius=17)
+        pygame.draw.rect(self.screen, (60, 179, 113), self.pill_model_r, width=1, border_radius=17)
+        draw_icon_brain(self.screen, (self.pill_model_r.x + 18, self.pill_model_r.centery), (60, 210, 120), size=12)
+        m_name = self.active_checkpoint_name.replace(".pt", "")
+        if len(m_name) > 16:
+            m_name = m_name[:14] + ".."
+        m_txt = self.font_hud.render(f"IA: {m_name}", True, (60, 210, 120))
+        self.screen.blit(m_txt, (self.pill_model_r.x + 32, self.pill_model_r.centery - m_txt.get_height() // 2))
+
+        # Speed Multiplier Pill
         self.pill_speed_r = pygame.Rect(self.width - 290, 14, 130, 34)
         sp_c = (230, 140, 40) if self.speed_multiplier > 1 else (55, 68, 85)
         pygame.draw.rect(self.screen, (36, 46, 56), self.pill_speed_r, border_radius=17)
@@ -428,7 +507,7 @@ class HaxBallApp:
         sp_txt = self.font_hud.render(f"Vel: {self.speed_multiplier}x", True, (255, 180, 50) if self.speed_multiplier > 1 else (200, 210, 225))
         self.screen.blit(sp_txt, (self.pill_speed_r.x + 34, self.pill_speed_r.centery - sp_txt.get_height() // 2))
 
-        # Mode Pill (Clickable)
+        # Mode Pill
         self.pill_mode_r = pygame.Rect(self.width - 150, 14, 130, 34)
         is_self_play = (self.play_mode == "self_play")
         m_c = (60, 179, 113) if is_self_play else (58, 142, 230)
@@ -449,19 +528,21 @@ class HaxBallApp:
         rew = stats.get("mean_reward", 0.0)
         passes = stats.get("passes", 0)
 
-        # Cognitive phase identification
         if steps < 5000:
-            phase_name = "FASE 1: Exploracao Burra (Aleatorio)"
+            phase_name = "FASE 1: Exploracao Burra"
             phase_color = (220, 80, 80)
         elif steps < 25000:
             phase_name = "FASE 2: Perseguicao da Bola"
             phase_color = (235, 150, 40)
         elif steps < 70000:
-            phase_name = "FASE 3: Alinhamento ao Gol e Espacamento"
+            phase_name = "FASE 3: Alinhamento ao Gol"
             phase_color = (220, 200, 50)
-        else:
-            phase_name = "FASE 4: Team-Play e Passes Coordenados"
+        elif steps < 500000:
+            phase_name = "FASE 4: Team-Play e Passes"
             phase_color = (60, 210, 120)
+        else:
+            phase_name = "FASE 5: Pro Master Consolidado"
+            phase_color = (160, 120, 255)
 
         banner_w = 900
         banner_h = 32
@@ -472,23 +553,20 @@ class HaxBallApp:
         pygame.draw.rect(self.screen, (22, 28, 36), b_rect, border_radius=8)
         pygame.draw.rect(self.screen, (45, 58, 74), b_rect, width=1, border_radius=8)
 
-        # Phase badge
-        ph_rect = pygame.Rect(banner_x + 8, banner_y + 4, 270, 24)
+        ph_rect = pygame.Rect(banner_x + 8, banner_y + 4, 250, 24)
         pygame.draw.rect(self.screen, (34, 44, 56), ph_rect, border_radius=5)
         ph_txt = self.font_telemetry.render(phase_name, True, phase_color)
         self.screen.blit(ph_txt, ph_txt.get_rect(center=ph_rect.center))
 
-        # Metrics text
         met_str = f"Passos: {steps:,}  |  Iter: {iters}  |  Reward: {rew:+.2f}  |  Passes: {passes}"
         met_surf = self.font_telemetry.render(met_str, True, (210, 220, 235))
-        self.screen.blit(met_surf, (banner_x + 290, banner_y + 8))
+        self.screen.blit(met_surf, (banner_x + 270, banner_y + 8))
 
-        # "Ficar Burro" Reset button
-        self.btn_dumb_r = pygame.Rect(banner_x + banner_w - 150, banner_y + 4, 140, 24)
+        self.btn_dumb_r = pygame.Rect(banner_x + banner_w - 145, banner_y + 4, 135, 24)
         pygame.draw.rect(self.screen, (60, 30, 35), self.btn_dumb_r, border_radius=5)
         pygame.draw.rect(self.screen, (200, 70, 70), self.btn_dumb_r, width=1, border_radius=5)
         draw_icon_reset(self.screen, (self.btn_dumb_r.x + 14, self.btn_dumb_r.centery), (240, 130, 130), size=11)
-        d_txt = self.font_telemetry.render("Ficar Burro (Reset)", True, (240, 130, 130))
+        d_txt = self.font_telemetry.render("Ficar Burro", True, (240, 130, 130))
         self.screen.blit(d_txt, (self.btn_dumb_r.x + 24, self.btn_dumb_r.centery - d_txt.get_height() // 2))
 
     def _draw_bottom_dock(self):
@@ -498,44 +576,55 @@ class HaxBallApp:
         pygame.draw.line(self.screen, (45, 56, 70), (0, dock_y), (self.width, dock_y), width=1)
 
         # 1. Play / Pause
-        self.btn_pause_r = pygame.Rect(15, dock_y + 10, 110, 38)
+        self.btn_pause_r = pygame.Rect(12, dock_y + 10, 95, 38)
         p_txt = "Play" if self.is_paused else "Pausar"
         p_icon = "play" if self.is_paused else "pause"
         self._draw_btn(self.btn_pause_r, p_txt, (58, 142, 230), icon=p_icon)
 
         # 2. Reset match
-        self.btn_reset_r = pygame.Rect(132, dock_y + 10, 95, 38)
+        self.btn_reset_r = pygame.Rect(112, dock_y + 10, 85, 38)
         self._draw_btn(self.btn_reset_r, "Reset", (45, 55, 68), icon="reset")
 
         # 3. Choose Stadium
-        self.btn_stadium_r = pygame.Rect(234, dock_y + 10, 135, 38)
-        self._draw_btn(self.btn_stadium_r, "Estadios", (45, 55, 68), icon="stadium")
+        self.btn_stadium_r = pygame.Rect(202, dock_y + 10, 115, 38)
+        self._draw_btn(self.btn_stadium_r, "Estádios", (45, 55, 68), icon="stadium")
 
         # 4. Format 1v1 / 2v2 / 3v3 / 5v5
-        self.btn_format_r = pygame.Rect(376, dock_y + 10, 130, 38)
-        self._draw_btn(self.btn_format_r, f"Formato {self.team_format}v{self.team_format}", (45, 55, 68), icon="user")
+        self.btn_format_r = pygame.Rect(322, dock_y + 10, 110, 38)
+        self._draw_btn(self.btn_format_r, f"{self.team_format}v{self.team_format}", (45, 55, 68), icon="user")
 
-        # 5. Speed Multiplier (Cycle 1x -> 100x)
-        self.btn_dock_speed_r = pygame.Rect(513, dock_y + 10, 130, 38)
+        # 5. Speed Multiplier
+        self.btn_dock_speed_r = pygame.Rect(437, dock_y + 10, 110, 38)
         sp_c = (210, 120, 30) if self.speed_multiplier > 1 else (45, 55, 68)
         self._draw_btn(self.btn_dock_speed_r, f"Vel: {self.speed_multiplier}x", sp_c, icon="lightning")
 
         # 6. Mode Toggle (Self-Play vs Human)
-        self.btn_dock_mode_r = pygame.Rect(650, dock_y + 10, 150, 38)
+        self.btn_dock_mode_r = pygame.Rect(552, dock_y + 10, 130, 38)
         is_sp = (self.play_mode == "self_play")
-        m_txt = "Self-Play IA" if is_sp else "Jogo Humano"
+        m_txt = "Self-Play IA" if is_sp else "Humano"
         m_bg = (50, 140, 90) if is_sp else (58, 142, 230)
         m_icon = "robot" if is_sp else "user"
         self._draw_btn(self.btn_dock_mode_r, m_txt, m_bg, icon=m_icon)
 
-        # 7. RL Training Center Modal
-        self.btn_rl_r = pygame.Rect(807, dock_y + 10, 150, 38)
+        # 7. Opponent Bot Cycle
+        self.btn_dock_bot_r = pygame.Rect(687, dock_y + 10, 155, 38)
+        b_labels = {
+            "rl": "Bot: IA Treinada",
+            "wall": "Bot: Tabelas",
+            "heuristic": "Bot: Clássico",
+            "goalie": "Bot: Goleiro"
+        }
+        b_txt = b_labels.get(self.active_bot_key, "Bot: IA")
+        self._draw_btn(self.btn_dock_bot_r, b_txt, (50, 60, 75), icon="robot")
+
+        # 8. Checkpoints & RL Studio Modal
+        self.btn_rl_r = pygame.Rect(847, dock_y + 10, 175, 38)
         rl_c = (60, 179, 113) if not self.training_active else (220, 70, 70)
-        rl_t = "Central RL" if not self.training_active else "Treinando..."
+        rl_t = "Modelos & RL Studio" if not self.training_active else "Treinando..."
         self._draw_btn(self.btn_rl_r, rl_t, rl_c, icon="brain")
 
-        # 8. Help / Controls
-        self.btn_help_r = pygame.Rect(self.width - 120, dock_y + 10, 105, 38)
+        # 9. Help / Controls
+        self.btn_help_r = pygame.Rect(self.width - 110, dock_y + 10, 95, 38)
         self._draw_btn(self.btn_help_r, "Teclas", (45, 55, 68), icon="help")
 
     def _draw_btn(self, rect: pygame.Rect, text: str, bg_color: Tuple[int, int, int], icon: Optional[str] = None):
@@ -560,18 +649,17 @@ class HaxBallApp:
         dim.fill((0, 0, 0, 170))
         self.screen.blit(dim, (0, 0))
 
-        m_w, m_h = 760, 520
+        m_w, m_h = 780, 520
         m_r = pygame.Rect(int((self.width - m_w) / 2.0), int((self.height - m_h) / 2.0), m_w, m_h)
         pygame.draw.rect(self.screen, (34, 43, 53), m_r, border_radius=12)
         pygame.draw.rect(self.screen, (58, 142, 230), m_r, width=2, border_radius=12)
 
-        t = self.font_title.render("Selecionar Estádio (.hbs) - Catálogo Expandido", True, (245, 245, 245))
+        t = self.font_title.render("Selecionar Estádio (.hbs) - Catálogo Oficial", True, (245, 245, 245))
         self.screen.blit(t, (m_r.x + 30, m_r.y + 20))
 
-        # 2 Columns of 4 Cards
         keys = list(STADIUM_CATALOG.keys())
         self.stadium_cards = {}
-        card_w = 335
+        card_w = 345
         card_h = 82
 
         for i, key in enumerate(keys):
@@ -604,54 +692,153 @@ class HaxBallApp:
 
     def _draw_rl_modal(self):
         dim = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 170))
+        dim.fill((0, 0, 0, 175))
         self.screen.blit(dim, (0, 0))
 
-        m_w, m_h = 720, 500
+        m_w, m_h = 840, 560
         m_r = pygame.Rect(int((self.width - m_w) / 2.0), int((self.height - m_h) / 2.0), m_w, m_h)
-        pygame.draw.rect(self.screen, (34, 43, 53), m_r, border_radius=12)
+        pygame.draw.rect(self.screen, (30, 38, 48), m_r, border_radius=12)
         pygame.draw.rect(self.screen, (60, 179, 113), m_r, width=2, border_radius=12)
 
-        t = self.font_title.render("Central de Treinamento de RL (HaxBall)", True, (245, 245, 245))
-        self.screen.blit(t, (m_r.x + 30, m_r.y + 24))
+        # Header
+        t = self.font_title.render("Central de Modelos e Treinos de RL (End-to-End)", True, (245, 245, 245))
+        self.screen.blit(t, (m_r.x + 30, m_r.y + 18))
 
-        sub = self.font_regular.render(f"Status do Treinador: {self.training_status}", True, (60, 179, 113) if self.training_active else (170, 180, 195))
-        self.screen.blit(sub, (m_r.x + 30, m_r.y + 60))
+        # Tabs Header
+        self.tab_models_r = pygame.Rect(m_r.x + 30, m_r.y + 52, 230, 32)
+        self.tab_train_r = pygame.Rect(m_r.x + 270, m_r.y + 52, 230, 32)
+        self.tab_bots_r = pygame.Rect(m_r.x + 510, m_r.y + 52, 210, 32)
 
-        # Toggle Algo
-        self.btn_rl_algo_r = pygame.Rect(m_r.x + 30, m_r.y + 95, 170, 36)
-        self._draw_btn(self.btn_rl_algo_r, f"Algoritmo: {self.training_algo}", (58, 142, 230))
+        def draw_tab(rect, label, is_active):
+            bg = (45, 58, 74) if is_active else (34, 42, 52)
+            bd = (60, 179, 113) if is_active else (50, 60, 72)
+            pygame.draw.rect(self.screen, bg, rect, border_radius=6)
+            pygame.draw.rect(self.screen, bd, rect, width=2 if is_active else 1, border_radius=6)
+            txt = self.font_bold.render(label, True, (255, 255, 255) if is_active else (160, 175, 190))
+            self.screen.blit(txt, txt.get_rect(center=rect.center))
 
-        # Toggle Policy
-        self.btn_rl_pol_r = pygame.Rect(m_r.x + 215, m_r.y + 95, 220, 36)
-        pol_txt = "Rede: MLP Padrão" if self.training_policy == "mlp" else "Rede: Transformer Attention"
-        self._draw_btn(self.btn_rl_pol_r, pol_txt, (45, 58, 74))
+        draw_tab(self.tab_models_r, "📁 Modelos & Checkpoints", self.rl_modal_tab == "models")
+        draw_tab(self.tab_train_r, "⚙️ Treinador Background", self.rl_modal_tab == "training")
+        draw_tab(self.tab_bots_r, "🤖 Escolher Oponente", self.rl_modal_tab == "bots")
 
-        # Metrics box
-        met_r = pygame.Rect(m_r.x + 30, m_r.y + 150, m_w - 60, 180)
-        pygame.draw.rect(self.screen, (26, 33, 42), met_r, border_radius=8)
-        pygame.draw.rect(self.screen, (55, 68, 85), met_r, width=1, border_radius=8)
+        # Feedback Toast
+        if self.checkpoint_feedback and (time.time() - self.feedback_time < 3.5):
+            fb_surf = self.font_bold.render(f"✓ {self.checkpoint_feedback}", True, (60, 230, 130))
+            self.screen.blit(fb_surf, (m_r.right - fb_surf.get_width() - 30, m_r.y + 22))
 
-        m_head = self.font_bold.render("Métricas de Aprendizado em Segundo Plano:", True, (235, 240, 245))
-        self.screen.blit(m_head, (met_r.x + 18, met_r.y + 16))
+        # Tab 1: Checkpoints / Models
+        if self.rl_modal_tab == "models":
+            checkpoints = self.get_available_checkpoints()
+            self.checkpoint_cards = {}
 
-        m1 = self.font_regular.render(f"• Passos de Interação: {self.training_metrics['step']:,}", True, (220, 225, 235))
-        m2 = self.font_regular.render(f"• Recompensa Média: {self.training_metrics['reward']:+.2f}", True, (220, 225, 235))
-        m3 = self.font_regular.render(f"• Taxa de Vitória (WinRate): {self.training_metrics['win_rate']:.1f}%", True, (220, 225, 235))
-        m4 = self.font_regular.render(f"• Erro da Função de Perda (Loss): {self.training_metrics['loss']:.4f}", True, (220, 225, 235))
+            card_w = 370
+            card_h = 78
+            for i, cp in enumerate(checkpoints[:6]):
+                col = i % 2
+                row = i // 2
+                cx = m_r.x + 30 + col * (card_w + 20)
+                cy = m_r.y + 98 + row * (card_h + 10)
 
-        self.screen.blit(m1, (met_r.x + 18, met_r.y + 55))
-        self.screen.blit(m2, (met_r.x + 18, met_r.y + 90))
-        self.screen.blit(m3, (met_r.x + 330, met_r.y + 55))
-        self.screen.blit(m4, (met_r.x + 330, met_r.y + 90))
+                card_r = pygame.Rect(cx, cy, card_w, card_h)
+                self.checkpoint_cards[cp["filename"]] = card_r
+                is_active = (cp["filename"] == self.active_checkpoint_name)
 
-        # Big Action Button
-        self.btn_rl_action_r = pygame.Rect(m_r.x + 30, m_r.y + 355, 220, 44)
-        act_bg = (220, 70, 70) if self.training_active else (60, 179, 113)
-        act_txt = "⏹ Parar Treinamento" if self.training_active else "🚀 Iniciar Treinamento"
-        self._draw_btn(self.btn_rl_action_r, act_txt, act_bg)
+                bg_c = (42, 54, 68) if is_active else (36, 45, 56)
+                pygame.draw.rect(self.screen, bg_c, card_r, border_radius=8)
+                pygame.draw.rect(self.screen, (60, 179, 113) if is_active else (55, 68, 85), card_r, width=2 if is_active else 1, border_radius=8)
 
-        self.btn_close_rl_r = pygame.Rect(m_r.right - 140, m_r.bottom - 46, 110, 34)
+                # Badge
+                b_rect = pygame.Rect(cx + 10, cy + 10, 60, 20)
+                pygame.draw.rect(self.screen, (28, 36, 45), b_rect, border_radius=4)
+                pygame.draw.rect(self.screen, cp["color"], b_rect, width=1, border_radius=4)
+                b_txt = self.font_player.render(cp["badge"], True, cp["color"])
+                self.screen.blit(b_txt, b_txt.get_rect(center=b_rect.center))
+
+                # Title
+                t_card = self.font_bold.render(cp["title"][:24], True, (255, 255, 255))
+                self.screen.blit(t_card, (cx + 78, cy + 12))
+
+                # Desc
+                d_card = self.font_small.render(cp["desc"][:42], True, (170, 185, 200))
+                self.screen.blit(d_card, (cx + 10, cy + 38))
+
+                # Action label
+                status_txt = "● ATIVO" if is_active else "Carregar"
+                status_col = (60, 210, 120) if is_active else (58, 142, 230)
+                s_surf = self.font_bold.render(status_txt, True, status_col)
+                self.screen.blit(s_surf, (card_r.right - s_surf.get_width() - 14, cy + 54))
+
+            # Bottom Quick Actions in Tab 1
+            self.btn_save_cp_r = pygame.Rect(m_r.x + 30, m_r.bottom - 50, 210, 36)
+            self._draw_btn(self.btn_save_cp_r, "💾 Salvar Checkpoint", (45, 58, 74))
+
+            self.btn_quick_train_r = pygame.Rect(m_r.x + 250, m_r.bottom - 50, 210, 36)
+            self._draw_btn(self.btn_quick_train_r, "⚡ +25k Passos Rápidos", (210, 120, 30))
+
+        # Tab 2: Training Config & Background Worker
+        elif self.rl_modal_tab == "training":
+            sub = self.font_regular.render(f"Status do Treinador: {self.training_status}", True, (60, 179, 113) if self.training_active else (170, 180, 195))
+            self.screen.blit(sub, (m_r.x + 30, m_r.y + 95))
+
+            self.btn_rl_algo_r = pygame.Rect(m_r.x + 30, m_r.y + 125, 170, 36)
+            self._draw_btn(self.btn_rl_algo_r, f"Algoritmo: {self.training_algo}", (58, 142, 230))
+
+            self.btn_rl_pol_r = pygame.Rect(m_r.x + 215, m_r.y + 125, 220, 36)
+            pol_txt = "Rede: MLP Padrão" if self.training_policy == "mlp" else "Rede: Transformer Attention"
+            self._draw_btn(self.btn_rl_pol_r, pol_txt, (45, 58, 74))
+
+            met_r = pygame.Rect(m_r.x + 30, m_r.y + 175, m_w - 60, 180)
+            pygame.draw.rect(self.screen, (24, 30, 38), met_r, border_radius=8)
+            pygame.draw.rect(self.screen, (55, 68, 85), met_r, width=1, border_radius=8)
+
+            m_head = self.font_bold.render("Métricas de Aprendizado em Segundo Plano:", True, (235, 240, 245))
+            self.screen.blit(m_head, (met_r.x + 18, met_r.y + 16))
+
+            m1 = self.font_regular.render(f"• Passos de Interação: {self.training_metrics['step']:,}", True, (220, 225, 235))
+            m2 = self.font_regular.render(f"• Recompensa Média: {self.training_metrics['reward']:+.2f}", True, (220, 225, 235))
+            m3 = self.font_regular.render(f"• Taxa de Vitória: {self.training_metrics['win_rate']:.1f}%", True, (220, 225, 235))
+            m4 = self.font_regular.render(f"• Função de Perda (Loss): {self.training_metrics['loss']:.4f}", True, (220, 225, 235))
+
+            self.screen.blit(m1, (met_r.x + 18, met_r.y + 55))
+            self.screen.blit(m2, (met_r.x + 18, met_r.y + 90))
+            self.screen.blit(m3, (met_r.x + 360, met_r.y + 55))
+            self.screen.blit(m4, (met_r.x + 360, met_r.y + 90))
+
+            self.btn_rl_action_r = pygame.Rect(m_r.x + 30, m_r.bottom - 50, 240, 38)
+            act_bg = (220, 70, 70) if self.training_active else (60, 179, 113)
+            act_txt = "⏹ Parar Treinamento" if self.training_active else "🚀 Iniciar Treinamento"
+            self._draw_btn(self.btn_rl_action_r, act_txt, act_bg)
+
+        # Tab 3: Bot Opponents
+        elif self.rl_modal_tab == "bots":
+            bot_options = [
+                ("rl", "RL Bot (IA Treinada)", f"Usa o modelo ativo: {self.active_checkpoint_name}", (60, 210, 120)),
+                ("wall", "WallReboundBot (Tabelas)", "Calcula ricochetes ópticos perfeitos na parede", (230, 140, 40)),
+                ("heuristic", "HeuristicBot (Clássico)", "Robô analítico de perseguição e contorno", (58, 142, 230)),
+                ("goalie", "GoalieBot (Goleiro)", "Especialista em fechamento angular de trave", (160, 120, 255))
+            ]
+            self.bot_cards = {}
+            for i, (bkey, btitle, bdesc, bcol) in enumerate(bot_options):
+                cx = m_r.x + 30 + (i % 2) * 390
+                cy = m_r.y + 110 + (i // 2) * 110
+                c_rect = pygame.Rect(cx, cy, 370, 95)
+                self.bot_cards[bkey] = c_rect
+                is_cur = (self.active_bot_key == bkey)
+
+                pygame.draw.rect(self.screen, (45, 58, 74) if is_cur else (36, 45, 56), c_rect, border_radius=8)
+                pygame.draw.rect(self.screen, bcol if is_cur else (55, 68, 85), c_rect, width=2 if is_cur else 1, border_radius=8)
+
+                t_surf = self.font_bold.render(btitle, True, (255, 255, 255))
+                self.screen.blit(t_surf, (cx + 14, cy + 14))
+
+                d_surf = self.font_regular.render(bdesc[:40], True, (170, 185, 200))
+                self.screen.blit(d_surf, (cx + 14, cy + 42))
+
+                lbl = "● ATIVO" if is_cur else "Selecionar"
+                lbl_s = self.font_bold.render(lbl, True, (60, 210, 120) if is_cur else (58, 142, 230))
+                self.screen.blit(lbl_s, (c_rect.right - lbl_s.get_width() - 14, cy + 65))
+
+        self.btn_close_rl_r = pygame.Rect(m_r.right - 140, m_r.bottom - 50, 110, 36)
         self._draw_btn(self.btn_close_rl_r, "Fechar", (45, 55, 68))
 
     def _draw_help_modal(self):
@@ -659,22 +846,22 @@ class HaxBallApp:
         dim.fill((0, 0, 0, 170))
         self.screen.blit(dim, (0, 0))
 
-        m_w, m_h = 680, 430
+        m_w, m_h = 720, 450
         m_r = pygame.Rect(int((self.width - m_w) / 2.0), int((self.height - m_h) / 2.0), m_w, m_h)
         pygame.draw.rect(self.screen, (34, 43, 53), m_r, border_radius=12)
         pygame.draw.rect(self.screen, (58, 142, 230), m_r, width=2, border_radius=12)
 
-        t = self.font_title.render("Guia de Controles, Treino e Team-Play", True, (245, 245, 245))
+        t = self.font_title.render("Guia de Controles, Treino e Modelos Prontos", True, (245, 245, 245))
         self.screen.blit(t, (m_r.x + 30, m_r.y + 24))
 
         lines = [
             "• Controles: TECLAS WASD OU SETAS DO TECLADO funcionam simultaneamente!",
             "• Chute: BARRA DE ESPAÇO, TECLA X, TECLA C ou SHIFT.",
+            "• Modelos Prontos: Acesse 'Modelos & RL' para carregar os checkpoints treinados (25k a 1M).",
             "• Treino ao Vivo (2x2 Self-Play): Veja a IA jogando e aprendendo recursivamente na tela!",
             "• Aceleração até 100x: Use o botão de velocidade (1x a 100x) para simular 6.000 passos/segundo.",
             "• 'Ficar Burro (Reset)': Clique para zerar os pesos e ver os modelos aprendendo do zero.",
-            "• Como surge o Team-Play: O Reward Engine pune aglomeração mútua (spacing), bonifica passes",
-            "  completos (+3.0) e assistências de gol (+4.0), forçando divisão de papéis (ataque e âncora)."
+            "• Troca de Oponentes: Alterne entre RL Bot, WallRebound (Tabelas), Heuristic e Goleiro."
         ]
         y = m_r.y + 70
         for l in lines:
@@ -717,7 +904,7 @@ class HaxBallApp:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 pos = event.pos
 
-                # Modal handling
+                # Modal handling: Stadium
                 if self.show_stadium_modal:
                     if self.btn_close_stad_r.collidepoint(pos):
                         self.show_stadium_modal = False
@@ -729,17 +916,50 @@ class HaxBallApp:
                                 break
                     continue
 
+                # Modal handling: RL & Checkpoints
                 if self.show_rl_modal:
                     if self.btn_close_rl_r.collidepoint(pos):
                         self.show_rl_modal = False
-                    elif self.btn_rl_algo_r.collidepoint(pos):
-                        self.training_algo = "DQN" if self.training_algo == "PPO" else "PPO"
-                    elif self.btn_rl_pol_r.collidepoint(pos):
-                        self.training_policy = "attention" if self.training_policy == "mlp" else "mlp"
-                    elif self.btn_rl_action_r.collidepoint(pos):
-                        self._toggle_training()
+                    elif self.tab_models_r.collidepoint(pos):
+                        self.rl_modal_tab = "models"
+                    elif self.tab_train_r.collidepoint(pos):
+                        self.rl_modal_tab = "training"
+                    elif self.tab_bots_r.collidepoint(pos):
+                        self.rl_modal_tab = "bots"
+
+                    elif self.rl_modal_tab == "models":
+                        if hasattr(self, "checkpoint_cards"):
+                            for cp_file, c_rect in self.checkpoint_cards.items():
+                                if c_rect.collidepoint(pos):
+                                    self.load_checkpoint(cp_file)
+                                    break
+                        if hasattr(self, "btn_save_cp_r") and self.btn_save_cp_r.collidepoint(pos):
+                            self.save_current_checkpoint()
+                        elif hasattr(self, "btn_quick_train_r") and self.btn_quick_train_r.collidepoint(pos):
+                            if self.self_play_trainer:
+                                self.self_play_trainer.step_multistep(25000)
+                                self.checkpoint_feedback = "Treinou +25k passos!"
+                                self.feedback_time = time.time()
+
+                    elif self.rl_modal_tab == "training":
+                        if hasattr(self, "btn_rl_algo_r") and self.btn_rl_algo_r.collidepoint(pos):
+                            self.training_algo = "DQN" if self.training_algo == "PPO" else "PPO"
+                        elif hasattr(self, "btn_rl_pol_r") and self.btn_rl_pol_r.collidepoint(pos):
+                            self.training_policy = "attention" if self.training_policy == "mlp" else "mlp"
+                        elif hasattr(self, "btn_rl_action_r") and self.btn_rl_action_r.collidepoint(pos):
+                            self._toggle_training()
+
+                    elif self.rl_modal_tab == "bots":
+                        if hasattr(self, "bot_cards"):
+                            for bkey, brect in self.bot_cards.items():
+                                if brect.collidepoint(pos):
+                                    self.active_bot_key = bkey
+                                    self.checkpoint_feedback = f"Oponente: {bkey.upper()}"
+                                    self.feedback_time = time.time()
+                                    break
                     continue
 
+                # Modal handling: Help
                 if self.show_help_modal:
                     if self.btn_close_help_r.collidepoint(pos):
                         self.show_help_modal = False
@@ -748,6 +968,10 @@ class HaxBallApp:
                 # Top HUD Pills clicks
                 if self.pill_stad_r.collidepoint(pos):
                     self.show_stadium_modal = True
+                    continue
+                elif self.pill_model_r.collidepoint(pos):
+                    self.show_rl_modal = True
+                    self.rl_modal_tab = "models"
                     continue
                 elif self.pill_speed_r.collidepoint(pos):
                     self.cycle_speed()
@@ -760,6 +984,7 @@ class HaxBallApp:
                 if self.play_mode == "self_play" and hasattr(self, "btn_dumb_r") and self.btn_dumb_r.collidepoint(pos):
                     if self.self_play_trainer:
                         self.self_play_trainer.reset_policy_to_random()
+                        self.active_checkpoint_name = "Aleatório (Burro)"
                     continue
 
                 # Bottom Dock clicks
@@ -770,13 +995,14 @@ class HaxBallApp:
                 elif self.btn_stadium_r.collidepoint(pos):
                     self.show_stadium_modal = True
                 elif self.btn_format_r.collidepoint(pos):
-                    # Cycle format: 1 -> 2 -> 3 -> 5 -> 1
                     nxt = 2 if self.team_format == 1 else (3 if self.team_format == 2 else (5 if self.team_format == 3 else 1))
                     self._init_game(self.current_stadium_key, nxt)
                 elif self.btn_dock_speed_r.collidepoint(pos):
                     self.cycle_speed()
                 elif self.btn_dock_mode_r.collidepoint(pos):
                     self.toggle_play_mode()
+                elif self.btn_dock_bot_r.collidepoint(pos):
+                    self.cycle_bot()
                 elif self.btn_rl_r.collidepoint(pos):
                     self.show_rl_modal = True
                 elif self.btn_help_r.collidepoint(pos):
