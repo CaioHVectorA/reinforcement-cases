@@ -172,5 +172,28 @@ class TestTeamPlayAndSelfPlay(unittest.TestCase):
         self.assertEqual(trainer.total_env_steps, 0)
         self.assertEqual(trainer.last_stats["total_steps"], 0)
 
+    def test_rl_bot_team_symmetry(self):
+        from haxball.bots.rl_bot import RLBot
+        stad = Stadium.load_from_file(os.path.join(MAP_DIR, "futsal_2v2.hbs"))
+        game = HaxBallGame(stadium=stad, red_players_count=1, blue_players_count=1)
+
+        bot = RLBot()
+        # Mock policy actor to always output forward action (+1, 0, 0) in ego frame
+        class MockActor(torch.nn.Module):
+            def forward(self, x):
+                return torch.tensor([[1.0, 0.0, 0.0]])
+        bot.policy.actor = MockActor()
+
+        red_player = next(p for p in game.players if p.team == Team.RED)
+        blue_player = next(p for p in game.players if p.team == Team.BLUE)
+
+        red_mx, red_my, red_kick = bot.act(game, red_player)
+        blue_mx, blue_my, blue_kick = bot.act(game, blue_player)
+
+        # Red moving forward should have global mx > 0 (+X, towards Blue goal)
+        self.assertAlmostEqual(red_mx, 1.0)
+        # Blue moving forward should have global mx < 0 (-X, towards Red goal)
+        self.assertAlmostEqual(blue_mx, -1.0)
+
 if __name__ == "__main__":
     unittest.main()

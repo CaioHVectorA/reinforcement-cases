@@ -88,6 +88,15 @@ class Disc:
     def is_static(self) -> bool:
         return self.invMass <= 1e-9
 
+    @property
+    def color(self) -> str:
+        return self.color_hex
+
+    @property
+    def kick(self) -> bool:
+        return self.is_kicking or (self.kick_flash > 0)
+
+
     def can_collide_with(self, other: Disc) -> bool:
         """Standard HaxBall collision group/mask matching."""
         return bool((self.cGroup & other.cMask) and (other.cGroup & self.cMask))

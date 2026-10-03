@@ -15,6 +15,10 @@ test_checkpoints/
 snake/out/*
 matrix.txt
 rewards.json
+data/replays/*.hbr2
+data/replays/*.hbr
+tools/haxball_analyzer.js
+.discord_token
 
 # Environments & virtualenvs
 .env

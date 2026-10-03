@@ -27,7 +27,7 @@ from haxball.core.constants import Team, GameState, FPS
 from haxball.core.disc import hex_to_rgb
 from haxball.core.stadium import Stadium
 from haxball.core.game import HaxBallGame
-from haxball.bots import HeuristicBot, WallReboundBot, GoalieBot, RLBot, BaseBot
+from haxball.bots import NPC_BOTS, GAUNTLET_ORDER, BaseBot, RLBot
 from haxball.gym_env.haxball_env import HaxBallEnv
 from haxball.rl.algorithms.ppo.ppo_trainer import PPOTrainer
 from haxball.rl.algorithms.standard_rl.dqn_trainer import DQNTrainer
@@ -155,13 +155,19 @@ class HaxBallApp:
 
         # Bots Catalog
         self.model_path = default_model
-        self.bot_catalog = {
-            "rl": RLBot(model_path=default_model, name="RL Bot (Trained)"),
-            "wall": WallReboundBot("WallReboundBot"),
-            "heuristic": HeuristicBot("HeuristicBot"),
-            "goalie": GoalieBot("GoalieBot")
+        self.bot_catalog: Dict[str, BaseBot] = {
+            "rl": RLBot(model_path=default_model, name="RL Bot (Trained)")
         }
-        self.active_bot_key = bot_key if bot_key in self.bot_catalog else "rl"
+        for k, (cls, label, title, desc, col) in NPC_BOTS.items():
+            self.bot_catalog[k] = cls(name=title.split(" ")[0])
+
+        self.gauntlet_mode = (bot_key == "gauntlet")
+        self.gauntlet_index = 0
+        if self.gauntlet_mode:
+            self.active_bot_key = GAUNTLET_ORDER[0]
+            self.team_format = 1
+        else:
+            self.active_bot_key = bot_key if bot_key in self.bot_catalog else "press"
 
         if default_model and os.path.exists(default_model):
             self.load_checkpoint(default_model)
@@ -295,8 +301,20 @@ class HaxBallApp:
 
     def cycle_bot(self):
         keys = list(self.bot_catalog.keys())
-        idx = keys.index(self.active_bot_key) if self.active_bot_key in keys else 0
-        self.active_bot_key = keys[(idx + 1) % len(keys)]
+        if "gauntlet" not in keys:
+            keys.append("gauntlet")
+        idx = keys.index(self.active_bot_key) if self.active_bot_key in keys else (keys.index("gauntlet") if getattr(self, "gauntlet_mode", False) else 0)
+        nxt_key = keys[(idx + 1) % len(keys)]
+        if nxt_key == "gauntlet":
+            self.gauntlet_mode = True
+            self.gauntlet_index = 0
+            self.active_bot_key = GAUNTLET_ORDER[0]
+            self.checkpoint_feedback = f"Gauntlet: {self.active_bot_key.upper()} (1/{len(GAUNTLET_ORDER)})"
+        else:
+            self.gauntlet_mode = False
+            self.active_bot_key = nxt_key
+            self.checkpoint_feedback = f"Oponente: {nxt_key.upper()}"
+        self.feedback_time = time.time()
 
     def get_player_inputs(self) -> Dict[int, Tuple[float, float, bool]]:
         keys = pygame.key.get_pressed()
@@ -349,7 +367,23 @@ class HaxBallApp:
         else:
             for _ in range(self.speed_multiplier):
                 inputs = self.get_player_inputs()
-                self.game.step(inputs)
+                step_info = self.game.step(inputs)
+
+            if getattr(self, "gauntlet_mode", False) and self.game.state == GameState.GAME_OVER:
+                if not hasattr(self, "_gauntlet_delay"):
+                    self._gauntlet_delay = 90
+                self._gauntlet_delay -= 1
+                if self._gauntlet_delay <= 0:
+                    del self._gauntlet_delay
+                    if self.game.red_score > self.game.blue_score:
+                        self.gauntlet_index = (self.gauntlet_index + 1) % len(GAUNTLET_ORDER)
+                        next_bot = GAUNTLET_ORDER[self.gauntlet_index]
+                        self.checkpoint_feedback = f"Vitória! Desafio {self.gauntlet_index + 1}/{len(GAUNTLET_ORDER)}: {next_bot.upper()}"
+                    else:
+                        self.checkpoint_feedback = f"Derrota! Tente novamente contra {self.active_bot_key.upper()}"
+                    self.feedback_time = time.time()
+                    self.active_bot_key = GAUNTLET_ORDER[self.gauntlet_index]
+                    self.game.reset_match()
 
     def draw(self):
         self.screen.fill((26, 33, 42))
@@ -384,11 +418,11 @@ class HaxBallApp:
                 continue
             p0 = self.world_to_screen(seg.p0)
             p1 = self.world_to_screen(seg.p1)
-            c = hex_to_rgb(seg.color) if seg.color else (255, 255, 255)
-            if seg.curve == 0.0:
-                pygame.draw.line(self.screen, c, p0, p1, width=2)
-            else:
+            c = getattr(seg, 'color_rgb', None) or (hex_to_rgb(seg.color) if hasattr(seg, 'color') and seg.color else (255, 255, 255))
+            if getattr(seg, 'is_curved', False) or getattr(seg, 'curve', 0.0) != 0.0:
                 self._draw_curved_segment(seg, c)
+            else:
+                pygame.draw.line(self.screen, c, p0, p1, width=2)
 
         for goal in stad.goals:
             p0 = self.world_to_screen(goal.p0)
@@ -397,10 +431,11 @@ class HaxBallApp:
             pygame.draw.line(self.screen, g_c, p0, p1, width=4)
 
         # Discs & Ball
-        for disc in self.game.discs:
+        discs_list = getattr(self.game, 'discs', getattr(self.game.physics, 'discs', []))
+        for disc in discs_list:
             pos = self.world_to_screen(disc.pos)
             rad = self.world_len_to_screen(disc.radius)
-            c = hex_to_rgb(disc.color) if disc.color else (255, 255, 255)
+            c = getattr(disc, 'color_rgb', None) or (hex_to_rgb(disc.color) if hasattr(disc, 'color') and disc.color else (255, 255, 255))
             pygame.draw.circle(self.screen, c, pos, rad)
             pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
 
@@ -410,11 +445,18 @@ class HaxBallApp:
             rad = self.world_len_to_screen(player.radius)
             c = (229, 110, 86) if player.team == Team.RED else (86, 137, 229)
 
-            if player.kick:
+            if getattr(player, 'kick', False) or getattr(player, 'is_kicking', False) or getattr(player, 'kick_flash', 0) > 0:
                 pygame.draw.circle(self.screen, (255, 255, 255), pos, rad + 3, width=2)
 
             pygame.draw.circle(self.screen, c, pos, rad)
             pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
+
+            # Draw Real-Time Intent / Velocity Vector
+            if player.speed.length_sq() > 0.05:
+                vel_end = player.pos + player.speed.normalized() * (player.radius + 18.0)
+                s_end = self.world_to_screen(vel_end)
+                pygame.draw.line(self.screen, (255, 255, 100) if player.team == Team.BLUE else (255, 200, 80), pos, s_end, width=2)
+                pygame.draw.circle(self.screen, (255, 255, 255), s_end, 3)
 
             num_str = str(player.player_id)
             num_surf = self.font_player.render(num_str, True, (255, 255, 255))
@@ -423,6 +465,7 @@ class HaxBallApp:
         # Overlays
         self._draw_scoreboard()
         self._draw_hud_overlay()
+        self._draw_interaction_telemetry_hud()
 
         if self.play_mode == "self_play" and self.self_play_trainer:
             self._draw_self_play_banner()
@@ -439,13 +482,82 @@ class HaxBallApp:
 
         pygame.display.flip()
 
+    def _draw_interaction_telemetry_hud(self):
+        """Draws live real-time interaction metrics between human player and AI bots."""
+        ball = self.game.ball
+        if not ball:
+            return
+
+        blue_p = next((p for p in self.game.players if p.team == Team.BLUE), None)
+        red_p = next((p for p in self.game.players if p.team == Team.RED), None)
+
+        if not blue_p:
+            return
+
+        stad = self.game.stadium
+        dist_to_ball = blue_p.pos.distance_to(ball.pos)
+
+        to_ball = (ball.pos - blue_p.pos).normalized() if dist_to_ball > 1e-4 else Vec2(1, 0)
+        opp_goal = Vec2(-stad.bg_width, 0.0)
+        to_goal = (opp_goal - ball.pos).normalized()
+
+        # Metrics calculation
+        # 1. Ball Pursuit Index (% alignment with ball direction)
+        if blue_p.speed.length_sq() > 0.05:
+            move_dir = blue_p.speed.normalized()
+            pursuit_cos = float(move_dir.dot(to_ball))
+            pursuit_pct = int(max(0.0, pursuit_cos) * 100)
+        else:
+            pursuit_pct = 0
+
+        # 2. Shot Alignment Index
+        shot_cos = float(to_ball.dot(to_goal))
+        shot_pct = int(max(0.0, shot_cos) * 100)
+
+        # 3. Tactical State
+        if dist_to_ball < (blue_p.radius + ball.radius + 10.0):
+            tactical_state = "Controle / Chute"
+            state_color = (255, 100, 100)
+        elif pursuit_pct > 75:
+            tactical_state = "Caça Ativa"
+            state_color = (60, 210, 120)
+        elif blue_p.pos.x > ball.pos.x:
+            tactical_state = "Contorno Tático"
+            state_color = (240, 190, 60)
+        else:
+            tactical_state = "Recomposição"
+            state_color = (160, 180, 220)
+
+        # Telemetry Card on Right Corner
+        hud_w = 230
+        hud_h = 100
+        hud_x = self.width - hud_w - 20
+        hud_y = 56
+
+        card_r = pygame.Rect(hud_x, hud_y, hud_w, hud_h)
+        pygame.draw.rect(self.screen, (24, 30, 38), card_r, border_radius=8)
+        pygame.draw.rect(self.screen, (58, 142, 230), card_r, width=1, border_radius=8)
+
+        t_title = self.font_telemetry.render("TELEMETRIA DA IA (TIME AZUL)", True, (100, 180, 255))
+        self.screen.blit(t_title, (hud_x + 10, hud_y + 8))
+
+        m1 = self.font_small.render(f"• Pressão na Bola: {pursuit_pct}%", True, (220, 230, 240))
+        m2 = self.font_small.render(f"• Alinhamento ao Gol: {shot_pct}%", True, (220, 230, 240))
+        m3 = self.font_small.render(f"• Distância da Bola: {int(dist_to_ball)} px", True, (220, 230, 240))
+        m4 = self.font_bold.render(f"• Ação: {tactical_state}", True, state_color)
+
+        self.screen.blit(m1, (hud_x + 10, hud_y + 26))
+        self.screen.blit(m2, (hud_x + 10, hud_y + 44))
+        self.screen.blit(m3, (hud_x + 10, hud_y + 62))
+        self.screen.blit(m4, (hud_x + 10, hud_y + 80))
+
     def _draw_curved_segment(self, seg, color):
-        center = seg.center
-        radius = seg.radius
+        center = getattr(seg, 'arc_center', getattr(seg, 'center', None))
+        radius = getattr(seg, 'arc_radius', getattr(seg, 'radius', 0.0))
         if radius <= 0.0 or center is None:
             return
-        start_a = seg.start_angle
-        span_a = seg.span_angle
+        start_a = getattr(seg, 'arc_start_angle', getattr(seg, 'start_angle', 0.0))
+        span_a = getattr(seg, 'arc_span_angle', getattr(seg, 'span_angle', 0.0))
         steps = 16
         pts = []
         for i in range(steps + 1):
@@ -455,6 +567,7 @@ class HaxBallApp:
             pts.append(self.world_to_screen(pt))
         if len(pts) >= 2:
             pygame.draw.lines(self.screen, color, False, pts, width=2)
+
 
     def _draw_scoreboard(self):
         sb_w = 260
@@ -609,12 +722,21 @@ class HaxBallApp:
         # 7. Opponent Bot Cycle
         self.btn_dock_bot_r = pygame.Rect(687, dock_y + 10, 155, 38)
         b_labels = {
-            "rl": "Bot: IA Treinada",
-            "wall": "Bot: Tabelas",
+            "press": "Bot: Pressing",
+            "striker": "Bot: Striker",
+            "bank": "Bot: Tabelas",
+            "dribbler": "Bot: Dribbler",
+            "counter": "Bot: Counter",
+            "master": "Bot: Master Pro",
             "heuristic": "Bot: Clássico",
-            "goalie": "Bot: Goleiro"
+            "wall": "Bot: Rebound",
+            "goalie": "Bot: Goleiro",
+            "rl": "Bot: IA Treinada",
         }
-        b_txt = b_labels.get(self.active_bot_key, "Bot: IA")
+        if getattr(self, "gauntlet_mode", False):
+            b_txt = f"★ Gauntlet ({self.gauntlet_index + 1}/{len(GAUNTLET_ORDER)})"
+        else:
+            b_txt = b_labels.get(self.active_bot_key, f"Bot: {self.active_bot_key.title()}")
         self._draw_btn(self.btn_dock_bot_r, b_txt, (50, 60, 75), icon="robot")
 
         # 8. Checkpoints & RL Studio Modal
@@ -812,33 +934,38 @@ class HaxBallApp:
         # Tab 3: Bot Opponents
         elif self.rl_modal_tab == "bots":
             bot_options = [
+                ("gauntlet", "🏆 Torneio Desafio (Gauntlet)", "Enfrente todos os 9 bots em sequência!", (255, 215, 0)),
                 ("rl", "RL Bot (IA Treinada)", f"Usa o modelo ativo: {self.active_checkpoint_name}", (60, 210, 120)),
-                ("wall", "WallReboundBot (Tabelas)", "Calcula ricochetes ópticos perfeitos na parede", (230, 140, 40)),
-                ("heuristic", "HeuristicBot (Clássico)", "Robô analítico de perseguição e contorno", (58, 142, 230)),
-                ("goalie", "GoalieBot (Goleiro)", "Especialista em fechamento angular de trave", (160, 120, 255))
             ]
+            for bkey, (cls, label, title, desc, col) in NPC_BOTS.items():
+                bot_options.append((bkey, title, desc, col))
+
             self.bot_cards = {}
+            card_w = 370
+            card_h = 68
             for i, (bkey, btitle, bdesc, bcol) in enumerate(bot_options):
-                cx = m_r.x + 30 + (i % 2) * 390
-                cy = m_r.y + 110 + (i // 2) * 110
-                c_rect = pygame.Rect(cx, cy, 370, 95)
+                col_idx = i % 2
+                row_idx = i // 2
+                cx = m_r.x + 30 + col_idx * 390
+                cy = m_r.y + 92 + row_idx * 74
+                c_rect = pygame.Rect(cx, cy, card_w, card_h)
                 self.bot_cards[bkey] = c_rect
-                is_cur = (self.active_bot_key == bkey)
+                is_cur = (self.gauntlet_mode if bkey == "gauntlet" else (not self.gauntlet_mode and self.active_bot_key == bkey))
 
-                pygame.draw.rect(self.screen, (45, 58, 74) if is_cur else (36, 45, 56), c_rect, border_radius=8)
-                pygame.draw.rect(self.screen, bcol if is_cur else (55, 68, 85), c_rect, width=2 if is_cur else 1, border_radius=8)
+                pygame.draw.rect(self.screen, (45, 58, 74) if is_cur else (36, 45, 56), c_rect, border_radius=6)
+                pygame.draw.rect(self.screen, bcol if is_cur else (55, 68, 85), c_rect, width=2 if is_cur else 1, border_radius=6)
 
-                t_surf = self.font_bold.render(btitle, True, (255, 255, 255))
-                self.screen.blit(t_surf, (cx + 14, cy + 14))
+                t_surf = self.font_bold.render(btitle[:28], True, (255, 255, 255))
+                self.screen.blit(t_surf, (cx + 12, cy + 8))
 
-                d_surf = self.font_regular.render(bdesc[:40], True, (170, 185, 200))
-                self.screen.blit(d_surf, (cx + 14, cy + 42))
+                d_surf = self.font_small.render(bdesc[:45], True, (170, 185, 200))
+                self.screen.blit(d_surf, (cx + 12, cy + 28))
 
                 lbl = "● ATIVO" if is_cur else "Selecionar"
                 lbl_s = self.font_bold.render(lbl, True, (60, 210, 120) if is_cur else (58, 142, 230))
-                self.screen.blit(lbl_s, (c_rect.right - lbl_s.get_width() - 14, cy + 65))
+                self.screen.blit(lbl_s, (c_rect.right - lbl_s.get_width() - 12, cy + 46))
 
-        self.btn_close_rl_r = pygame.Rect(m_r.right - 140, m_r.bottom - 50, 110, 36)
+        self.btn_close_rl_r = pygame.Rect(m_r.right - 140, m_r.bottom - 46, 110, 32)
         self._draw_btn(self.btn_close_rl_r, "Fechar", (45, 55, 68))
 
     def _draw_help_modal(self):
@@ -953,8 +1080,15 @@ class HaxBallApp:
                         if hasattr(self, "bot_cards"):
                             for bkey, brect in self.bot_cards.items():
                                 if brect.collidepoint(pos):
-                                    self.active_bot_key = bkey
-                                    self.checkpoint_feedback = f"Oponente: {bkey.upper()}"
+                                    if bkey == "gauntlet":
+                                        self.gauntlet_mode = True
+                                        self.gauntlet_index = 0
+                                        self.active_bot_key = GAUNTLET_ORDER[0]
+                                        self.checkpoint_feedback = f"Gauntlet Iniciado! Desafio 1/{len(GAUNTLET_ORDER)}: {self.active_bot_key.upper()}"
+                                    else:
+                                        self.gauntlet_mode = False
+                                        self.active_bot_key = bkey
+                                        self.checkpoint_feedback = f"Oponente: {bkey.upper()}"
                                     self.feedback_time = time.time()
                                     break
                     continue

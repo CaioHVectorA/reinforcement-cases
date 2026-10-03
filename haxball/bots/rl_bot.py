@@ -9,6 +9,7 @@ from typing import Tuple, Optional
 import numpy as np
 import torch
 
+from haxball.core.constants import Team
 from haxball.core.disc import Disc
 from haxball.core.game import HaxBallGame
 from haxball.bots.base_bot import BaseBot
@@ -59,8 +60,10 @@ class RLBot(BaseBot):
         with torch.no_grad():
             action_mean = self.policy.actor(obs_tensor).cpu().numpy()[0]
 
-        # Action components: [move_x, move_y, kick_logit]
-        move_x = float(np.clip(action_mean[0], -1.0, 1.0))
+        attack_sign = 1.0 if player.team == Team.RED else -1.0
+
+        # Action components: [move_x, move_y, kick_logit] in ego-centric frame
+        move_x = float(np.clip(action_mean[0], -1.0, 1.0)) * attack_sign
         move_y = float(np.clip(action_mean[1], -1.0, 1.0))
         kick = bool(action_mean[2] > 0.0)
 

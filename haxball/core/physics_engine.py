@@ -24,6 +24,8 @@ class PhysicsEngine:
 
         # Kick cooldown tracker per player (in ticks)
         self.kick_cooldowns: Dict[int, int] = {}
+        # Kick held duration tracker (for momentum and kick timing penalty)
+        self.kick_held_ticks: Dict[int, int] = {}
 
     def reset_with_entities(self, ball: Disc, players: List[Disc], static_discs: Optional[List[Disc]] = None):
         """Sets active entities in physics world."""
@@ -37,6 +39,7 @@ class PhysicsEngine:
 
         for p in self.players:
             self.kick_cooldowns[p.player_id] = 0
+            self.kick_held_ticks[p.player_id] = 0
 
     def apply_player_inputs(self, inputs: Dict[int, Tuple[float, float, bool]]):
         """
@@ -62,10 +65,12 @@ class PhysicsEngine:
                 acc = p.kicking_acceleration
                 damp = p.kicking_damping
                 p.is_kicking = True
+                self.kick_held_ticks[p.player_id] = self.kick_held_ticks.get(p.player_id, 0) + 1
             else:
                 acc = p.acceleration
                 damp = p.damping
                 p.is_kicking = False
+                self.kick_held_ticks[p.player_id] = 0
 
             if p.kick_flash > 0:
                 p.kick_flash -= 1
@@ -73,7 +78,7 @@ class PhysicsEngine:
             # HaxBall velocity update equation
             p.speed = (p.speed + move_vec * acc) * damp
 
-    def step(self, inputs: Dict[int, Tuple[float, float, bool]]) -> Dict[str, Any]:
+    def step(self, inputs: Dict[int, Tuple[float, float, bool]], game_state: int = 3) -> Dict[str, Any]:
         """
         Executes a single physics tick (1/60s).
         Returns a dict of events.
@@ -91,12 +96,7 @@ class PhysicsEngine:
             if not d.is_player and d != self.ball and not d.is_static:
                 d.speed = d.speed * d.damping
 
-        # 3. Integrate positions
-        for d in self.discs:
-            if not d.is_static:
-                d.pos = d.pos + d.speed
-
-        # 4. Kicking mechanic (with rate limit to avoid continuous multi-frame spam)
+        # 3. Kicking mechanic (with rate limit to avoid continuous multi-frame spam)
         if self.ball:
             for p in self.players:
                 if p.is_kicking:
@@ -108,8 +108,23 @@ class PhysicsEngine:
                         diff = self.ball.pos - p.pos
                         norm = diff.normalized() if diff.length_sq() > 1e-9 else Vec2(1.0, 0.0)
 
-                        # Kick impulse
-                        self.ball.speed = self.ball.speed + norm * p.kick_strength
+                        # Timing factor: crisp tap on contact yields max strength; holding X decays strength
+                        held = self.kick_held_ticks.get(p.player_id, 1)
+                        if held <= 4:
+                            timing_factor = 1.15
+                        else:
+                            # Gradual decay if held beforehand
+                            timing_factor = max(0.65, 1.15 - (held - 4) * 0.04)
+
+                        # Player forward momentum transfer towards ball (balanced for authentic HaxBall feel)
+                        p_speed_proj = max(0.0, p.speed.dot(norm))
+                        kick_impulse = norm * (p.kick_strength * timing_factor + p_speed_proj * 0.35)
+
+                        # Kick impulse on ball
+                        self.ball.speed = self.ball.speed + kick_impulse
+
+                        # Ball contact slows down player (momentum absorption & recoil)
+                        p.speed = p.speed * 0.55
                         if p.kick_back > 0:
                             p.speed = p.speed - norm * p.kick_back
 
@@ -123,13 +138,64 @@ class PhysicsEngine:
                             "pos": p.pos.to_tuple()
                         })
 
-        # 5. Collision resolution solver
-        for _ in range(self.solver_iterations):
-            self._resolve_disc_collisions()
-            self._resolve_segment_collisions()
-            self._resolve_plane_collisions()
+        # 4. Integrate positions and solve collisions with 2 sub-steps to prevent tunneling
+        substeps = 2
+        inv_sub = 1.0 / substeps
+        for _ in range(substeps):
+            for d in self.discs:
+                if not d.is_static:
+                    d.pos = d.pos + d.speed * inv_sub
+
+            self._resolve_kickoff_barriers(game_state)
+
+            for _ in range(self.solver_iterations):
+                self._resolve_disc_collisions()
+                self._resolve_segment_collisions()
+                self._resolve_plane_collisions()
+
+            self._resolve_kickoff_barriers(game_state)
 
         return events
+
+    def _resolve_kickoff_barriers(self, game_state: int):
+        """Enforces official HaxBall kickoff barriers: opposing team cannot enter kickoff half or center circle."""
+        ko_rad = getattr(self.stadium, 'bg_kickoff_radius', 75.0)
+        # GameState: KICKOFF_RED = 1, KICKOFF_BLUE = 2
+        if game_state == 1:  # KICKOFF_RED
+            for p in self.players:
+                if p.team == Team.BLUE:
+                    # Blue blocked from Red half (x < 0)
+                    if p.pos.x < 0:
+                        p.pos.x = 0
+                        if p.speed.x < 0:
+                            p.speed.x = 0
+                    # Blue blocked from center circle
+                    d_center = p.pos.length()
+                    min_r = ko_rad + p.radius
+                    if d_center < min_r and d_center > 1e-5:
+                        push = p.pos / d_center
+                        p.pos = push * min_r
+                        v_rad = p.speed.dot(push)
+                        if v_rad < 0:
+                            p.speed = p.speed - push * v_rad
+
+        elif game_state == 2:  # KICKOFF_BLUE
+            for p in self.players:
+                if p.team == Team.RED:
+                    # Red blocked from Blue half (x > 0)
+                    if p.pos.x > 0:
+                        p.pos.x = 0
+                        if p.speed.x > 0:
+                            p.speed.x = 0
+                    # Red blocked from center circle
+                    d_center = p.pos.length()
+                    min_r = ko_rad + p.radius
+                    if d_center < min_r and d_center > 1e-5:
+                        push = p.pos / d_center
+                        p.pos = push * min_r
+                        v_rad = p.speed.dot(push)
+                        if v_rad < 0:
+                            p.speed = p.speed - push * v_rad
 
     def _resolve_disc_collisions(self):
         n = len(self.discs)
@@ -169,6 +235,13 @@ class PhysicsEngine:
                             j_mag = -(1.0 + e) * v_n / w_tot
                             d_a.speed = d_a.speed + normal * (j_mag * w_a)
                             d_b.speed = d_b.speed - normal * (j_mag * w_b)
+
+                    # Player ball-contact resistance: ball slows down player upon physical collision
+                    if self.ball is not None:
+                        if d_a.is_player and d_b == self.ball:
+                            d_a.speed = d_a.speed * 0.92
+                        elif d_b.is_player and d_a == self.ball:
+                            d_b.speed = d_b.speed * 0.92
 
     def _resolve_segment_collisions(self):
         for d in self.discs:

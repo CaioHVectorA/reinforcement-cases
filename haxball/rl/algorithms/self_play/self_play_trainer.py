@@ -168,7 +168,8 @@ class SelfPlay2v2Trainer:
         # 3. Decode inputs for physics engine
         inputs: Dict[int, Tuple[float, float, bool]] = {}
         for i, p in enumerate(players):
-            mx = float(np.clip(actions_np[i, 0], -1.0, 1.0))
+            attack_sign = 1.0 if p.team == Team.RED else -1.0
+            mx = float(np.clip(actions_np[i, 0], -1.0, 1.0)) * attack_sign
             my = float(np.clip(actions_np[i, 1], -1.0, 1.0))
             kick = bool(actions_np[i, 2] > 0.0)
             inputs[p.player_id] = (mx, my, kick)
@@ -237,11 +238,10 @@ class SelfPlay2v2Trainer:
 
             for t in reversed(range(self.rollout_steps)):
                 if t == self.rollout_steps - 1:
-                    nextnonterminal = 1.0 - self.buf_dones[t]
                     nextvalues = next_values
                 else:
-                    nextnonterminal = 1.0 - self.buf_dones[t + 1]
                     nextvalues = self.buf_values[t + 1]
+                nextnonterminal = 1.0 - self.buf_dones[t]
 
                 delta = self.buf_rewards[t] + self.gamma * nextvalues * nextnonterminal - self.buf_values[t]
                 advantages[t] = lastgaelam = delta + self.gamma * self.gae_lambda * nextnonterminal * lastgaelam

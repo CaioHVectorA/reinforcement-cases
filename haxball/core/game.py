@@ -60,40 +60,78 @@ class HaxBallGame:
         self.last_goal_team = Team.NONE
         self.reset_round(kickoff_team=starting_kickoff)
 
-    def reset_round(self, kickoff_team: Team = Team.RED):
-        self.state = GameState.KICKOFF_RED if kickoff_team == Team.RED else GameState.KICKOFF_BLUE
+    def reset_round(self, kickoff_team: Team = Team.RED, randomize_scenario: bool = False):
         self.celebration_timer = 0
-
-        # Reset ball to center
-        self.ball.pos = Vec2(0.0, 0.0)
-        self.ball.speed = Vec2(0.0, 0.0)
-        self.prev_ball_pos = self.ball.pos.copy()
-
-        # Spawn players
+        w = max(50.0, self.stadium.bg_width)
+        h = max(50.0, self.stadium.bg_height)
         spawn_dist = self.stadium.spawn_distance
-        h = self.stadium.bg_height
 
         red_players = [p for p in self.players if p.team == Team.RED]
         blue_players = [p for p in self.players if p.team == Team.BLUE]
 
-        for i, p in enumerate(red_players):
+        for p in self.players:
             p.speed = Vec2(0.0, 0.0)
             p.is_kicking = False
             p.kick_flash = 0
-            n = len(red_players)
-            spacing = min(70.0, (h * 1.4) / max(1, n))
-            offset_y = (i - (n - 1) / 2.0) * spacing
-            p.pos = Vec2(-spawn_dist, offset_y)
 
-        for i, p in enumerate(blue_players):
-            p.speed = Vec2(0.0, 0.0)
-            p.is_kicking = False
-            p.kick_flash = 0
-            n = len(blue_players)
-            spacing = min(70.0, (h * 1.4) / max(1, n))
-            offset_y = (i - (n - 1) / 2.0) * spacing
-            p.pos = Vec2(spawn_dist, offset_y)
+        if not randomize_scenario:
+            # Standard official kickoff
+            self.state = GameState.KICKOFF_RED if kickoff_team == Team.RED else GameState.KICKOFF_BLUE
+            self.ball.pos = Vec2(0.0, 0.0)
+            self.ball.speed = Vec2(0.0, 0.0)
 
+            for i, p in enumerate(red_players):
+                n = len(red_players)
+                spacing = min(70.0, (h * 1.4) / max(1, n))
+                offset_y = (i - (n - 1) / 2.0) * spacing
+                p.pos = Vec2(-spawn_dist, offset_y)
+
+            for i, p in enumerate(blue_players):
+                n = len(blue_players)
+                spacing = min(70.0, (h * 1.4) / max(1, n))
+                offset_y = (i - (n - 1) / 2.0) * spacing
+                p.pos = Vec2(spawn_dist, offset_y)
+        else:
+            import random
+            # Diverse organic scenario generation
+            self.state = GameState.PLAYING
+            sc_type = random.random()
+
+            if sc_type < 0.35:
+                # Standard kickoff
+                self.state = GameState.KICKOFF_RED if kickoff_team == Team.RED else GameState.KICKOFF_BLUE
+                self.ball.pos = Vec2(0.0, 0.0)
+                self.ball.speed = Vec2(0.0, 0.0)
+                for i, p in enumerate(red_players):
+                    p.pos = Vec2(-spawn_dist, (i - (len(red_players)-1)/2.0) * 45.0)
+                for i, p in enumerate(blue_players):
+                    p.pos = Vec2(spawn_dist, (i - (len(blue_players)-1)/2.0) * 45.0)
+
+            elif sc_type < 0.70:
+                # Open field dynamic play
+                bx = random.uniform(-0.6 * w, 0.6 * w)
+                by = random.uniform(-0.65 * h, 0.65 * h)
+                self.ball.pos = Vec2(bx, by)
+                self.ball.speed = Vec2(random.uniform(-4.0, 4.0), random.uniform(-4.0, 4.0))
+
+                for p in red_players:
+                    p.pos = Vec2(random.uniform(-0.8 * w, 0.3 * w), random.uniform(-0.7 * h, 0.7 * h))
+                for p in blue_players:
+                    p.pos = Vec2(random.uniform(-0.3 * w, 0.8 * w), random.uniform(-0.7 * h, 0.7 * h))
+
+            else:
+                # Corner / Wall battle / Transition
+                bx = random.choice([-1.0, 1.0]) * random.uniform(0.4 * w, 0.85 * w)
+                by = random.choice([-1.0, 1.0]) * random.uniform(0.45 * h, 0.85 * h)
+                self.ball.pos = Vec2(bx, by)
+                self.ball.speed = Vec2(random.uniform(-2.0, 2.0), random.uniform(-2.0, 2.0))
+
+                for p in red_players:
+                    p.pos = Vec2(random.uniform(-0.7 * w, 0.5 * w), random.uniform(-0.7 * h, 0.7 * h))
+                for p in blue_players:
+                    p.pos = Vec2(random.uniform(-0.5 * w, 0.7 * w), random.uniform(-0.7 * h, 0.7 * h))
+
+        self.prev_ball_pos = self.ball.pos.copy()
         self._update_kickoff_masks()
         self.physics.reset_with_entities(self.ball, self.players)
 
@@ -134,6 +172,11 @@ class HaxBallGame:
         rem_s = secs % 60
         return f"{mins:02d}:{rem_s:02d}"
 
+    @property
+    def discs(self) -> List[Disc]:
+        return self.physics.discs
+
+
     def step(self, inputs: Dict[int, Tuple[float, float, bool]]) -> Dict[str, Any]:
         step_info = {
             "state": self.state,
@@ -163,7 +206,7 @@ class HaxBallGame:
             return step_info
 
         self.prev_ball_pos = self.ball.pos.copy()
-        phys_events = self.physics.step(inputs)
+        phys_events = self.physics.step(inputs, game_state=int(self.state))
         step_info["events"] = phys_events
 
         # Transition from Kickoff to Playing as soon as ball is touched or moved

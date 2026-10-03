@@ -83,6 +83,27 @@ class Segment:
         if self.is_curved:
             self._precompute_arc()
 
+    @property
+    def color(self) -> str:
+        return self.color_hex
+
+    @property
+    def center(self) -> Vec2:
+        return self.arc_center
+
+    @property
+    def radius(self) -> float:
+        return self.arc_radius
+
+    @property
+    def start_angle(self) -> float:
+        return self.arc_start_angle
+
+    @property
+    def span_angle(self) -> float:
+        return self.arc_span_angle
+
+
     def _precompute_arc(self):
         """Precomputes arc circle center, radius, and angular span for fast collision checks."""
         v = self.p1 - self.p0

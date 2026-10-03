@@ -281,3 +281,8 @@ class Stadium:
             kick_back=float(pp.get("kickBack", 0.0)),
             name=f"Player_{team.name}_{player_number}"
         )
+
+    @property
+    def color(self) -> str:
+        return self.bg_color
+

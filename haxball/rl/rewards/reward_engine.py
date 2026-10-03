@@ -20,16 +20,17 @@ from haxball.core.disc import Disc
 class TeamPlayRewardEngine:
     def __init__(
         self,
-        goal_reward: float = 10.0,
-        concede_penalty: float = 10.0,
-        assist_reward: float = 4.0,
-        pass_completed_reward: float = 2.5,
-        reception_reward: float = 1.5,
-        interception_reward: float = 1.2,
-        approach_ball_weight: float = 0.04,
-        ball_to_goal_vel_weight: float = 0.06,
-        kick_alignment_weight: float = 0.25,
-        wall_rebound_weight: float = 0.4,
+        goal_reward: float = 15.0,
+        concede_penalty: float = 15.0,
+        assist_reward: float = 5.0,
+        pass_completed_reward: float = 3.0,
+        reception_reward: float = 2.0,
+        interception_reward: float = 1.5,
+        approach_ball_weight: float = 0.06,
+        ball_to_goal_vel_weight: float = 0.12,
+        kick_alignment_weight: float = 0.45,
+        wall_rebound_weight: float = 0.5,
+        touch_ball_bonus: float = 0.04,
         spacing_penalty_weight: float = 0.03,
         defensive_cover_reward: float = 0.02,
         cluster_threshold_dist: float = 75.0,
@@ -45,6 +46,7 @@ class TeamPlayRewardEngine:
         self.ball_to_goal_vel_weight = ball_to_goal_vel_weight
         self.kick_alignment_weight = kick_alignment_weight
         self.wall_rebound_weight = wall_rebound_weight
+        self.touch_ball_bonus = touch_ball_bonus
         self.spacing_penalty_weight = spacing_penalty_weight
         self.defensive_cover_reward = defensive_cover_reward
         self.cluster_threshold_dist = cluster_threshold_dist
@@ -165,6 +167,11 @@ class TeamPlayRewardEngine:
                 # Primary presser: gets reward for closing down ball
                 dist_delta = prev_dist - curr_dist
                 rewards[pid] += dist_delta * self.approach_ball_weight
+
+                # Ball contact/possession bonus
+                if curr_dist <= (player.radius + ball.radius + 6.0):
+                    rewards[pid] += self.touch_ball_bonus
+
             self.prev_dist_to_ball[pid] = curr_dist
 
             # B. Anti-clustering spacing penalty with teammates

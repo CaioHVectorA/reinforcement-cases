@@ -13,20 +13,20 @@
   },
   "playerPhysics": {
     "radius": 15,
-    "bCoef": 0.0,
+    "bCoef": 0.5,
     "invMass": 0.5,
     "damping": 0.96,
-    "acceleration": 0.11,
-    "kickingAcceleration": 0.08,
+    "acceleration": 0.10,
+    "kickingAcceleration": 0.07,
     "kickingDamping": 0.96,
-    "kickStrength": 5.5,
+    "kickStrength": 5.0,
     "kickMargin": 4.0,
     "kickBack": 0.0
   },
   "ballPhysics": {
-    "radius": 6.5,
+    "radius": 8.0,
     "bCoef": 0.5,
-    "invMass": 1.45,
+    "invMass": 1.0,
     "damping": 0.99,
     "color": "FFFFFF",
     "cMask": ["all"],
@@ -34,7 +34,7 @@
   },
   "traits": {
     "ballArea": { "vis": false, "bCoef": 1.0, "cMask": ["ball"], "cGroup": ["wall"] },
-    "futsalWall": { "vis": true, "bCoef": 1.25, "cMask": ["all"], "cGroup": ["wall"], "color": "FFFFFF" },
+    "futsalWall": { "vis": true, "bCoef": 1.0, "cMask": ["all"], "cGroup": ["wall"], "color": "FFFFFF" },
     "goalNet": { "vis": true, "bCoef": 0.1, "cMask": ["ball"], "cGroup": ["wall"], "color": "CCCCCC" },
     "goalPost": { "radius": 7, "invMass": 0, "bCoef": 0.5, "color": "FFFFFF", "cMask": ["all"], "cGroup": ["wall"] }
   },

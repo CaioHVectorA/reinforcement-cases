@@ -19,3 +19,7 @@ class BaseBot(ABC):
         where move_x and move_y are in [-1.0, 1.0].
         """
         pass
+
+    def reset(self):
+        """Clears any per-match memory (called when a new match/opponent starts)."""
+        return None
