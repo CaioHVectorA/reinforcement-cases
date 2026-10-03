@@ -209,9 +209,13 @@ class HaxBallGame:
         phys_events = self.physics.step(inputs, game_state=int(self.state))
         step_info["events"] = phys_events
 
-        # Transition from Kickoff to Playing as soon as ball is touched or moved
+        # Transition from Kickoff to Playing as soon as ball is touched, kicked, or moved
         if self.state in (GameState.KICKOFF_RED, GameState.KICKOFF_BLUE):
-            if self.ball.speed.length_sq() > 0.01 or len(phys_events["kicks"]) > 0:
+            if (
+                self.ball.speed.length_sq() > 0.001 or
+                len(phys_events.get("kicks", [])) > 0 or
+                len(phys_events.get("disc_ball_collisions", [])) > 0
+            ):
                 self.state = GameState.PLAYING
                 self._update_kickoff_masks()
 

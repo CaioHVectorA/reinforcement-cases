@@ -35,23 +35,28 @@ class ActionHandler:
         return (mx, my, kick)
 
     @staticmethod
+    def encode_discrete(mx: float, my: float, kick: bool) -> int:
+        x_idx = 1 if abs(mx) < 0.3 else (2 if mx > 0 else 0)
+        y_idx = 1 if abs(my) < 0.3 else (2 if my > 0 else 0)
+        move_idx = y_idx * 3 + x_idx  # 0 to 8
+        return move_idx + (9 if kick else 0)
+
+    @staticmethod
     def decode_discrete(action: Union[int, np.integer]) -> Tuple[float, float, bool]:
         act_idx = int(action)
         kick = (act_idx >= 9)
         dir_idx = act_idx % 9
 
-        dirs = [
-            (0.0, 0.0),      # Parado
-            (0.0, 1.0),      # Cima
-            (0.707, 0.707),  # Cima-Direita
-            (1.0, 0.0),      # Direita
-            (0.707, -0.707), # Baixo-Direita
-            (0.0, -1.0),     # Baixo
-            (-0.707, -0.707),# Baixo-Esquerda
-            (-1.0, 0.0),     # Esquerda
-            (-0.707, 0.707)  # Cima-Esquerda
-        ]
-        mx, my = dirs[dir_idx]
+        x_idx = dir_idx % 3
+        y_idx = dir_idx // 3
+        mx = float(x_idx - 1)
+        my = float(y_idx - 1)
+
+        # Normalize diagonal length
+        if mx != 0.0 and my != 0.0:
+            mx *= 0.7071
+            my *= 0.7071
+
         return (mx, my, kick)
 
     @staticmethod
