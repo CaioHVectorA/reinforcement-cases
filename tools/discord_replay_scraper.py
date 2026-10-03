@@ -38,7 +38,8 @@ def download_file(url: str, dest_path: str) -> bool:
     if os.path.exists(dest_path) and os.path.getsize(dest_path) > 0:
         return True
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": HEADERS["user-agent"]})
+        ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+        req = urllib.request.Request(url, headers={"User-Agent": ua})
         with urllib.request.urlopen(req, timeout=30) as resp:
             content = resp.read()
             with open(dest_path, "wb") as f:
