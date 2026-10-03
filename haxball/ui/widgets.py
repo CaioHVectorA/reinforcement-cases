@@ -134,6 +134,25 @@ def draw_icon_help(surface: pygame.Surface, center: Tuple[int, int], color: Tupl
     q = font.render("?", True, color)
     surface.blit(q, q.get_rect(center=(cx, cy)))
 
+def draw_icon_upload(surface: pygame.Surface, center: Tuple[int, int], color: Tuple[int, int, int] = (255, 255, 255), size: int = 12):
+    cx, cy = center
+    # Up arrow
+    pygame.draw.line(surface, color, (cx, cy + 3), (cx, cy - 5), width=2)
+    pts = [
+        (cx - 4, cy - 2),
+        (cx, cy - 6),
+        (cx + 4, cy - 2)
+    ]
+    pygame.draw.lines(surface, color, False, pts, width=2)
+    # Tray bracket
+    tray_pts = [
+        (cx - 5, cy + 2),
+        (cx - 5, cy + 5),
+        (cx + 5, cy + 5),
+        (cx + 5, cy + 2)
+    ]
+    pygame.draw.lines(surface, color, False, tray_pts, width=2)
+
 ICON_DISPATCH = {
     "play": draw_icon_play,
     "pause": draw_icon_pause,
@@ -149,6 +168,7 @@ ICON_DISPATCH = {
     "bot": draw_icon_robot,
     "brain": draw_icon_brain,
     "rl": draw_icon_brain,
+    "upload": draw_icon_upload,
     "help": draw_icon_help
 }
 

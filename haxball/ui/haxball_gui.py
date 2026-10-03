@@ -22,6 +22,9 @@ import pygame
 from typing import Dict, Tuple, Optional, Any, List
 import torch
 
+import shutil
+import subprocess
+
 from haxball.core.vector import Vec2
 from haxball.core.constants import Team, GameState, FPS
 from haxball.core.disc import hex_to_rgb
@@ -35,7 +38,8 @@ from haxball.rl.algorithms.self_play.self_play_trainer import SelfPlay2v2Trainer
 from haxball.ui.widgets import (
     ICON_DISPATCH, draw_icon_stadium, draw_icon_lightning,
     draw_icon_robot, draw_icon_user, draw_icon_reset,
-    draw_icon_play, draw_icon_pause, draw_icon_brain, draw_icon_help
+    draw_icon_play, draw_icon_pause, draw_icon_brain, draw_icon_help,
+    draw_icon_upload
 )
 
 MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "maps")
@@ -275,17 +279,105 @@ class HaxBallApp:
     def load_checkpoint(self, filename: str):
         full_path = os.path.join("checkpoints", filename) if not os.path.isabs(filename) else filename
         if os.path.exists(full_path):
-            state_dict = torch.load(full_path, map_location="cpu")
             if "rl" in self.bot_catalog:
-                self.bot_catalog["rl"].policy.load_state_dict(state_dict)
-                self.bot_catalog["rl"].policy.eval()
-            if self.self_play_trainer:
-                self.self_play_trainer.policy.load_state_dict(state_dict)
+                self.bot_catalog["rl"].load_model(full_path)
+            try:
+                state_dict = torch.load(full_path, map_location="cpu")
+                if self.self_play_trainer and isinstance(state_dict, dict) and "actor.0.weight" in state_dict:
+                    self.self_play_trainer.policy.load_state_dict(state_dict)
+            except Exception:
+                pass
             self.active_checkpoint_name = os.path.basename(full_path)
             self.active_bot_key = "rl"
             self.checkpoint_feedback = f"Carregado: {self.active_checkpoint_name}"
             self.feedback_time = time.time()
             print(f"[GUI] Checkpoint carregado com sucesso: {self.active_checkpoint_name}")
+
+    def plug_in_model_for_1v1(self, file_path: str):
+        """
+        Plugs in an uploaded or selected model file, switches format to 1v1 against Human,
+        and starts the duel immediately.
+        """
+        if not os.path.exists(file_path):
+            self.checkpoint_feedback = f"Erro: Arquivo não encontrado!"
+            self.feedback_time = time.time()
+            return
+
+        os.makedirs("checkpoints", exist_ok=True)
+        base_name = os.path.basename(file_path)
+        dest_path = os.path.join("checkpoints", base_name)
+        if os.path.abspath(file_path) != os.path.abspath(dest_path):
+            try:
+                shutil.copy2(file_path, dest_path)
+            except Exception:
+                dest_path = file_path
+
+        # Load into RLBot
+        if "rl" not in self.bot_catalog:
+            self.bot_catalog["rl"] = RLBot(model_path=dest_path, name="RL Bot (Trained)")
+            success = True
+        else:
+            success = self.bot_catalog["rl"].load_model(dest_path)
+
+        if success:
+            self.active_checkpoint_name = base_name
+            self.active_bot_key = "rl"
+            self.gauntlet_mode = False
+            self.play_mode = "human"
+            self.team_format = 1
+            self._init_game(self.current_stadium_key, 1)
+            self.game.reset_match()
+            self.show_rl_modal = False
+            self.show_stadium_modal = False
+            self.checkpoint_feedback = f"Modelo {base_name} PLUGADO! 1x1 Iniciado!"
+            self.feedback_time = time.time()
+            print(f"[GUI] Modelo plugado: {dest_path} -> Modo 1v1 Humano vs IA Ativado!")
+        else:
+            self.checkpoint_feedback = f"Falha ao interpretar pesos de {base_name}"
+            self.feedback_time = time.time()
+
+    def prompt_upload_model(self):
+        """
+        Prompts user to select a .pt file via zenity file chooser or recent checkpoints.
+        Plugs it into 1v1 automatically.
+        """
+        zenity_path = shutil.which("zenity")
+        selected_file = None
+
+        if zenity_path:
+            try:
+                cmd = [
+                    zenity_path,
+                    "--file-selection",
+                    "--title=Selecione o Modelo PyTorch (.pt) para Duelo 1x1",
+                    "--file-filter=Modelos PyTorch (*.pt) | *.pt",
+                    "--file-filter=Todos os Arquivos | *"
+                ]
+                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
+                if res.returncode == 0 and res.stdout.strip():
+                    selected_file = res.stdout.strip()
+            except Exception as e:
+                print(f"[GUI] Aviso ao abrir diálogo zenity: {e}")
+
+        if not selected_file:
+            # Check Downloads and checkpoints directory for newest .pt file
+            home_dl = os.path.expanduser("~/Downloads")
+            candidates = []
+            if os.path.exists(home_dl):
+                candidates.extend([os.path.join(home_dl, f) for f in os.listdir(home_dl) if f.endswith(".pt")])
+            if os.path.exists("checkpoints"):
+                candidates.extend([os.path.join("checkpoints", f) for f in os.listdir("checkpoints") if f.endswith(".pt")])
+
+            if candidates:
+                candidates.sort(key=os.path.getmtime, reverse=True)
+                selected_file = candidates[0]
+                print(f"[GUI] Modelo recente detectado: {selected_file}")
+
+        if selected_file and os.path.exists(selected_file):
+            self.plug_in_model_for_1v1(selected_file)
+        else:
+            self.checkpoint_feedback = "Arraste e solte o arquivo .pt na janela!"
+            self.feedback_time = time.time()
 
     def save_current_checkpoint(self, custom_name: Optional[str] = None):
         os.makedirs("checkpoints", exist_ok=True)
@@ -689,30 +781,30 @@ class HaxBallApp:
         pygame.draw.line(self.screen, (45, 56, 70), (0, dock_y), (self.width, dock_y), width=1)
 
         # 1. Play / Pause
-        self.btn_pause_r = pygame.Rect(12, dock_y + 10, 95, 38)
+        self.btn_pause_r = pygame.Rect(10, dock_y + 10, 85, 38)
         p_txt = "Play" if self.is_paused else "Pausar"
         p_icon = "play" if self.is_paused else "pause"
         self._draw_btn(self.btn_pause_r, p_txt, (58, 142, 230), icon=p_icon)
 
         # 2. Reset match
-        self.btn_reset_r = pygame.Rect(112, dock_y + 10, 85, 38)
+        self.btn_reset_r = pygame.Rect(100, dock_y + 10, 75, 38)
         self._draw_btn(self.btn_reset_r, "Reset", (45, 55, 68), icon="reset")
 
         # 3. Choose Stadium
-        self.btn_stadium_r = pygame.Rect(202, dock_y + 10, 115, 38)
+        self.btn_stadium_r = pygame.Rect(180, dock_y + 10, 105, 38)
         self._draw_btn(self.btn_stadium_r, "Estádios", (45, 55, 68), icon="stadium")
 
         # 4. Format 1v1 / 2v2 / 3v3 / 5v5
-        self.btn_format_r = pygame.Rect(322, dock_y + 10, 110, 38)
+        self.btn_format_r = pygame.Rect(290, dock_y + 10, 85, 38)
         self._draw_btn(self.btn_format_r, f"{self.team_format}v{self.team_format}", (45, 55, 68), icon="user")
 
         # 5. Speed Multiplier
-        self.btn_dock_speed_r = pygame.Rect(437, dock_y + 10, 110, 38)
+        self.btn_dock_speed_r = pygame.Rect(380, dock_y + 10, 95, 38)
         sp_c = (210, 120, 30) if self.speed_multiplier > 1 else (45, 55, 68)
         self._draw_btn(self.btn_dock_speed_r, f"Vel: {self.speed_multiplier}x", sp_c, icon="lightning")
 
         # 6. Mode Toggle (Self-Play vs Human)
-        self.btn_dock_mode_r = pygame.Rect(552, dock_y + 10, 130, 38)
+        self.btn_dock_mode_r = pygame.Rect(480, dock_y + 10, 115, 38)
         is_sp = (self.play_mode == "self_play")
         m_txt = "Self-Play IA" if is_sp else "Humano"
         m_bg = (50, 140, 90) if is_sp else (58, 142, 230)
@@ -720,7 +812,7 @@ class HaxBallApp:
         self._draw_btn(self.btn_dock_mode_r, m_txt, m_bg, icon=m_icon)
 
         # 7. Opponent Bot Cycle
-        self.btn_dock_bot_r = pygame.Rect(687, dock_y + 10, 155, 38)
+        self.btn_dock_bot_r = pygame.Rect(600, dock_y + 10, 145, 38)
         b_labels = {
             "press": "Bot: Pressing",
             "striker": "Bot: Striker",
@@ -739,14 +831,18 @@ class HaxBallApp:
             b_txt = b_labels.get(self.active_bot_key, f"Bot: {self.active_bot_key.title()}")
         self._draw_btn(self.btn_dock_bot_r, b_txt, (50, 60, 75), icon="robot")
 
-        # 8. Checkpoints & RL Studio Modal
-        self.btn_rl_r = pygame.Rect(847, dock_y + 10, 175, 38)
+        # 8. Upload Model (Plug into 1v1)
+        self.btn_upload_r = pygame.Rect(750, dock_y + 10, 145, 38)
+        self._draw_btn(self.btn_upload_r, "Upload 1v1 (.pt)", (215, 135, 25), icon="upload")
+
+        # 9. Checkpoints & RL Studio Modal
+        self.btn_rl_r = pygame.Rect(900, dock_y + 10, 185, 38)
         rl_c = (60, 179, 113) if not self.training_active else (220, 70, 70)
         rl_t = "Modelos & RL Studio" if not self.training_active else "Treinando..."
         self._draw_btn(self.btn_rl_r, rl_t, rl_c, icon="brain")
 
-        # 9. Help / Controls
-        self.btn_help_r = pygame.Rect(self.width - 110, dock_y + 10, 95, 38)
+        # 10. Help / Controls
+        self.btn_help_r = pygame.Rect(self.width - 100, dock_y + 10, 85, 38)
         self._draw_btn(self.btn_help_r, "Teclas", (45, 55, 68), icon="help")
 
     def _draw_btn(self, rect: pygame.Rect, text: str, bg_color: Tuple[int, int, int], icon: Optional[str] = None):
@@ -885,16 +981,27 @@ class HaxBallApp:
                 self.screen.blit(d_card, (cx + 10, cy + 38))
 
                 # Action label
-                status_txt = "● ATIVO" if is_active else "Carregar"
+                status_txt = "● ATIVO (1v1)" if is_active else "Plug 1v1"
                 status_col = (60, 210, 120) if is_active else (58, 142, 230)
                 s_surf = self.font_bold.render(status_txt, True, status_col)
                 self.screen.blit(s_surf, (card_r.right - s_surf.get_width() - 14, cy + 54))
 
+            # Drag & Drop Info Banner
+            d_box = pygame.Rect(m_r.x + 30, m_r.bottom - 98, m_w - 60, 36)
+            pygame.draw.rect(self.screen, (22, 29, 38), d_box, border_radius=6)
+            pygame.draw.rect(self.screen, (45, 58, 74), d_box, width=1, border_radius=6)
+            draw_icon_lightning(self.screen, (d_box.x + 18, d_box.centery), (255, 200, 60), size=12)
+            d_text = self.font_small.render("Dica Pro: Arraste e solte (Drag & Drop) qualquer arquivo .pt na tela do jogo para duelo 1x1 instantâneo!", True, (210, 225, 240))
+            self.screen.blit(d_text, (d_box.x + 32, d_box.centery - d_text.get_height() // 2))
+
             # Bottom Quick Actions in Tab 1
-            self.btn_save_cp_r = pygame.Rect(m_r.x + 30, m_r.bottom - 50, 210, 36)
+            self.btn_upload_modal_r = pygame.Rect(m_r.x + 30, m_r.bottom - 50, 250, 36)
+            self._draw_btn(self.btn_upload_modal_r, "📤 Upload / Plug .PT (1v1)", (215, 135, 25), icon="upload")
+
+            self.btn_save_cp_r = pygame.Rect(m_r.x + 295, m_r.bottom - 50, 200, 36)
             self._draw_btn(self.btn_save_cp_r, "💾 Salvar Checkpoint", (45, 58, 74))
 
-            self.btn_quick_train_r = pygame.Rect(m_r.x + 250, m_r.bottom - 50, 210, 36)
+            self.btn_quick_train_r = pygame.Rect(m_r.x + 510, m_r.bottom - 50, 200, 36)
             self._draw_btn(self.btn_quick_train_r, "⚡ +25k Passos Rápidos", (210, 120, 30))
 
         # Tab 2: Training Config & Background Worker
@@ -1028,6 +1135,11 @@ class HaxBallApp:
                 elif event.key == pygame.K_TAB:
                     self.cycle_speed()
 
+            elif event.type == pygame.DROPFILE:
+                dropped_file = event.file
+                print(f"[GUI] Arquivo arrastado detectado: {dropped_file}")
+                self.plug_in_model_for_1v1(dropped_file)
+
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 pos = event.pos
 
@@ -1058,9 +1170,11 @@ class HaxBallApp:
                         if hasattr(self, "checkpoint_cards"):
                             for cp_file, c_rect in self.checkpoint_cards.items():
                                 if c_rect.collidepoint(pos):
-                                    self.load_checkpoint(cp_file)
+                                    self.plug_in_model_for_1v1(cp_file)
                                     break
-                        if hasattr(self, "btn_save_cp_r") and self.btn_save_cp_r.collidepoint(pos):
+                        if hasattr(self, "btn_upload_modal_r") and self.btn_upload_modal_r.collidepoint(pos):
+                            self.prompt_upload_model()
+                        elif hasattr(self, "btn_save_cp_r") and self.btn_save_cp_r.collidepoint(pos):
                             self.save_current_checkpoint()
                         elif hasattr(self, "btn_quick_train_r") and self.btn_quick_train_r.collidepoint(pos):
                             if self.self_play_trainer:
@@ -1137,6 +1251,8 @@ class HaxBallApp:
                     self.toggle_play_mode()
                 elif self.btn_dock_bot_r.collidepoint(pos):
                     self.cycle_bot()
+                elif hasattr(self, "btn_upload_r") and self.btn_upload_r.collidepoint(pos):
+                    self.prompt_upload_model()
                 elif self.btn_rl_r.collidepoint(pos):
                     self.show_rl_modal = True
                 elif self.btn_help_r.collidepoint(pos):
