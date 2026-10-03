@@ -86,10 +86,19 @@ class TestDecoupledObservation(unittest.TestCase):
 class TestActionHandler(unittest.TestCase):
     def test_action_conversion(self):
         handler = ActionHandler()
-        mx, my, kick = handler.decode_discrete(3)  # Direita
+        # Test Direita (mx=1.0, my=0.0) -> index 5
+        act_idx = handler.encode_discrete(1.0, 0.0, False)
+        self.assertEqual(act_idx, 5)
+        mx, my, kick = handler.decode_discrete(5)  # Direita
         self.assertAlmostEqual(mx, 1.0)
         self.assertAlmostEqual(my, 0.0)
         self.assertFalse(kick)
+
+        # Test Esquerda (mx=-1.0, my=0.0) -> index 3
+        act_left = handler.encode_discrete(-1.0, 0.0, False)
+        self.assertEqual(act_left, 3)
+        mx_l, my_l, _ = handler.decode_discrete(3)
+        self.assertAlmostEqual(mx_l, -1.0)
 
         headless_cmd = handler.to_haxball_headless_format(1.0, 0.0, True)
         self.assertEqual(headless_cmd["xdir"], 1)
