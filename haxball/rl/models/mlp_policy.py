@@ -49,6 +49,9 @@ class ActorCriticMLP(nn.Module):
             layer_init(nn.Linear(hidden_dim, 1), std=1.0),
         )
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.actor(x)
+
     def get_value(self, x: torch.Tensor) -> torch.Tensor:
         return self.critic(x)
 

@@ -19,14 +19,18 @@ class RewardShaper:
         approach_ball_weight: float = 0.05,
         ball_to_goal_vel_weight: float = 0.08,
         kick_alignment_weight: float = 0.3,
-        wall_rebound_weight: float = 0.5,
+        touch_ball_weight: float = 0.10,
+        defensive_position_weight: float = 0.03,
+        whiff_kick_penalty: float = 0.01,
     ):
         self.goal_reward = goal_reward
         self.concede_penalty = concede_penalty
         self.approach_ball_weight = approach_ball_weight
         self.ball_to_goal_vel_weight = ball_to_goal_vel_weight
         self.kick_alignment_weight = kick_alignment_weight
-        self.wall_rebound_weight = wall_rebound_weight
+        self.touch_ball_weight = touch_ball_weight
+        self.defensive_position_weight = defensive_position_weight
+        self.whiff_kick_penalty = whiff_kick_penalty
 
         self.prev_dist_to_ball: float = 0.0
         self.prev_ball_dist_to_goal: float = 0.0
@@ -59,8 +63,11 @@ class RewardShaper:
         if not player or not ball:
             return 0.0
 
-        opp_goal_x = stad.bg_width if agent_team == Team.RED else -stad.bg_width
+        is_red = (agent_team == Team.RED)
+        opp_goal_x = stad.bg_width if is_red else -stad.bg_width
+        own_goal_x = -stad.bg_width if is_red else stad.bg_width
         target_goal = Vec2(opp_goal_x, 0.0)
+        own_goal = Vec2(own_goal_x, 0.0)
 
         # 1. Goal Scored / Conceded (Primary sparse reward)
         if step_info.get("goal_scored", False):
@@ -82,14 +89,33 @@ class RewardShaper:
         if ball_goal_speed > 0:
             reward += ball_goal_speed * self.ball_to_goal_vel_weight
 
-        # 4. Kick reward when aligned with target goal
+        # 4. Ball Touch / Contact Bonus
+        reach = player.radius + ball.radius + player.kick_margin
+        collisions = step_info.get("events", {}).get("disc_ball_collisions", [])
+        for c in collisions:
+            if c.get("player_id") == player.player_id:
+                reward += self.touch_ball_weight
+
+        # 5. Kick reward when aligned vs Whiff Penalty for air kicks
         kicks = step_info.get("events", {}).get("kicks", [])
+        made_kick = False
         for k in kicks:
             if k["player_id"] == player.player_id:
-                # Shot vector
+                made_kick = True
                 to_ball_dir = (ball.pos - player.pos).normalized()
                 alignment = to_ball_dir.dot(to_goal_dir)
                 if alignment > 0:
                     reward += alignment * self.kick_alignment_weight
+
+        # Penalize pressing kick when nowhere near the ball (air kick / whiff spam)
+        if player.is_kicking and not made_kick and curr_dist_to_ball > (reach + 10.0):
+            reward -= self.whiff_kick_penalty
+
+        # 6. Defensive Positioning: Reward staying between ball and own goal
+        dist_player_to_own_goal = player.pos.distance_to(own_goal)
+        dist_ball_to_own_goal = ball.pos.distance_to(own_goal)
+        if dist_player_to_own_goal < dist_ball_to_own_goal:
+            # Player is covering the goal
+            reward += self.defensive_position_weight
 
         return reward
