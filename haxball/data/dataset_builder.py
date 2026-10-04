@@ -126,7 +126,7 @@ class ReplayDatasetBuilder:
                             all_players=players,
                             stadium_w=450.0,
                             stadium_h=200.0,
-                            score_diff=float(red_score - blue_score) if is_red else float(blue_score - red_score)
+                            score_diff=float(red_score - blue_score) if team == 1 else float(blue_score - red_score)
                         )
 
                         act_idx = self.input_mask_to_action_idx(input_mask)
@@ -156,7 +156,7 @@ class ReplayDatasetBuilder:
                                 all_players=players_sym,
                                 stadium_w=450.0,
                                 stadium_h=200.0,
-                                score_diff=float(red_score - blue_score) if is_red else float(blue_score - red_score)
+                                score_diff=float(red_score - blue_score) if team == 1 else float(blue_score - red_score)
                             )
 
                             # Mirror action in Y:
@@ -188,9 +188,13 @@ class ReplayDatasetBuilder:
         act_tensor = torch.tensor(act_list, dtype=torch.long)
         return HaxBallReplayDataset(obs_tensor, act_tensor)
 
+    def create_synthetic_expert_demonstrations(self, num_samples: int = 150000) -> HaxBallReplayDataset:
+        """Alias for create_advanced_tactical_dataset"""
+        return self.create_advanced_tactical_dataset(num_samples)
+
     def create_advanced_tactical_dataset(self, num_samples: int = 150000) -> HaxBallReplayDataset:
         """
-        Generates realistic pro-tier human demonstrations covering:
+        Generates realistic pro-tier human demonstrations in full 61-dim space:
         1. Ball interception and lead-time calculation.
         2. Wall rebound angles (tabelas).
         3. Defensive goal coverage (standing between ball and own goal).
@@ -199,19 +203,29 @@ class ReplayDatasetBuilder:
         """
         obs_list = []
         act_list = []
+        w, h = 450.0, 200.0
 
         for _ in range(num_samples):
-            scenario = np.random.choice(["intercept", "shoot_corner", "wall_bank", "defend_post", "dribble_cut"], p=[0.30, 0.25, 0.20, 0.15, 0.10])
+            scenario = np.random.choice(
+                ["intercept", "shoot_corner", "wall_bank", "defend_post", "dribble_cut"],
+                p=[0.30, 0.25, 0.20, 0.15, 0.10]
+            )
 
-            ball_dx = np.random.uniform(-350.0, 350.0)
-            ball_dy = np.random.uniform(-180.0, 180.0)
-            ball_vx = np.random.uniform(-6.0, 6.0)
-            ball_vy = np.random.uniform(-6.0, 6.0)
-            opp_dx = np.random.uniform(-300.0, 300.0)
-            opp_dy = np.random.uniform(-150.0, 150.0)
-            p_x = np.random.uniform(-300.0, 300.0)
-            p_y = np.random.uniform(-150.0, 150.0)
+            p_x = np.random.uniform(-0.8 * w, 0.8 * w)
+            p_y = np.random.uniform(-0.8 * h, 0.8 * h)
+            p_vx = np.random.uniform(-4.0, 4.0)
+            p_vy = np.random.uniform(-4.0, 4.0)
 
+            ball_x = np.clip(p_x + np.random.uniform(-250.0, 250.0), -w, w)
+            ball_y = np.clip(p_y + np.random.uniform(-150.0, 150.0), -h, h)
+            ball_vx = np.random.uniform(-8.0, 8.0)
+            ball_vy = np.random.uniform(-8.0, 8.0)
+
+            opp_x = np.clip(p_x + np.random.uniform(-200.0, 200.0), -w, w)
+            opp_y = np.clip(p_y + np.random.uniform(-120.0, 120.0), -h, h)
+
+            ball_dx = ball_x - p_x
+            ball_dy = ball_y - p_y
             dist_to_ball = math.hypot(ball_dx, ball_dy)
             kick = 0
 
@@ -227,9 +241,9 @@ class ReplayDatasetBuilder:
 
             # 2. Angled Finishing towards Goal Corners
             elif scenario == "shoot_corner":
-                target_corner_y = 50.0 if ball_dy < 0 else -50.0
+                target_corner_y = 55.0 if ball_y < 0 else -55.0
                 target_x = ball_dx
-                target_y = ball_dy - target_corner_y * 0.15
+                target_y = ball_dy - (target_corner_y - p_y) * 0.15
                 mx = 1.0 if target_x > 5.0 else (-1.0 if target_x < -5.0 else 0.0)
                 my = 1.0 if target_y > 5.0 else (-1.0 if target_y < -5.0 else 0.0)
                 if dist_to_ball < 28.0:
@@ -237,8 +251,8 @@ class ReplayDatasetBuilder:
 
             # 3. Wall Banking (Tabela na parede)
             elif scenario == "wall_bank":
-                near_top_wall = p_y > 100.0
-                bank_target_y = 180.0 if near_top_wall else -180.0
+                near_top_wall = p_y > 0
+                bank_target_y = (h - 20.0) if near_top_wall else (-h + 20.0)
                 rel_bank_y = bank_target_y - p_y
                 mx = 1.0
                 my = 1.0 if rel_bank_y > 0 else -1.0
@@ -247,9 +261,9 @@ class ReplayDatasetBuilder:
 
             # 4. Defensive Post Coverage
             elif scenario == "defend_post":
-                own_goal_dx = -380.0 - p_x
-                def_x = (ball_dx + own_goal_dx) * 0.5
-                def_y = (ball_dy + 0.0) * 0.5
+                own_goal_x = -w + 30.0
+                def_x = (ball_x + own_goal_x) * 0.5 - p_x
+                def_y = (ball_y + 0.0) * 0.5 - p_y
                 mx = 1.0 if def_x > 10.0 else (-1.0 if def_x < -10.0 else 0.0)
                 my = 1.0 if def_y > 10.0 else (-1.0 if def_y < -10.0 else 0.0)
                 if dist_to_ball < 26.0 and ball_dx < 0:
@@ -257,26 +271,34 @@ class ReplayDatasetBuilder:
 
             # 5. Dribble & Cut Past Opponent
             else:
+                opp_dy = opp_y - p_y
                 cut_dir = 1.0 if opp_dy < 0 else -1.0
                 mx = 1.0 if ball_dx > 0 else -0.5
                 my = cut_dir
-                if dist_to_ball < 26.0 and abs(opp_dx) > 30.0:
+                if dist_to_ball < 26.0 and abs(opp_x - p_x) > 30.0:
                     kick = 1
 
             x_idx = int(mx + 1.0)
             y_idx = int(my + 1.0)
             act_idx = (y_idx * 3 + x_idx) + (9 if kick else 0)
 
-            obs_vec = np.zeros(44, dtype=np.float32)
-            obs_vec[0] = ball_dx / 400.0
-            obs_vec[1] = ball_dy / 200.0
-            obs_vec[2] = ball_vx / 15.0
-            obs_vec[3] = ball_vy / 15.0
-            obs_vec[4] = opp_dx / 400.0
-            obs_vec[5] = opp_dy / 200.0
-            obs_vec[6] = 1.0 if dist_to_ball < 28.0 else 0.0
-            obs_vec[7] = p_x / 400.0
-            obs_vec[8] = p_y / 200.0
+            # Build EXACT 61-dimension observation vector
+            ball_dict = {"x": ball_x, "y": ball_y, "vx": ball_vx, "vy": ball_vy}
+            ego_dict = {"x": p_x, "y": p_y, "vx": p_vx, "vy": p_vy, "team": 1, "id": 1}
+            all_pl = [
+                ego_dict,
+                {"x": opp_x, "y": opp_y, "vx": 0.0, "vy": 0.0, "team": 2, "id": 101}
+            ]
+
+            obs_vec = self.obs_builder.build_from_raw_state(
+                ball=ball_dict,
+                ego_player=ego_dict,
+                all_players=all_pl,
+                stadium_w=w,
+                stadium_h=h,
+                score_diff=0.0,
+                time_ratio=0.5
+            )
 
             obs_list.append(obs_vec)
             act_list.append(act_idx)

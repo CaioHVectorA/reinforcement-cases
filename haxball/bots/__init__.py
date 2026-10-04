@@ -47,8 +47,13 @@ NPC_BOTS = {
 # Order used by the "play against every bot" gauntlet (roughly easiest -> hardest)
 GAUNTLET_ORDER = ["heuristic", "wall", "striker", "dribbler", "bank", "counter", "press", "master", "rl"]
 
+# Aliases for compatibility
+PressingBot = PressBot
+MasterProBot = MasterBot
+
 __all__ = [
     "BaseBot", "NPCBot", "NPCProfile", "HeuristicBot", "WallReboundBot", "GoalieBot", "RLBot",
     "PressBot", "StrikerBot", "BankBot", "DribblerBot", "CounterBot", "MasterBot",
+    "PressingBot", "MasterProBot",
     "NPC_BOTS", "GAUNTLET_ORDER",
 ]
