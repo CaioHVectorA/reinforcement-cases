@@ -92,10 +92,4 @@ class RewardShaper:
                 if alignment > 0:
                     reward += alignment * self.kick_alignment_weight
 
-                # 5. Wall rebound incentive: check if shot was directed toward top/bottom wall
-                # with high x velocity toward opponent half
-                wall_dir_y = abs(to_ball_dir.y)
-                if wall_dir_y > 0.4 and ball.speed.length() > 3.0:
-                    reward += self.wall_rebound_weight
-
         return reward

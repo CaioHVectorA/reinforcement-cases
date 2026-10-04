@@ -119,53 +119,47 @@ class ReplayDatasetBuilder:
                         pvx = p.get("vx", 0.0)
                         pvy = p.get("vy", 0.0)
 
-                        is_red = (team == 1)
-                        attack_sign = 1.0 if is_red else -1.0
-
-                        # Egocentric conversion
-                        ball_dx = (bx - px) * attack_sign
-                        ball_dy = by - py
-                        ball_vx = bvx * attack_sign
-                        ball_vy = bvy
-
-                        # Find nearest opponent
-                        opp_dx, opp_dy = 0.0, 0.0
-                        opps = [o for o in players if o.get("team") != team]
-                        if opps:
-                            closest_opp = min(opps, key=lambda o: math.hypot(o.get("x", 0) - px, o.get("y", 0) - py))
-                            opp_dx = (closest_opp.get("x", 0) - px) * attack_sign
-                            opp_dy = closest_opp.get("y", 0) - py
-
-                        # Normalized 44-dim feature vector
-                        obs_vec = np.zeros(44, dtype=np.float32)
-                        obs_vec[0] = ball_dx / 400.0
-                        obs_vec[1] = ball_dy / 200.0
-                        obs_vec[2] = ball_vx / 15.0
-                        obs_vec[3] = ball_vy / 15.0
-                        obs_vec[4] = opp_dx / 400.0
-                        obs_vec[5] = opp_dy / 200.0
-                        obs_vec[6] = 1.0 if math.hypot(ball_dx, ball_dy) < 30.0 else 0.0
-                        obs_vec[7] = (px * attack_sign) / 400.0
-                        obs_vec[8] = py / 200.0
-                        obs_vec[9] = (pvx * attack_sign) / 10.0
-                        obs_vec[10] = pvy / 10.0
+                        # Build 61-dim observation with all teammates and opponents
+                        obs_vec = self.obs_builder.build_from_raw_state(
+                            ball=ball,
+                            ego_player=p,
+                            all_players=players,
+                            stadium_w=450.0,
+                            stadium_h=200.0,
+                            score_diff=float(red_score - blue_score) if is_red else float(blue_score - red_score)
+                        )
 
                         act_idx = self.input_mask_to_action_idx(input_mask)
 
                         obs_list.append(obs_vec)
                         act_list.append(act_idx)
 
-                        # Y-Axis Mirror Augmentation
+                        # Y-Axis Mirror Augmentation (Full 61-dim symmetry)
                         if augment_symmetry:
-                            obs_sym = obs_vec.copy()
-                            obs_sym[1] = -obs_sym[1]  # Invert ball_dy
-                            obs_sym[3] = -obs_sym[3]  # Invert ball_vy
-                            obs_sym[5] = -obs_sym[5]  # Invert opp_dy
-                            obs_sym[8] = -obs_sym[8]  # Invert py
-                            obs_sym[10] = -obs_sym[10] # Invert pvy
+                            ball_sym = {"x": bx, "y": -by, "vx": bvx, "vy": -bvy}
+                            p_sym = {"x": px, "y": -py, "vx": pvx, "vy": -pvy, "team": team, "id": pid}
+                            players_sym = [
+                                {
+                                    "x": pl.get("x", 0.0),
+                                    "y": -pl.get("y", 0.0),
+                                    "vx": pl.get("vx", 0.0),
+                                    "vy": -pl.get("vy", 0.0),
+                                    "team": pl.get("team", 1),
+                                    "id": pl.get("id", 0)
+                                }
+                                for pl in players
+                            ]
+
+                            obs_sym = self.obs_builder.build_from_raw_state(
+                                ball=ball_sym,
+                                ego_player=p_sym,
+                                all_players=players_sym,
+                                stadium_w=450.0,
+                                stadium_h=200.0,
+                                score_diff=float(red_score - blue_score) if is_red else float(blue_score - red_score)
+                            )
 
                             # Mirror action in Y:
-                            # 0(-1,-1) -> 6(-1,1), 1(0,-1) -> 7(0,1), 2(1,-1) -> 8(1,1), 3(-1,0)->3, 4(0,0)->4, 5(1,0)->5
                             kick_part = 9 if act_idx >= 9 else 0
                             dir_part = act_idx % 9
                             x_idx = dir_part % 3

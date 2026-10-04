@@ -26,8 +26,8 @@ from haxball.rl.models.entity_attention import EntityAttentionPolicy
 from haxball.rl.actions.action_space import ActionHandler
 
 class HaxBallExpertPolicy(nn.Module):
-    """Behavioral Cloning / Imitation Learning Network."""
-    def __init__(self, obs_dim: int = 44, num_actions: int = 18):
+    """Behavioral Cloning / Imitation Learning Network with Full Multi-Agent Field Vision."""
+    def __init__(self, obs_dim: int = 61, num_actions: int = 18):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(obs_dim, 256),

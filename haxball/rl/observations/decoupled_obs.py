@@ -135,3 +135,97 @@ class DecoupledObservationBuilder(BaseObservationBuilder):
 
         obs = np.array(global_features + ego_features + tm_features + opp_features, dtype=np.float32)
         return obs
+
+    def build_from_raw_state(
+        self,
+        ball: Dict[str, float],
+        ego_player: Dict[str, float],
+        all_players: List[Dict[str, Any]],
+        stadium_w: float = 450.0,
+        stadium_h: float = 200.0,
+        score_diff: float = 0.0,
+        time_ratio: float = 0.0
+    ) -> np.ndarray:
+        """
+        Builds the exact same 61-dim observation from raw dictionary states (e.g. from .hbr2 replays).
+        Guarantees 100% bit-exact alignment between training and live inference.
+        """
+        w = max(10.0, stadium_w)
+        h = max(10.0, stadium_h)
+        diag = math.hypot(w, h)
+
+        team = ego_player.get("team", 1)  # 1=Red, 2=Blue
+        is_red = (team == 1)
+        attack_sign = 1.0 if is_red else -1.0
+
+        bx = ball.get("x", 0.0)
+        by = ball.get("y", 0.0)
+        bvx = ball.get("vx", 0.0)
+        bvy = ball.get("vy", 0.0)
+
+        b_x = (bx * attack_sign) / w
+        b_y = by / h
+        b_vx = (bvx * attack_sign) / self.max_vel
+        b_vy = bvy / self.max_vel
+        dist_ball_to_opp_goal = math.hypot(w - bx * attack_sign, by) / diag
+        dist_ball_to_own_goal = math.hypot(-w - bx * attack_sign, by) / diag
+
+        global_features = [
+            b_x, b_y, b_vx, b_vy,
+            dist_ball_to_opp_goal, dist_ball_to_own_goal,
+            score_diff * attack_sign, time_ratio
+        ]
+
+        px = ego_player.get("x", 0.0)
+        py = ego_player.get("y", 0.0)
+        pvx = ego_player.get("vx", 0.0)
+        pvy = ego_player.get("vy", 0.0)
+
+        p_x = (px * attack_sign) / w
+        p_y = py / h
+        p_vx = (pvx * attack_sign) / self.max_vel
+        p_vy = pvy / self.max_vel
+
+        rel_b_x = ((bx - px) * attack_sign) / w
+        rel_b_y = (by - py) / h
+        dist_to_ball = math.hypot(bx - px, by - py) / diag
+        can_kick = 1.0 if math.hypot(bx - px, by - py) <= 30.0 else 0.0
+
+        ego_features = [
+            p_x, p_y, p_vx, p_vy,
+            rel_b_x, rel_b_y, dist_to_ball, can_kick
+        ]
+
+        # Teammates
+        teammates = [p for p in all_players if p.get("team") == team and p.get("id") != ego_player.get("id")]
+        teammates.sort(key=lambda t: math.hypot(t.get("x", 0.0) - px, t.get("y", 0.0) - py))
+
+        tm_features: List[float] = []
+        for i in range(self.max_teammates):
+            if i < len(teammates):
+                tm = teammates[i]
+                rel_x = ((tm.get("x", 0.0) - px) * attack_sign) / w
+                rel_y = (tm.get("y", 0.0) - py) / h
+                tm_vx = (tm.get("vx", 0.0) * attack_sign) / self.max_vel
+                tm_vy = tm.get("vy", 0.0) / self.max_vel
+                tm_features.extend([rel_x, rel_y, tm_vx, tm_vy, 1.0])
+            else:
+                tm_features.extend([0.0, 0.0, 0.0, 0.0, 0.0])
+
+        # Opponents
+        opponents = [p for p in all_players if p.get("team") != team]
+        opponents.sort(key=lambda o: math.hypot(o.get("x", 0.0) - px, o.get("y", 0.0) - py))
+
+        opp_features: List[float] = []
+        for i in range(self.max_opponents):
+            if i < len(opponents):
+                opp = opponents[i]
+                rel_x = ((opp.get("x", 0.0) - px) * attack_sign) / w
+                rel_y = (opp.get("y", 0.0) - py) / h
+                opp_vx = (opp.get("vx", 0.0) * attack_sign) / self.max_vel
+                opp_vy = opp.get("vy", 0.0) / self.max_vel
+                opp_features.extend([rel_x, rel_y, opp_vx, opp_vy, 1.0])
+            else:
+                opp_features.extend([0.0, 0.0, 0.0, 0.0, 0.0])
+
+        return np.array(global_features + ego_features + tm_features + opp_features, dtype=np.float32)
