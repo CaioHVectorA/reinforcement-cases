@@ -27,6 +27,7 @@ class HaxBallEnv(gym.Env):
         self,
         stadium_file: Optional[str] = None,
         stadium: Optional[Stadium] = None,
+        stadium_scale: float = 1.0,
         opponent_bot: Optional[BaseBot] = None,
         discrete_actions: bool = True,
         render_mode: Optional[str] = None,
@@ -45,7 +46,11 @@ class HaxBallEnv(gym.Env):
             # Default to Classic
             self.stadium = Stadium()
 
+        if stadium_scale != 1.0:
+            self.stadium = self.stadium.scale(stadium_scale)
+
         self.opponent_bot = opponent_bot
+
         self.discrete_actions = discrete_actions
         self.render_mode = render_mode
         self.max_steps = max_steps

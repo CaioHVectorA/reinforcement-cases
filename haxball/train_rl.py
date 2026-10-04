@@ -241,7 +241,8 @@ class PPOTrainer:
 
 def main():
     parser = argparse.ArgumentParser(description="Train HaxBall RL Agent with PPO")
-    parser.add_argument("--map", choices=["futsal", "classic", "dodgeball"], default="futsal")
+    parser.add_argument("--map", choices=["futsal", "classic", "futsal_2v2", "micro_1v1", "small_classic", "big_stadium", "dodgeball"], default="futsal")
+    parser.add_argument("--scale", type=float, default=1.0, help="Stadium scale multiplier (e.g. 1.0, 1.5, 2.0)")
     parser.add_argument("--bot", choices=["heuristic", "wall", "goalie"], default="heuristic")
     parser.add_argument("--timesteps", type=int, default=20000, help="Total training timesteps")
     parser.add_argument("--save-dir", type=str, default="checkpoints", help="Directory to save model weights")
@@ -250,7 +251,8 @@ def main():
     map_path = os.path.join(os.path.dirname(__file__), "maps", f"{args.map}.hbs")
 
     opp_bot = WallReboundBot() if args.bot == "wall" else HeuristicBot()
-    env = HaxBallEnv(stadium_file=map_path, opponent_bot=opp_bot, max_steps=1500)
+    env = HaxBallEnv(stadium_file=map_path, stadium_scale=args.scale, opponent_bot=opp_bot, max_steps=1500)
+
 
     trainer = PPOTrainer(env=env, num_steps=2048, batch_size=64, update_epochs=8)
     trainer.train(total_timesteps=args.timesteps, save_dir=args.save_dir)

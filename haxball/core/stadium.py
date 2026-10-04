@@ -282,7 +282,89 @@ class Stadium:
             name=f"Player_{team.name}_{player_number}"
         )
 
+    def scale(self, factor: float) -> Stadium:
+        """
+        Returns a new Stadium with all dimensions, boundaries, kickoff radius,
+        goals, vertices, segments, discs, and planes scaled by the given factor.
+        """
+        if abs(factor - 1.0) < 1e-6:
+            return self
+
+        import copy
+        new_stad = Stadium()
+        new_stad.name = f"{self.name} ({factor:.2f}x)"
+        new_stad.width = self.width * factor
+        new_stad.height = self.height * factor
+        new_stad.spawn_distance = self.spawn_distance * factor
+        new_stad.bg_type = self.bg_type
+        new_stad.bg_width = self.bg_width * factor
+        new_stad.bg_height = self.bg_height * factor
+        new_stad.bg_kickoff_radius = self.bg_kickoff_radius * factor
+        new_stad.bg_corner_radius = self.bg_corner_radius * factor
+        new_stad.bg_color = self.bg_color
+        new_stad.player_physics = dict(self.player_physics)
+        new_stad.ball_physics = dict(self.ball_physics)
+        new_stad.traits = copy.deepcopy(self.traits)
+
+        for v in self.vertexes:
+            new_stad.vertexes.append(Vertex(
+                pos=v.pos * factor,
+                b_coef=v.b_coef,
+                c_mask=v.c_mask,
+                c_group=v.c_group,
+                trait=v.trait
+            ))
+
+        for s in self.segments:
+            new_stad.segments.append(Segment(
+                p0=s.p0 * factor,
+                p1=s.p1 * factor,
+                b_coef=s.b_coef,
+                c_mask=s.c_mask,
+                c_group=s.c_group,
+                curve=s.curve,
+                bias=s.bias,
+                vis=s.vis,
+                color=s.color,
+                trait=s.trait
+            ))
+
+        for g in self.goals:
+            team_str = "red" if g.team == Team.RED else ("blue" if g.team == Team.BLUE else "")
+            new_stad.goals.append(Goal(
+                p0=g.p0 * factor,
+                p1=g.p1 * factor,
+                team_str=team_str
+            ))
+
+        for d in self.discs:
+            new_stad.discs.append(Disc(
+                pos=d.pos * factor,
+                speed=d.speed.copy(),
+                radius=d.radius,
+                bCoef=d.bCoef,
+                invMass=d.invMass,
+                damping=d.damping,
+                color=d.color,
+                cMask=d.cMask,
+                cGroup=d.cGroup,
+                trait=d.trait,
+                name=d.name
+            ))
+
+        for pl in self.planes:
+            new_stad.planes.append(Plane(
+                normal=pl.normal.copy(),
+                dist=pl.dist * factor,
+                bCoef=pl.bCoef,
+                cMask=pl.cMask,
+                cGroup=pl.cGroup
+            ))
+
+        return new_stad
+
     @property
     def color(self) -> str:
         return self.bg_color
+
 
