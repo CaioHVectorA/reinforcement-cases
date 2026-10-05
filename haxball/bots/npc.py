@@ -245,7 +245,7 @@ class NPCBot(BaseBot):
         if mates and prof.team_play:
             t_mates = [field.intercept(m, ball, traj)[0] for m in mates]
             if min(t_mates) + 3 < t_me:
-                return self._support(game, field, player, ball, opps, attack, own_goal) + (False,)
+                return self._support(game, field, player, ball, opps, mates, attack, own_goal) + (False,)
 
         # --- defensive profiles hold the guard line until the ball is engaged ---
         in_own_half = (ball.pos.x * attack) < 0
@@ -261,6 +261,8 @@ class NPCBot(BaseBot):
         contact_ball = q_me if t_me <= 40 else ball.pos
         plan = self._plan(field, player, ball, contact_ball, opps, attack, st, prof, defending=prof.defensive and in_own_half)
         move, kick = self._execute(field, player, ball, contact_ball, plan, prof)
+        if kick and plan.kind == "finta":
+            st["finta_cd"] = prof.finta_cooldown
         self.debug[player.player_id] = {"kind": plan.kind, "aim": plan.aim.to_tuple()}
         return (move[0], move[1], kick)
 
@@ -285,7 +287,13 @@ class NPCBot(BaseBot):
                     continue
                 clr = f.lane_clearance(b, t, opps)
                 if clr >= prof.shoot_clear:
-                    cands.append(_Plan("shoot", d, t, clr + prof.far_post_bias * abs(t.y - cy)))
+                    distance_cost = 0.018 * b.distance_to(t)
+                    angle_quality = max(0.0, d.x * attack)
+                    cands.append(_Plan(
+                        "shoot", d, t,
+                        1.8 * clr + 18.0 * angle_quality
+                        + prof.far_post_bias * abs(t.y - cy) - distance_cost,
+                    ))
 
         # 2) bank shots at goal
         if prof.bank_shots and dist_goal <= prof.shoot_range * 1.35:
@@ -300,7 +308,9 @@ class NPCBot(BaseBot):
                     clr = min(f.lane_clearance(b, p, opps), f.lane_clearance(p, t, opps))
                     if clr >= prof.shoot_clear * 0.8:
                         length = b.distance_to(p) + p.distance_to(t)
-                        cands.append(_Plan("bank", d, p, clr + prof.far_post_bias * abs(t.y - cy)
+                        cands.append(_Plan("bank", d, p, 1.35 * clr
+                                           + 12.0 * max(0.0, d.x * attack)
+                                           + prof.far_post_bias * abs(t.y - cy)
                                            + prof.bank_bonus - 0.02 * length))
 
         # 3) finta: bank-pass around a close opponent (or a clearance when defending)
@@ -426,10 +436,38 @@ class NPCBot(BaseBot):
         lim = f.goal_half_h + 35.0
         return Vec2(p.x, max(-lim, min(lim, p.y)))
 
-    def _support(self, game, f: Field, me: Disc, ball: Disc, opps, attack: float, own_goal: Vec2):
-        if ball.pos.x * attack > 0:
-            side = -1.0 if ball.pos.y > 0 else 1.0
-            target = Vec2(ball.pos.x - attack * 90.0, side * f.half_h * 0.45)
-        else:
-            target = self._guard_point(f, own_goal, ball, 150.0)
+    def _support(self, game, f: Field, me: Disc, ball: Disc, opps, mates,
+                 attack: float, own_goal: Vec2):
+        """Choose a useful off-ball position instead of orbiting a fixed side lane."""
+        ball_in_attack_half = ball.pos.x * attack > 0
+        nearest_opp = min(opps, key=lambda p: p.pos.distance_to(ball.pos), default=None)
+
+        # When the ball is behind us, protect the dangerous corridor to goal.
+        if not ball_in_attack_half:
+            target = self._guard_point(f, own_goal, ball, 135.0)
+            if nearest_opp is not None:
+                threat = nearest_opp.pos - own_goal
+                if threat.length() > 1e-6:
+                    target = own_goal + threat.normalized() * min(175.0, threat.length() * 0.55)
+            return self._goto(me, target, brake=8.0)
+
+        # In attack, offer a forward passing lane on the side with more space.
+        lane_y = (-1.0 if ball.pos.y > 0 else 1.0) * f.half_h * 0.42
+        if nearest_opp is not None and abs(nearest_opp.pos.y - lane_y) < f.half_h * 0.28:
+            lane_y *= -1.0
+
+        forward_x = ball.pos.x + attack * min(145.0, f.half_w * 0.22)
+        forward_x = max(-f.half_w + 55.0, min(f.half_w - 55.0, forward_x))
+        target = Vec2(forward_x, lane_y)
+
+        # Keep the support player separated from the presser and from opponents.
+        for mate in mates:
+            if mate is me:
+                continue
+            if target.distance_to(mate.pos) < 75.0:
+                target = Vec2(target.x, -target.y)
+        for opp in opps:
+            if target.distance_to(opp.pos) < 55.0:
+                target = Vec2(target.x, target.y * 0.65)
+
         return self._goto(me, target, brake=8.0)

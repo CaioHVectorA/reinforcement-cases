@@ -1,0 +1,8674 @@
+[
+  {
+    "iteration": 1,
+    "steps": 512,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.008278809895273298,
+    "value_loss": 0.09768329723738134,
+    "entropy": 1.6847216039896011,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 2,
+    "steps": 1024,
+    "mean_reward": 3.032337991626918,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005133225582540035,
+    "value_loss": 0.198659579269588,
+    "entropy": 1.778223104774952,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 3,
+    "steps": 1536,
+    "mean_reward": -0.7707799037099194,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007446710718795657,
+    "value_loss": 0.4856473561376333,
+    "entropy": 1.6397864818572998,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 4,
+    "steps": 2048,
+    "mean_reward": 15.906420588446585,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00045883673010393977,
+    "value_loss": 0.9778967741876841,
+    "entropy": 1.7437110543251038,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 5,
+    "steps": 2560,
+    "mean_reward": 30.135313065721608,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0050323438190389425,
+    "value_loss": 0.6053809141740203,
+    "entropy": 1.824217066168785,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 6,
+    "steps": 3072,
+    "mean_reward": 45.52420420747958,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010343964386265725,
+    "value_loss": 0.3835388831794262,
+    "entropy": 1.5138921067118645,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 7,
+    "steps": 3584,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005580943019594997,
+    "value_loss": 0.24456348130479455,
+    "entropy": 1.577774278819561,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 8,
+    "steps": 4096,
+    "mean_reward": 1.7593524178150195,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.009701463452074677,
+    "value_loss": 0.1331611678469926,
+    "entropy": 1.6691659539937973,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 9,
+    "steps": 4608,
+    "mean_reward": 2.461648761246902,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0024493806704413146,
+    "value_loss": 0.11040500411763787,
+    "entropy": 1.7584931775927544,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 10,
+    "steps": 5120,
+    "mean_reward": 18.491816114835718,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0047930252039805055,
+    "value_loss": 0.32833392918109894,
+    "entropy": 1.6593731418251991,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 11,
+    "steps": 5632,
+    "mean_reward": 17.703013575120778,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005371743580326438,
+    "value_loss": 0.3992788325995207,
+    "entropy": 1.91048663854599,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 12,
+    "steps": 6144,
+    "mean_reward": 27.314349980908162,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.013460597139783204,
+    "value_loss": 0.28890572395175695,
+    "entropy": 1.8628654479980469,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 13,
+    "steps": 6656,
+    "mean_reward": 40.20468815132853,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.01935666921781376,
+    "value_loss": 0.08467838959768414,
+    "entropy": 1.852456510066986,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 14,
+    "steps": 7168,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.013255397789180279,
+    "value_loss": 0.06372546986676753,
+    "entropy": 1.8880760818719864,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 15,
+    "steps": 7680,
+    "mean_reward": 2.5492209736409963,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004770655068568885,
+    "value_loss": 0.49245728831738234,
+    "entropy": 1.4866520389914513,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 16,
+    "steps": 8192,
+    "mean_reward": 0.9084707455542731,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003689494915306568,
+    "value_loss": 1.5418653301894665,
+    "entropy": 1.3293214589357376,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 17,
+    "steps": 8704,
+    "mean_reward": 12.484712844391899,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.008996339049190283,
+    "value_loss": 0.26391525799408555,
+    "entropy": 1.6847526133060455,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 18,
+    "steps": 9216,
+    "mean_reward": 39.738500908146584,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001232261536642909,
+    "value_loss": 0.47948337625712156,
+    "entropy": 1.6205734461545944,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 19,
+    "steps": 9728,
+    "mean_reward": 50.041185936899915,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004253198669175617,
+    "value_loss": 0.4365084758028388,
+    "entropy": 1.6553732752799988,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 20,
+    "steps": 10240,
+    "mean_reward": 22.752223548852932,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002330607268959284,
+    "value_loss": 1.1844881139695644,
+    "entropy": 1.4615256190299988,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 21,
+    "steps": 10752,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004272983642295003,
+    "value_loss": 0.30862149875611067,
+    "entropy": 1.6403499245643616,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 22,
+    "steps": 11264,
+    "mean_reward": 6.709936932983299,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003317004768177867,
+    "value_loss": 0.11394118261523545,
+    "entropy": 1.6146684139966965,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 50.0
+  },
+  {
+    "iteration": 23,
+    "steps": 11776,
+    "mean_reward": 5.351756590002797,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004292160214390606,
+    "value_loss": 0.32565267384052277,
+    "entropy": 1.6851361840963364,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 24,
+    "steps": 12288,
+    "mean_reward": 12.70624717394657,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004820389585802332,
+    "value_loss": 0.4449183763936162,
+    "entropy": 1.7028726935386658,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 25,
+    "steps": 12800,
+    "mean_reward": 21.18005884275338,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00631503714248538,
+    "value_loss": 0.13985812105238438,
+    "entropy": 1.6953144371509552,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 26,
+    "steps": 13312,
+    "mean_reward": 29.39866881530312,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.012030828685965389,
+    "value_loss": 0.769967520609498,
+    "entropy": 1.8608120679855347,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 27,
+    "steps": 13824,
+    "mean_reward": 39.760011086994076,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.008800642215646803,
+    "value_loss": 0.5002344008535147,
+    "entropy": 1.824876993894577,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 28,
+    "steps": 14336,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0061236905748955905,
+    "value_loss": 0.14218788873404264,
+    "entropy": 1.5866199731826782,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 29,
+    "steps": 14848,
+    "mean_reward": 0.886198748468467,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006512198247946799,
+    "value_loss": 0.11688696686178446,
+    "entropy": 1.5070311799645424,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 30,
+    "steps": 15360,
+    "mean_reward": 4.904642912372813,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00011022257967852056,
+    "value_loss": 0.5294409142807126,
+    "entropy": 1.5635278522968292,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 31,
+    "steps": 15872,
+    "mean_reward": 11.0627805274633,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003935523272957653,
+    "value_loss": 3.502707228064537,
+    "entropy": 1.3513675704598427,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 32,
+    "steps": 16384,
+    "mean_reward": 21.486439009149933,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0032292957766912878,
+    "value_loss": 1.370472652837634,
+    "entropy": 1.7571405693888664,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 33,
+    "steps": 16896,
+    "mean_reward": 35.687324203861365,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007089328893925995,
+    "value_loss": 0.13852707971818745,
+    "entropy": 1.730651155114174,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 34,
+    "steps": 17408,
+    "mean_reward": 53.81752175760655,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00033849093597382307,
+    "value_loss": 0.5214517125859857,
+    "entropy": 1.2357776015996933,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 35,
+    "steps": 17920,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006072373769711703,
+    "value_loss": 0.1556927957572043,
+    "entropy": 1.5440218076109886,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 36,
+    "steps": 18432,
+    "mean_reward": 0.6070652910150466,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0038148467720020562,
+    "value_loss": 0.7530048759654164,
+    "entropy": 1.5659204125404358,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 37,
+    "steps": 18944,
+    "mean_reward": 21.065113357174233,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0072697483556112275,
+    "value_loss": 0.24936876306310296,
+    "entropy": 1.2684102281928062,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 38,
+    "steps": 19456,
+    "mean_reward": 14.419616450396516,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004494415770750493,
+    "value_loss": 0.12089024251326919,
+    "entropy": 1.4646393954753876,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 39,
+    "steps": 19968,
+    "mean_reward": 22.117980974317273,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0026527318987064064,
+    "value_loss": 0.18538246396929026,
+    "entropy": 1.8224060460925102,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 40,
+    "steps": 20480,
+    "mean_reward": -9.203349049162735,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002907704620156437,
+    "value_loss": 4.205391377210617,
+    "entropy": 1.2209652736783028,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 41,
+    "steps": 20992,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005150993063580245,
+    "value_loss": 0.0957305037882179,
+    "entropy": 1.7497568503022194,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 42,
+    "steps": 21504,
+    "mean_reward": 0.2936839241869137,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005145790462847799,
+    "value_loss": 0.3300640322268009,
+    "entropy": 1.416749246418476,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 43,
+    "steps": 22016,
+    "mean_reward": 2.4100499410150418,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00905934046022594,
+    "value_loss": 0.39485009759664536,
+    "entropy": 1.6095106452703476,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 44,
+    "steps": 22528,
+    "mean_reward": 10.007450275468075,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003016830945853144,
+    "value_loss": 0.05876352288760245,
+    "entropy": 1.557277575135231,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 45,
+    "steps": 23040,
+    "mean_reward": 25.93676768229761,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003054640139453113,
+    "value_loss": 0.37535399105399847,
+    "entropy": 1.6130944043397903,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 46,
+    "steps": 23552,
+    "mean_reward": 29.22188151384611,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0035086178686469793,
+    "value_loss": 0.3113369895145297,
+    "entropy": 1.7159690856933594,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 47,
+    "steps": 24064,
+    "mean_reward": 30.45268767404814,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005390417878516018,
+    "value_loss": 0.07922831759788096,
+    "entropy": 1.7494599372148514,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 48,
+    "steps": 24576,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005763220600783825,
+    "value_loss": 0.18303805030882359,
+    "entropy": 1.4662002623081207,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 49,
+    "steps": 25088,
+    "mean_reward": -0.4749562729467086,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005355725414119661,
+    "value_loss": 0.3417423414066434,
+    "entropy": 1.2793943583965302,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 50,
+    "steps": 25600,
+    "mean_reward": 11.74761859853775,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002604372741188854,
+    "value_loss": 0.7166186328977346,
+    "entropy": 1.27491095662117,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 51,
+    "steps": 26112,
+    "mean_reward": -0.19656820076002368,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00373342348029837,
+    "value_loss": 1.7738300003111362,
+    "entropy": 1.4141866192221642,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 52,
+    "steps": 26624,
+    "mean_reward": 19.97275441381268,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.010407365392893553,
+    "value_loss": 0.14913928089663386,
+    "entropy": 1.6503286510705948,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 53,
+    "steps": 27136,
+    "mean_reward": 20.00465994580195,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0020700865134131163,
+    "value_loss": 0.17773262807168067,
+    "entropy": 1.7061937749385834,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 54,
+    "steps": 27648,
+    "mean_reward": 53.50140850568796,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0015696962072979659,
+    "value_loss": 1.2114422600716352,
+    "entropy": 1.2063632383942604,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 55,
+    "steps": 28160,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.012930452008731663,
+    "value_loss": 0.35990108270198107,
+    "entropy": 1.4199067950248718,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 56,
+    "steps": 28672,
+    "mean_reward": 1.5816907725234843,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0019946282263845205,
+    "value_loss": 1.7806135676801205,
+    "entropy": 1.0986888743937016,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 57,
+    "steps": 29184,
+    "mean_reward": 14.875605398543602,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002112224872689694,
+    "value_loss": 2.8090052772313356,
+    "entropy": 1.3769887387752533,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 58,
+    "steps": 29696,
+    "mean_reward": 5.4536513001544575,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.01082955242600292,
+    "value_loss": 0.17697020201012492,
+    "entropy": 1.5773919597268105,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 59,
+    "steps": 30208,
+    "mean_reward": 17.606842526433965,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006808861973695457,
+    "value_loss": 0.11824715929105878,
+    "entropy": 1.732353761792183,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 60,
+    "steps": 30720,
+    "mean_reward": 24.07214609285589,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00894008029717952,
+    "value_loss": 0.04825913847889751,
+    "entropy": 1.6295852735638618,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 61,
+    "steps": 31232,
+    "mean_reward": 25.019433777486082,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002402863057795912,
+    "value_loss": 0.41972347628325224,
+    "entropy": 1.602738469839096,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 62,
+    "steps": 31744,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.009989218437112868,
+    "value_loss": 0.07884609827306122,
+    "entropy": 1.4680990874767303,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 63,
+    "steps": 32256,
+    "mean_reward": 1.2513350171371032,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003416852923692204,
+    "value_loss": 0.09358163620345294,
+    "entropy": 1.457833394408226,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 64,
+    "steps": 32768,
+    "mean_reward": 5.199142553064373,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0007062301156111062,
+    "value_loss": 0.2099441816098988,
+    "entropy": 1.3762791082262993,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 65,
+    "steps": 33280,
+    "mean_reward": -0.523696273276614,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005607177794445306,
+    "value_loss": 0.8002725709229708,
+    "entropy": 1.2969510853290558,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 66,
+    "steps": 33792,
+    "mean_reward": 18.650351389805863,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0029495969065465033,
+    "value_loss": 0.10002369619905949,
+    "entropy": 1.7001802548766136,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 67,
+    "steps": 34304,
+    "mean_reward": 30.94359795460825,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004477105452679098,
+    "value_loss": 0.0442177839577198,
+    "entropy": 1.6561009213328362,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 68,
+    "steps": 34816,
+    "mean_reward": 37.73943013182026,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004303485504351556,
+    "value_loss": 0.09804284106940031,
+    "entropy": 1.5155738592147827,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 69,
+    "steps": 35328,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002716800314374268,
+    "value_loss": 0.0433156929211691,
+    "entropy": 1.4317667111754417,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 70,
+    "steps": 35840,
+    "mean_reward": 1.0395018723366907,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0023931240430101752,
+    "value_loss": 0.03544675896409899,
+    "entropy": 1.3918653950095177,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 71,
+    "steps": 36352,
+    "mean_reward": 5.27569801552243,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007756158884149045,
+    "value_loss": 0.05549439671449363,
+    "entropy": 1.5424418449401855,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 72,
+    "steps": 36864,
+    "mean_reward": 9.1181860280875,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006921694148331881,
+    "value_loss": 0.31945779360830784,
+    "entropy": 1.3666042983531952,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 73,
+    "steps": 37376,
+    "mean_reward": 19.900406291608043,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007884412923885975,
+    "value_loss": 0.10199387976899743,
+    "entropy": 1.6889358460903168,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 74,
+    "steps": 37888,
+    "mean_reward": 24.680667377331968,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00797509861877188,
+    "value_loss": 0.1064841088373214,
+    "entropy": 1.6644848510622978,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 75,
+    "steps": 38400,
+    "mean_reward": 38.813908463778105,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00770093803294003,
+    "value_loss": 0.06484052096493542,
+    "entropy": 1.5768198445439339,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 76,
+    "steps": 38912,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0017832573503255844,
+    "value_loss": 1.2167092505842447,
+    "entropy": 1.0885499641299248,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 77,
+    "steps": 39424,
+    "mean_reward": 6.7921322953592576,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00021341702085919678,
+    "value_loss": 1.7621736442670226,
+    "entropy": 1.295903965830803,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 78,
+    "steps": 39936,
+    "mean_reward": 6.402204147432186,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00692791398614645,
+    "value_loss": 0.061439623474143445,
+    "entropy": 1.5368647873401642,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 79,
+    "steps": 40448,
+    "mean_reward": -1.748994452212285,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011001059028785676,
+    "value_loss": 0.174869648180902,
+    "entropy": 1.2468407824635506,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 80,
+    "steps": 40960,
+    "mean_reward": 21.38843883314357,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007562570215668529,
+    "value_loss": 0.03360085445456207,
+    "entropy": 1.6422392576932907,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 81,
+    "steps": 41472,
+    "mean_reward": 27.75611788238285,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006389356858562678,
+    "value_loss": 0.02008242654846981,
+    "entropy": 1.4657516106963158,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 82,
+    "steps": 41984,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003979356086347252,
+    "value_loss": 0.03653385490179062,
+    "entropy": 1.629830814898014,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 83,
+    "steps": 42496,
+    "mean_reward": 0.5119248698895321,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0159916557604447,
+    "value_loss": 0.04704822401981801,
+    "entropy": 1.495079666376114,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 84,
+    "steps": 43008,
+    "mean_reward": 7.920954096034431,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.009929665946401656,
+    "value_loss": 0.06928544462425634,
+    "entropy": 1.4333640486001968,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 85,
+    "steps": 43520,
+    "mean_reward": 6.378752182821071,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0025686965382192284,
+    "value_loss": 0.046999410493299365,
+    "entropy": 1.5580680444836617,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 86,
+    "steps": 44032,
+    "mean_reward": 10.473490397777917,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002183961565606296,
+    "value_loss": 0.07298487867228687,
+    "entropy": 1.5096770972013474,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 87,
+    "steps": 44544,
+    "mean_reward": 22.988839595058746,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0033344615949317813,
+    "value_loss": 0.08796496863942593,
+    "entropy": 1.611992634832859,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 88,
+    "steps": 45056,
+    "mean_reward": 25.234625942697672,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0037162835360504687,
+    "value_loss": 0.7683717887848616,
+    "entropy": 1.1900747194886208,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 89,
+    "steps": 45568,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002753137901891023,
+    "value_loss": 0.055309050250798464,
+    "entropy": 1.5093351155519485,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 90,
+    "steps": 46080,
+    "mean_reward": 1.9423858799399272,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0020190566719975322,
+    "value_loss": 0.04492093063890934,
+    "entropy": 1.3943840339779854,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 91,
+    "steps": 46592,
+    "mean_reward": 3.218245828970914,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00920064776437357,
+    "value_loss": 0.06712055625393987,
+    "entropy": 1.4914185255765915,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 92,
+    "steps": 47104,
+    "mean_reward": 5.41942659648278,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002616592450067401,
+    "value_loss": 0.24567613331601024,
+    "entropy": 1.3667112663388252,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 93,
+    "steps": 47616,
+    "mean_reward": -18.65398610421165,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0013644303544424474,
+    "value_loss": 2.1039807507768273,
+    "entropy": 1.340027578175068,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 94,
+    "steps": 48128,
+    "mean_reward": 20.781142814332824,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003862995363306254,
+    "value_loss": 0.03294099774211645,
+    "entropy": 1.5095863416790962,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 95,
+    "steps": 48640,
+    "mean_reward": 37.19823102146126,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.01129679084988311,
+    "value_loss": 0.06099550414364785,
+    "entropy": 1.527776263654232,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 96,
+    "steps": 49152,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002112703281454742,
+    "value_loss": 0.04493203840684146,
+    "entropy": 1.5012608543038368,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 97,
+    "steps": 49664,
+    "mean_reward": 1.6935420386070992,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003110952617134899,
+    "value_loss": 0.07504677143879235,
+    "entropy": 1.450163334608078,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 98,
+    "steps": 50176,
+    "mean_reward": 4.36247600086775,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016983848036034033,
+    "value_loss": 1.474068246781826,
+    "entropy": 1.5512230694293976,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 99,
+    "steps": 50688,
+    "mean_reward": 0.7648176378331333,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011118189722765237,
+    "value_loss": 1.1572007481008768,
+    "entropy": 1.194938801229,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 100,
+    "steps": 51200,
+    "mean_reward": 15.958898942357877,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010733978124335408,
+    "value_loss": 0.5391524219885468,
+    "entropy": 1.5676215440034866,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 101,
+    "steps": 51712,
+    "mean_reward": 40.44129320034522,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0026256069249939173,
+    "value_loss": 0.3078419822268188,
+    "entropy": 1.1303530484437943,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 102,
+    "steps": 52224,
+    "mean_reward": 47.02231763728703,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005957467656116933,
+    "value_loss": 2.2176411729305983,
+    "entropy": 1.0885788947343826,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 103,
+    "steps": 52736,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.005204744287766516,
+    "value_loss": 0.1357621462084353,
+    "entropy": 1.3380776196718216,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 104,
+    "steps": 53248,
+    "mean_reward": 1.8030603808009984,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006656431884039193,
+    "value_loss": 1.039232287555933,
+    "entropy": 1.5670088604092598,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 105,
+    "steps": 53760,
+    "mean_reward": 4.828278834113606,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001076103188097477,
+    "value_loss": 2.734176017343998,
+    "entropy": 1.330584168434143,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 106,
+    "steps": 54272,
+    "mean_reward": 21.226623663449804,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.006138979806564748,
+    "value_loss": 0.6196964420378208,
+    "entropy": 1.5951215624809265,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 107,
+    "steps": 54784,
+    "mean_reward": 39.544616757606185,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0023132838105084375,
+    "value_loss": 2.270351357758045,
+    "entropy": 1.4451164454221725,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 108,
+    "steps": 55296,
+    "mean_reward": -14.382710636217562,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0033579074079170823,
+    "value_loss": 1.1397348530590534,
+    "entropy": 1.7857319861650467,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 109,
+    "steps": 55808,
+    "mean_reward": 46.45860113333544,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002105605963151902,
+    "value_loss": 5.142448201775551,
+    "entropy": 1.1586620435118675,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 110,
+    "steps": 56320,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003853927773889154,
+    "value_loss": 0.4626399679109454,
+    "entropy": 1.4073389917612076,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 111,
+    "steps": 56832,
+    "mean_reward": 4.15416698672189,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0030223722860682756,
+    "value_loss": 0.6884494684636593,
+    "entropy": 1.1840298995375633,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 112,
+    "steps": 57344,
+    "mean_reward": 12.086612270835099,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001267691608518362,
+    "value_loss": 1.127068368718028,
+    "entropy": 1.3561415895819664,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 113,
+    "steps": 57856,
+    "mean_reward": 5.738960426164632,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003056061454117298,
+    "value_loss": 0.7014601733535528,
+    "entropy": 1.5102258548140526,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 114,
+    "steps": 58368,
+    "mean_reward": -0.5105547541999749,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0017929119057953358,
+    "value_loss": 0.7402520980685949,
+    "entropy": 1.491985723376274,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 115,
+    "steps": 58880,
+    "mean_reward": 29.489822185622618,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0074368256027810276,
+    "value_loss": 0.9684645608067513,
+    "entropy": 1.5351181849837303,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 116,
+    "steps": 59392,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002405413571977988,
+    "value_loss": 1.347228143364191,
+    "entropy": 1.4751138761639595,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 117,
+    "steps": 59904,
+    "mean_reward": 0.5228500484499321,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010347673087380826,
+    "value_loss": 0.49837489891797304,
+    "entropy": 1.4643656611442566,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 118,
+    "steps": 60416,
+    "mean_reward": -7.029341864162081,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000626400433247909,
+    "value_loss": 1.6076036021113396,
+    "entropy": 1.2096781432628632,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 119,
+    "steps": 60928,
+    "mean_reward": 19.806099886102587,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001216866890899837,
+    "value_loss": 0.7574605168774724,
+    "entropy": 1.2885158136487007,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 120,
+    "steps": 61440,
+    "mean_reward": 33.36472391135641,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010326210176572204,
+    "value_loss": 1.148923121392727,
+    "entropy": 1.2780736088752747,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 121,
+    "steps": 61952,
+    "mean_reward": 21.713376529776937,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004111269110580906,
+    "value_loss": 0.9325602073222399,
+    "entropy": 1.2654733434319496,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 122,
+    "steps": 62464,
+    "mean_reward": 54.84485500752925,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010879558976739645,
+    "value_loss": 1.240210810676217,
+    "entropy": 1.0019034519791603,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 123,
+    "steps": 62976,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0065661187982186675,
+    "value_loss": 1.7832369804382324,
+    "entropy": 1.8925854116678238,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 124,
+    "steps": 63488,
+    "mean_reward": 2.6631322159001725,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.007289863482583314,
+    "value_loss": 1.0641401456668973,
+    "entropy": 1.1231548711657524,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 125,
+    "steps": 64000,
+    "mean_reward": -1.1645581114779398,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011241220636293292,
+    "value_loss": 2.371378406882286,
+    "entropy": 1.2273654788732529,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 126,
+    "steps": 64512,
+    "mean_reward": -2.6725063707134944,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0027796799986390397,
+    "value_loss": 1.6402807049453259,
+    "entropy": 1.3422481715679169,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 127,
+    "steps": 65024,
+    "mean_reward": -0.00955287472466676,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0012482965539675206,
+    "value_loss": 1.5395628400146961,
+    "entropy": 1.2859142869710922,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 128,
+    "steps": 65536,
+    "mean_reward": -0.9044094164963405,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001895202323794365,
+    "value_loss": 0.5748298335820436,
+    "entropy": 1.2670816853642464,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 129,
+    "steps": 66048,
+    "mean_reward": 35.58315858831508,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0018171401461586356,
+    "value_loss": 2.6723103523254395,
+    "entropy": 1.2332253903150558,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 130,
+    "steps": 66560,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000713094137609005,
+    "value_loss": 0.34783280873671174,
+    "entropy": 1.5668480843305588,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 131,
+    "steps": 67072,
+    "mean_reward": 1.365393217808263,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003333232249133289,
+    "value_loss": 0.3957773968577385,
+    "entropy": 1.5020677521824837,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 132,
+    "steps": 67584,
+    "mean_reward": -7.630628753159794,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0018392845813650638,
+    "value_loss": 0.22138936910778284,
+    "entropy": 1.3755388110876083,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 133,
+    "steps": 68096,
+    "mean_reward": 9.839518665468347,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004256550731952302,
+    "value_loss": 0.6578310653567314,
+    "entropy": 1.42838504165411,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 134,
+    "steps": 68608,
+    "mean_reward": 7.758802160988606,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005462707486003637,
+    "value_loss": 1.180857902392745,
+    "entropy": 1.4733602181077003,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 135,
+    "steps": 69120,
+    "mean_reward": 47.74976979432551,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0009471614030189812,
+    "value_loss": 0.6291151829063892,
+    "entropy": 1.3240685164928436,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 136,
+    "steps": 69632,
+    "mean_reward": 52.756248995667484,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001051554165314883,
+    "value_loss": 1.3995605930685997,
+    "entropy": 1.4565384238958359,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 137,
+    "steps": 70144,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0031961367349140346,
+    "value_loss": 0.12924598809331656,
+    "entropy": 1.4483068957924843,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 138,
+    "steps": 70656,
+    "mean_reward": 6.149509727905475,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0007309057982638478,
+    "value_loss": 1.9881908744573593,
+    "entropy": 1.1881120800971985,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 139,
+    "steps": 71168,
+    "mean_reward": 0.6864002860899912,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016859990428201854,
+    "value_loss": 2.7464322447776794,
+    "entropy": 1.184172548353672,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 140,
+    "steps": 71680,
+    "mean_reward": -4.115343335842949,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0019847219809889793,
+    "value_loss": 0.2662442517466843,
+    "entropy": 1.3920525461435318,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 141,
+    "steps": 72192,
+    "mean_reward": 32.70671694938869,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001988539472222328,
+    "value_loss": 0.5687659159302711,
+    "entropy": 1.3383790105581284,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 142,
+    "steps": 72704,
+    "mean_reward": 40.89978129380547,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002489006001269445,
+    "value_loss": 0.8517075516283512,
+    "entropy": 1.3788090273737907,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 143,
+    "steps": 73216,
+    "mean_reward": -5.843011257425882,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0026305919454898685,
+    "value_loss": 1.7898872904479504,
+    "entropy": 1.607067048549652,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 144,
+    "steps": 73728,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00042643246706575155,
+    "value_loss": 0.9870669655501842,
+    "entropy": 1.4747171998023987,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 145,
+    "steps": 74240,
+    "mean_reward": -16.378845200769575,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0022706398594891652,
+    "value_loss": 0.4828106267377734,
+    "entropy": 1.3760426491498947,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 146,
+    "steps": 74752,
+    "mean_reward": 5.184014798416531,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0035281673190183938,
+    "value_loss": 0.3870753478258848,
+    "entropy": 1.5944405868649483,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 147,
+    "steps": 75264,
+    "mean_reward": 11.68301326310099,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00017746881349012256,
+    "value_loss": 1.231464833021164,
+    "entropy": 1.1806924417614937,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 148,
+    "steps": 75776,
+    "mean_reward": 36.82566011423036,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016379991720896214,
+    "value_loss": 1.885164987295866,
+    "entropy": 0.9997982271015644,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 149,
+    "steps": 76288,
+    "mean_reward": 27.565424838548672,
+    "train_win_rate": 0.0,
+    "policy_loss": 2.8699840186163783e-05,
+    "value_loss": 0.18005384085699916,
+    "entropy": 1.3902533650398254,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 150,
+    "steps": 76800,
+    "mean_reward": 54.48849068459455,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016108585987240076,
+    "value_loss": 0.5582080399617553,
+    "entropy": 1.3927065953612328,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 151,
+    "steps": 77312,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0012171684647910297,
+    "value_loss": 1.1906010136008263,
+    "entropy": 1.416874848306179,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 152,
+    "steps": 77824,
+    "mean_reward": 0.5352192562892657,
+    "train_win_rate": 0.0,
+    "policy_loss": -7.200747495517135e-05,
+    "value_loss": 1.569298304617405,
+    "entropy": 1.3993112295866013,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 153,
+    "steps": 78336,
+    "mean_reward": 6.487897106472749,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0028996663459111005,
+    "value_loss": 0.4579699458554387,
+    "entropy": 1.3695416077971458,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 154,
+    "steps": 78848,
+    "mean_reward": 20.90358203983625,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0047054176684468985,
+    "value_loss": 0.4433148968964815,
+    "entropy": 1.476347655057907,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 155,
+    "steps": 79360,
+    "mean_reward": 6.109609080690137,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0019312195654492825,
+    "value_loss": 1.0297329388558865,
+    "entropy": 1.4348829463124275,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 156,
+    "steps": 79872,
+    "mean_reward": 62.55416876015785,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001066529133822769,
+    "value_loss": 1.9276858866214752,
+    "entropy": 1.2328795790672302,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 157,
+    "steps": 80384,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0017345640808343887,
+    "value_loss": 1.100894145667553,
+    "entropy": 1.3415325954556465,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 158,
+    "steps": 80896,
+    "mean_reward": 1.0876574877604361,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016137136262841523,
+    "value_loss": 0.6994388848543167,
+    "entropy": 1.1272962167859077,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 159,
+    "steps": 81408,
+    "mean_reward": 5.155500590820084,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016781621961854398,
+    "value_loss": 0.8642095476388931,
+    "entropy": 1.420439101755619,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 160,
+    "steps": 81920,
+    "mean_reward": -1.6406949867521423,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0020563451398629695,
+    "value_loss": 1.63415939360857,
+    "entropy": 1.3457651808857918,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 161,
+    "steps": 82432,
+    "mean_reward": 26.977946262284345,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0020914482593070716,
+    "value_loss": 0.5218631289899349,
+    "entropy": 1.6067327484488487,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 162,
+    "steps": 82944,
+    "mean_reward": -8.262890049791961,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0028724514413625,
+    "value_loss": 2.0429731607437134,
+    "entropy": 1.7176384925842285,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 163,
+    "steps": 83456,
+    "mean_reward": 31.90208739750631,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0024121394380927086,
+    "value_loss": 0.2672919062897563,
+    "entropy": 1.439730942249298,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 164,
+    "steps": 83968,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001227823260705918,
+    "value_loss": 1.3116056211292744,
+    "entropy": 1.1988482996821404,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 165,
+    "steps": 84480,
+    "mean_reward": 4.111092502174849,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001379843073664233,
+    "value_loss": 1.2926763277500868,
+    "entropy": 1.2651856243610382,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 166,
+    "steps": 84992,
+    "mean_reward": 3.414242706345023,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0028840336890425533,
+    "value_loss": 0.6803995594382286,
+    "entropy": 1.2668854296207428,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 167,
+    "steps": 85504,
+    "mean_reward": 30.757607673665635,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0014648742508143187,
+    "value_loss": 2.0637783743441105,
+    "entropy": 1.25774035602808,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 168,
+    "steps": 86016,
+    "mean_reward": 12.666390769245755,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0036427724990062416,
+    "value_loss": 0.18548866733908653,
+    "entropy": 1.4696065858006477,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 169,
+    "steps": 86528,
+    "mean_reward": 5.057187689201146,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011790072894655168,
+    "value_loss": 0.484205961227417,
+    "entropy": 1.3784041330218315,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 170,
+    "steps": 87040,
+    "mean_reward": 40.47152990199704,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00037487567169591784,
+    "value_loss": 0.2841162132099271,
+    "entropy": 1.342138521373272,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 171,
+    "steps": 87552,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0015908551285974681,
+    "value_loss": 1.5531790368258953,
+    "entropy": 1.1729548051953316,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 172,
+    "steps": 88064,
+    "mean_reward": 0.24718150740048683,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0015749536105431616,
+    "value_loss": 1.1912914384156466,
+    "entropy": 1.0928010269999504,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 173,
+    "steps": 88576,
+    "mean_reward": 2.520093687621595,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001694055914413184,
+    "value_loss": 0.3443323289975524,
+    "entropy": 1.1595129370689392,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 174,
+    "steps": 89088,
+    "mean_reward": -1.8763856241951058,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002979470358695835,
+    "value_loss": 0.6129225064069033,
+    "entropy": 1.3657666966319084,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 175,
+    "steps": 89600,
+    "mean_reward": 14.665136979358058,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.004005756229162216,
+    "value_loss": 0.14047071477398276,
+    "entropy": 1.478068582713604,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 176,
+    "steps": 90112,
+    "mean_reward": 31.39966138048695,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0037188905698712915,
+    "value_loss": 0.705353818833828,
+    "entropy": 1.374210648238659,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 177,
+    "steps": 90624,
+    "mean_reward": 20.378516489636265,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001568286621477455,
+    "value_loss": 0.7330305948853493,
+    "entropy": 1.0441895574331284,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 178,
+    "steps": 91136,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003927478130208328,
+    "value_loss": 1.158798461779952,
+    "entropy": 1.2640959322452545,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 179,
+    "steps": 91648,
+    "mean_reward": -6.233546293874405,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0012806157465092838,
+    "value_loss": 2.17289512604475,
+    "entropy": 1.1943091601133347,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 180,
+    "steps": 92160,
+    "mean_reward": 28.72121661326731,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008635614940430969,
+    "value_loss": 1.1318876706063747,
+    "entropy": 1.2290164232254028,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 181,
+    "steps": 92672,
+    "mean_reward": 28.401350419476103,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0015737672802060843,
+    "value_loss": 0.8019772637635469,
+    "entropy": 1.473126843571663,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 182,
+    "steps": 93184,
+    "mean_reward": 35.954263173874786,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001439408864825964,
+    "value_loss": 0.8232918977737427,
+    "entropy": 1.2027449160814285,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 183,
+    "steps": 93696,
+    "mean_reward": -2.661701565143066,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006031249940861017,
+    "value_loss": 2.0634518153965473,
+    "entropy": 1.1620289087295532,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 184,
+    "steps": 94208,
+    "mean_reward": 4.758563487116518,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008666670764796436,
+    "value_loss": 2.627179466187954,
+    "entropy": 1.3066406399011612,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 185,
+    "steps": 94720,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006563002825714648,
+    "value_loss": 0.3617790089920163,
+    "entropy": 1.0725990757346153,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 186,
+    "steps": 95232,
+    "mean_reward": 4.272215561453739,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00120901083573699,
+    "value_loss": 1.9004936814308167,
+    "entropy": 1.1924670860171318,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 187,
+    "steps": 95744,
+    "mean_reward": 8.79897018220442,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008806379046291113,
+    "value_loss": 1.5184494107961655,
+    "entropy": 1.1034353002905846,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 188,
+    "steps": 96256,
+    "mean_reward": -3.6193744076783654,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000518308428581804,
+    "value_loss": 1.0703244153410196,
+    "entropy": 0.9860860630869865,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 189,
+    "steps": 96768,
+    "mean_reward": 12.624268861504172,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0013379124575294554,
+    "value_loss": 0.37731838412582874,
+    "entropy": 1.3110787943005562,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 190,
+    "steps": 97280,
+    "mean_reward": 47.304847843406506,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0009556508739478886,
+    "value_loss": 1.3173828683793545,
+    "entropy": 1.2528479620814323,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 191,
+    "steps": 97792,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003975950530730188,
+    "value_loss": 1.2052323333919048,
+    "entropy": 1.4584939554333687,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 192,
+    "steps": 98304,
+    "mean_reward": 0.15389458658569083,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.003996288636699319,
+    "value_loss": 0.2611343702301383,
+    "entropy": 1.0788282863795757,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 193,
+    "steps": 98816,
+    "mean_reward": 2.016712353538723,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011377133487258106,
+    "value_loss": 0.831462386995554,
+    "entropy": 1.44491858035326,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 194,
+    "steps": 99328,
+    "mean_reward": -17.69868414856535,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0004208420868963003,
+    "value_loss": 1.238564744591713,
+    "entropy": 1.3950873389840126,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 195,
+    "steps": 99840,
+    "mean_reward": -6.657447146852745,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011452637845650315,
+    "value_loss": 0.6193540636450052,
+    "entropy": 1.1583529934287071,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 196,
+    "steps": 100352,
+    "mean_reward": 17.006867186585474,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001089585479348898,
+    "value_loss": 0.7707820404320955,
+    "entropy": 1.3737201392650604,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 197,
+    "steps": 100864,
+    "mean_reward": 34.62474123384923,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0017132910434156656,
+    "value_loss": 0.08951590955257416,
+    "entropy": 1.4723175540566444,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 198,
+    "steps": 101376,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002075612894259393,
+    "value_loss": 1.3831449374556541,
+    "entropy": 1.5202165469527245,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 199,
+    "steps": 101888,
+    "mean_reward": -2.8765679481006856,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0015347982407547534,
+    "value_loss": 0.3735063811764121,
+    "entropy": 1.3848703801631927,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 200,
+    "steps": 102400,
+    "mean_reward": 1.5879751809164335,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0025896196020767093,
+    "value_loss": 0.343737225048244,
+    "entropy": 1.4573629349470139,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 201,
+    "steps": 102912,
+    "mean_reward": 21.268388896449537,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0030460052948910743,
+    "value_loss": 0.2646638723090291,
+    "entropy": 1.4785622656345367,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 202,
+    "steps": 103424,
+    "mean_reward": 0.8877810824843984,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002610981580801308,
+    "value_loss": 0.7143678553402424,
+    "entropy": 1.6172189190983772,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 203,
+    "steps": 103936,
+    "mean_reward": -20.56882548714629,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008783668745309114,
+    "value_loss": 3.06720207631588,
+    "entropy": 1.7207112908363342,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 204,
+    "steps": 104448,
+    "mean_reward": 31.563206173959795,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0007270371133927256,
+    "value_loss": 0.05026105255819857,
+    "entropy": 1.6199779361486435,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 205,
+    "steps": 104960,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0027140520978718996,
+    "value_loss": 0.7339924331754446,
+    "entropy": 1.4213873073458672,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 206,
+    "steps": 105472,
+    "mean_reward": 1.7681335424291549,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0018564871861599386,
+    "value_loss": 0.8435500673949718,
+    "entropy": 1.2841008752584457,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 207,
+    "steps": 105984,
+    "mean_reward": -8.720818864239982,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010407239606138319,
+    "value_loss": 1.3515753373503685,
+    "entropy": 1.3985114097595215,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 208,
+    "steps": 106496,
+    "mean_reward": 17.457088326118633,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0018382140551693738,
+    "value_loss": 0.2550325356423855,
+    "entropy": 1.3804876506328583,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 209,
+    "steps": 107008,
+    "mean_reward": 15.669591272348596,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0022466614609584212,
+    "value_loss": 0.10496289655566216,
+    "entropy": 1.5843032598495483,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 210,
+    "steps": 107520,
+    "mean_reward": 29.143042556048886,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0013070282293483615,
+    "value_loss": 0.09010377014055848,
+    "entropy": 1.5935565158724785,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 211,
+    "steps": 108032,
+    "mean_reward": 35.60247723380376,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00040631351293995976,
+    "value_loss": 0.6096051800996065,
+    "entropy": 1.359045386314392,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 212,
+    "steps": 108544,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003513653064146638,
+    "value_loss": 1.4659578278660774,
+    "entropy": 1.414289079606533,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 213,
+    "steps": 109056,
+    "mean_reward": 0.4776240950658418,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006438553100451827,
+    "value_loss": 1.2640880569815636,
+    "entropy": 1.4248152077198029,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 214,
+    "steps": 109568,
+    "mean_reward": 0.6648669297165232,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00027747813146561384,
+    "value_loss": 0.715378113090992,
+    "entropy": 1.3598101437091827,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 215,
+    "steps": 110080,
+    "mean_reward": 16.511324287574606,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00026970746694132686,
+    "value_loss": 0.7802219875156879,
+    "entropy": 1.526905931532383,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 216,
+    "steps": 110592,
+    "mean_reward": 25.11931856267653,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000824262882815674,
+    "value_loss": 0.5907106138765812,
+    "entropy": 1.3020602762699127,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 217,
+    "steps": 111104,
+    "mean_reward": 3.49981548723736,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005662565745296888,
+    "value_loss": 1.6645421460270882,
+    "entropy": 1.7680698409676552,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 218,
+    "steps": 111616,
+    "mean_reward": 47.86836323968092,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00035487418062984943,
+    "value_loss": 1.5961127206683159,
+    "entropy": 1.4149030447006226,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 219,
+    "steps": 112128,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.001172219475847669,
+    "value_loss": 1.8188664093613625,
+    "entropy": 1.7320744320750237,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 220,
+    "steps": 112640,
+    "mean_reward": 7.380636361130581,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008738258038647473,
+    "value_loss": 0.6151199359446764,
+    "entropy": 1.3221711367368698,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 221,
+    "steps": 113152,
+    "mean_reward": 4.7741847044969745,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000574606703594327,
+    "value_loss": 0.23332576313987374,
+    "entropy": 1.5380382686853409,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 222,
+    "steps": 113664,
+    "mean_reward": 6.9352081061406645,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006333494675345719,
+    "value_loss": 0.6092319246381521,
+    "entropy": 1.5683456808328629,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 223,
+    "steps": 114176,
+    "mean_reward": 13.6685706976618,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002119728596881032,
+    "value_loss": 2.274614043533802,
+    "entropy": 1.101492676883936,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 224,
+    "steps": 114688,
+    "mean_reward": 24.404449040783728,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0035051191225647926,
+    "value_loss": 0.0693412886466831,
+    "entropy": 1.5100692138075829,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 225,
+    "steps": 115200,
+    "mean_reward": 8.46950807317822,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005103288567624986,
+    "value_loss": 3.4981327056884766,
+    "entropy": 1.763119488954544,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 226,
+    "steps": 115712,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00028339208802208304,
+    "value_loss": 0.11760353110730648,
+    "entropy": 1.409350648522377,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 227,
+    "steps": 116224,
+    "mean_reward": 2.2648334047059824,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006167679675854743,
+    "value_loss": 0.19453184446319938,
+    "entropy": 1.3260598704218864,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 228,
+    "steps": 116736,
+    "mean_reward": 0.5006435085679958,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0010567144490778446,
+    "value_loss": 0.22954093385487795,
+    "entropy": 1.2629223316907883,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 229,
+    "steps": 117248,
+    "mean_reward": 8.459938639938029,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.002113278053002432,
+    "value_loss": 0.9120067469775677,
+    "entropy": 1.720898613333702,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 230,
+    "steps": 117760,
+    "mean_reward": 16.51030063328029,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000688394793542102,
+    "value_loss": 1.1688142158091068,
+    "entropy": 1.4273463189601898,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 231,
+    "steps": 118272,
+    "mean_reward": 37.19185491348861,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00022130217985250056,
+    "value_loss": 1.0701816007494926,
+    "entropy": 1.3835031986236572,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 232,
+    "steps": 118784,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0016522660152986646,
+    "value_loss": 0.07106133922934532,
+    "entropy": 1.6265056282281876,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 233,
+    "steps": 119296,
+    "mean_reward": 0.23656486903238028,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0008238133159466088,
+    "value_loss": 0.07716640620492399,
+    "entropy": 1.4412421956658363,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 234,
+    "steps": 119808,
+    "mean_reward": 3.000351323452007,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0012719865189865232,
+    "value_loss": 0.5278316242620349,
+    "entropy": 1.4466606751084328,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 235,
+    "steps": 120320,
+    "mean_reward": -3.097320495547827,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0006295171333476901,
+    "value_loss": 0.5703515000641346,
+    "entropy": 1.2422417402267456,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 236,
+    "steps": 120832,
+    "mean_reward": -19.86820618593199,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0001976035418920219,
+    "value_loss": 1.8842356652021408,
+    "entropy": 1.5662236735224724,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 237,
+    "steps": 121344,
+    "mean_reward": 40.442191529677686,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003943044430343434,
+    "value_loss": 1.6740450635552406,
+    "entropy": 1.1669882610440254,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 238,
+    "steps": 121856,
+    "mean_reward": 41.807023625067686,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002925572043750435,
+    "value_loss": 0.5844613816589117,
+    "entropy": 1.4648023918271065,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 239,
+    "steps": 122368,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005621859163511544,
+    "value_loss": 0.7079903557896614,
+    "entropy": 1.3431135565042496,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 240,
+    "steps": 122880,
+    "mean_reward": 0.6773284757306808,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0005869969609193504,
+    "value_loss": 0.38814479671418667,
+    "entropy": 1.4604131504893303,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 241,
+    "steps": 123392,
+    "mean_reward": -2.92022751290149,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0004326168564148247,
+    "value_loss": 1.1766984388232231,
+    "entropy": 1.5720301941037178,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 242,
+    "steps": 123904,
+    "mean_reward": 6.828842120236629,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0007337293063756078,
+    "value_loss": 0.8765978738665581,
+    "entropy": 1.3315594419836998,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 243,
+    "steps": 124416,
+    "mean_reward": 8.14827038007552,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0011104673030786216,
+    "value_loss": 0.5727675929665565,
+    "entropy": 1.0943097285926342,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 244,
+    "steps": 124928,
+    "mean_reward": 27.44183076649196,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0007907600956968963,
+    "value_loss": 0.1747014676220715,
+    "entropy": 1.6362789273262024,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 245,
+    "steps": 125440,
+    "mean_reward": 16.66515366626561,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00010830978862941265,
+    "value_loss": 2.6309787556529045,
+    "entropy": 1.3654356822371483,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 246,
+    "steps": 125952,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000779000372858718,
+    "value_loss": 0.11844905256293714,
+    "entropy": 1.4648381099104881,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 247,
+    "steps": 126464,
+    "mean_reward": 1.5242672163883997,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002799599024001509,
+    "value_loss": 0.915539463981986,
+    "entropy": 1.6277307495474815,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 248,
+    "steps": 126976,
+    "mean_reward": 1.760836601896317,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00011634529801085591,
+    "value_loss": 0.45848458632826805,
+    "entropy": 1.2891647219657898,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 249,
+    "steps": 127488,
+    "mean_reward": 17.125562277939547,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00017737667076289654,
+    "value_loss": 0.5076565481722355,
+    "entropy": 1.3941660672426224,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 250,
+    "steps": 128000,
+    "mean_reward": 43.065050131555815,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00017445336561650038,
+    "value_loss": 1.622969999909401,
+    "entropy": 1.360056534409523,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 251,
+    "steps": 128512,
+    "mean_reward": 38.99051396873751,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002738098846748471,
+    "value_loss": 1.4150077812373638,
+    "entropy": 1.148064136505127,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      }
+    },
+    "gauntlet_score": 50.0
+  },
+  {
+    "iteration": 252,
+    "steps": 129024,
+    "mean_reward": 10.92400247570767,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002036786754615605,
+    "value_loss": 1.6656937934458256,
+    "entropy": 1.3091442734003067,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 253,
+    "steps": 129536,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00016677318490110338,
+    "value_loss": 0.6404186841100454,
+    "entropy": 1.6678249165415764,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 254,
+    "steps": 130048,
+    "mean_reward": 10.462246360905826,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00032984570134431124,
+    "value_loss": 0.5857526790350676,
+    "entropy": 1.2937211021780968,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 255,
+    "steps": 130560,
+    "mean_reward": 1.3645302371832426,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002698961761780083,
+    "value_loss": 1.2324277944862843,
+    "entropy": 1.4307922348380089,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 256,
+    "steps": 131072,
+    "mean_reward": 5.248535213316335,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0003177159815095365,
+    "value_loss": 2.0978743471205235,
+    "entropy": 1.3714343011379242,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 257,
+    "steps": 131584,
+    "mean_reward": 24.54472712076689,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.000213342544157058,
+    "value_loss": 3.2067146226763725,
+    "entropy": 1.1417008712887764,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 258,
+    "steps": 132096,
+    "mean_reward": 46.41783317740748,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00011364443344064057,
+    "value_loss": 2.046477250754833,
+    "entropy": 1.302020974457264,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 259,
+    "steps": 132608,
+    "mean_reward": 54.98269541950069,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0001515302574262023,
+    "value_loss": 2.1717624217271805,
+    "entropy": 1.323681652545929,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 260,
+    "steps": 133120,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00038168986793607473,
+    "value_loss": 0.772236805409193,
+    "entropy": 1.2041507884860039,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 261,
+    "steps": 133632,
+    "mean_reward": -1.5745758884278747,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00033089646603912115,
+    "value_loss": 1.5109419152140617,
+    "entropy": 1.2149921208620071,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 262,
+    "steps": 134144,
+    "mean_reward": -0.5823311020421891,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00010917300824075937,
+    "value_loss": 1.2807811126112938,
+    "entropy": 1.3268267214298248,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 263,
+    "steps": 134656,
+    "mean_reward": -10.360747307166198,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00012235369649715722,
+    "value_loss": 0.49606933631002903,
+    "entropy": 1.2923092171549797,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 264,
+    "steps": 135168,
+    "mean_reward": 14.07607956769136,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0002442629775032401,
+    "value_loss": 0.30616139713674784,
+    "entropy": 1.376995638012886,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 265,
+    "steps": 135680,
+    "mean_reward": 10.397182312155026,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00014755359734408557,
+    "value_loss": 3.3186041489243507,
+    "entropy": 1.5248870626091957,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 266,
+    "steps": 136192,
+    "mean_reward": 0.0,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00011189820361323655,
+    "value_loss": 0.9894447736442089,
+    "entropy": 1.0741414166986942,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 267,
+    "steps": 136704,
+    "mean_reward": 1.217658492042599,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.0001809629611670971,
+    "value_loss": 1.8947292156517506,
+    "entropy": 1.2749943658709526,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  },
+  {
+    "iteration": 268,
+    "steps": 137216,
+    "mean_reward": 13.210694773911491,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00041185831651091576,
+    "value_loss": 1.249961119145155,
+    "entropy": 1.4700869843363762,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 269,
+    "steps": 137728,
+    "mean_reward": 14.276973243680956,
+    "train_win_rate": 0.0,
+    "policy_loss": -0.00024075910914689302,
+    "value_loss": 2.0167002379894257,
+    "entropy": 1.2715534269809723,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 270,
+    "steps": 138240,
+    "mean_reward": 20.5240830992728,
+    "train_win_rate": 0.0,
+    "policy_loss": -6.0275313444435596e-05,
+    "value_loss": 3.7611183375120163,
+    "entropy": 1.584670826792717,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "striker": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 1
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 0.0
+  },
+  {
+    "iteration": 271,
+    "steps": 138752,
+    "mean_reward": 25.214227762789246,
+    "train_win_rate": 0.0,
+    "policy_loss": -6.729771848767996e-05,
+    "value_loss": 2.367404520511627,
+    "entropy": 1.3863630518317223,
+    "evaluation": {
+      "heuristic": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "striker": {
+        "win_rate": 100.0,
+        "goals_for": 1,
+        "goals_against": 0
+      },
+      "wall": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      },
+      "master": {
+        "win_rate": 0.0,
+        "goals_for": 0,
+        "goals_against": 0
+      }
+    },
+    "gauntlet_score": 25.0
+  }
+]

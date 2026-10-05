@@ -48,6 +48,37 @@ A interface abre a sala de jogo completa com:
 python -m haxball.train_rl --map futsal --bot wall --timesteps 50000
 ```
 
+#### Executar o pipeline do notebook Colab localmente:
+```bash
+# Teste rápido: 2 iterações curtas
+python train_haxball_rl_local.py --iterations 2 --steps 512 --eval-matches 1
+
+# Treino completo equivalente ao notebook
+python train_haxball_rl_local.py --iterations 1000 --steps 4096
+```
+
+Durante o treino, o script gera um painel semelhante ao notebook com recompensa média,
+win rate, losses PPO, entropia, gauntlet e desempenho contra cada bot. Por padrão ele
+salva a imagem sem abrir uma janela em `checkpoints/training_dashboard.png`. Para abrir
+o painel ao vivo, use:
+
+```bash
+python train_haxball_rl_local.py --plot-mode live
+```
+
+Em servidor/headless, desative completamente os gráficos com:
+
+```bash
+python train_haxball_rl_local.py --plot-mode off
+```
+
+O treinador local detecta CPU/CUDA automaticamente, aceita `--device cpu` ou `--device cuda`,
+salva os modelos em `checkpoints/` e grava as métricas em
+`checkpoints/training_metrics.json`. `haxball_rl_best.pt` contém os melhores pesos para
+inferência; `haxball_rl_latest.pt` contém também o otimizador, scheduler, iteração e
+métricas para retomada. Para continuar, use `--warm-start checkpoints/haxball_rl_latest.pt`.
+O checkpoint latest é atualizado a cada iteração e também é salvo ao encerrar com `Ctrl+C`.
+
 #### Executar Bateria de Testes Automatizados:
 ```bash
 python -m unittest tests/test_haxball.py

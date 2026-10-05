@@ -93,6 +93,8 @@ class RLBot(BaseBot):
             # Extract state_dict if wrapped
             if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
                 state_dict = checkpoint["state_dict"]
+            elif isinstance(checkpoint, dict) and "model_state" in checkpoint:
+                state_dict = checkpoint["model_state"]
             elif isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
                 state_dict = checkpoint["model_state_dict"]
             elif isinstance(checkpoint, dict):

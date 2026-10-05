@@ -17,6 +17,7 @@ import time
 import math
 import shutil
 import subprocess
+from pathlib import Path
 from typing import Dict, Tuple, Optional, Any, List
 import pygame
 import torch
@@ -35,6 +36,8 @@ from haxball.ui.widgets import (
 )
 
 MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "maps")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CHECKPOINT_DIR = PROJECT_ROOT / "checkpoints"
 
 STADIUM_CATALOG = {
     "futsal_2v2": {
@@ -100,11 +103,15 @@ class HaxBallApp:
 
         # Red Team Controller: "human", "ai_model", or bot_key (e.g. "press")
         self.red_controller_type = "human"
-        self.red_model_file = "checkpoints/haxball_rl_best.pt"
+        self.red_model_file = str(CHECKPOINT_DIR / "haxball_rl_best.pt")
 
         # Blue Team Controller: "ai_model", bot_key, or "human"
         self.blue_controller_type = "ai_model"
-        self.blue_model_file = "checkpoints/haxball_rl_best.pt"
+        self.blue_model_file = str(CHECKPOINT_DIR / "haxball_rl_best.pt")
+
+        if model_path:
+            self.blue_controller_type = "ai_model"
+            self.blue_model_file = os.path.abspath(model_path)
 
         # Fonts
         self.font_title_huge = pygame.font.SysFont("Verdana", 24, bold=True)
@@ -128,6 +135,8 @@ class HaxBallApp:
 
         # Initialize Bot Instances
         self._init_bot_catalogs()
+        if not model_path and bot_key in self.bot_instances:
+            self.blue_controller_type = bot_key
 
         # Initialize Game World
         self._init_game(self.current_stadium_key, self.players_per_team)
@@ -183,30 +192,37 @@ class HaxBallApp:
         return max(1, int(round(length * self.scale)))
 
     def get_available_checkpoints(self) -> List[str]:
-        cp_dir = "checkpoints"
-        if not os.path.exists(cp_dir):
+        cp_dir = CHECKPOINT_DIR
+        if not cp_dir.exists():
             return []
-        files = [os.path.join(cp_dir, f) for f in os.listdir(cp_dir) if f.endswith(".pt")]
+        files = [str(path) for path in cp_dir.rglob("*.pt")]
         files.sort(key=os.path.getmtime, reverse=True)
         return files
 
     def plug_in_model(self, file_path: str, target_team: str = "blue", auto_start: bool = True):
-        if not os.path.exists(file_path):
-            self.checkpoint_feedback = f"Erro: Arquivo não encontrado!"
+        file_path = os.path.abspath(os.path.expanduser(file_path))
+        if not os.path.isfile(file_path):
+            self.checkpoint_feedback = "Erro: arquivo .pt não encontrado."
             self.feedback_time = time.time()
-            return
+            return False
 
-        os.makedirs("checkpoints", exist_ok=True)
+        CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
         base_name = os.path.basename(file_path)
-        dest_path = os.path.join("checkpoints", base_name)
+        dest_path = str(CHECKPOINT_DIR / base_name)
         if os.path.abspath(file_path) != os.path.abspath(dest_path):
             try:
                 shutil.copy2(file_path, dest_path)
-            except Exception:
-                dest_path = file_path
+            except OSError as error:
+                self.checkpoint_feedback = f"Erro ao copiar modelo: {error}"
+                self.feedback_time = time.time()
+                return False
 
         # Test load
         test_bot = RLBot(model_path=dest_path, name=base_name)
+        if test_bot.policy is None:
+            self.checkpoint_feedback = f"Erro: não foi possível carregar {base_name}."
+            self.feedback_time = time.time()
+            return False
         self.rl_bots[dest_path] = test_bot
 
         if target_team == "red":
@@ -221,12 +237,34 @@ class HaxBallApp:
         if auto_start:
             self.screen_mode = "match"
             self.game.reset_match()
+        return True
 
     def prompt_upload_model(self, target_team: str = "blue"):
-        zenity_path = shutil.which("zenity")
         selected_file = None
 
-        if zenity_path:
+        # Windows has no zenity; use the native file picker instead of silently
+        # selecting an unrelated checkpoint from Downloads.
+        if sys.platform.startswith("win"):
+            try:
+                import tkinter as tk
+                from tkinter import filedialog
+
+                root = tk.Tk()
+                root.withdraw()
+                root.attributes("-topmost", True)
+                selected_file = filedialog.askopenfilename(
+                    title=f"Selecione o modelo PyTorch para o time {target_team.upper()}",
+                    initialdir=str(CHECKPOINT_DIR if CHECKPOINT_DIR.exists() else PROJECT_ROOT),
+                    filetypes=[("Modelos PyTorch", "*.pt"), ("Todos os arquivos", "*.*")],
+                )
+                root.destroy()
+            except Exception as error:
+                self.checkpoint_feedback = f"Seletor de arquivo indisponível: {error}"
+                self.feedback_time = time.time()
+
+        zenity_path = shutil.which("zenity")
+
+        if not selected_file and zenity_path:
             try:
                 cmd = [
                     zenity_path,
@@ -242,19 +280,11 @@ class HaxBallApp:
                 print(f"[GUI] Aviso zenity: {e}")
 
         if not selected_file:
-            home_dl = os.path.expanduser("~/Downloads")
-            candidates = []
-            if os.path.exists(home_dl):
-                candidates.extend([os.path.join(home_dl, f) for f in os.listdir(home_dl) if f.endswith(".pt")])
-            if os.path.exists("checkpoints"):
-                candidates.extend([os.path.join("checkpoints", f) for f in os.listdir("checkpoints") if f.endswith(".pt")])
-
-            if candidates:
-                candidates.sort(key=os.path.getmtime, reverse=True)
-                selected_file = candidates[0]
+            # Do not guess a file. The user can cancel and choose again.
+            selected_file = None
 
         if selected_file and os.path.exists(selected_file):
-            self.plug_in_model(selected_file, target_team=target_team, auto_start=True)
+            self.plug_in_model(selected_file, target_team=target_team, auto_start=False)
 
     def get_player_inputs(self) -> Dict[int, Tuple[float, float, bool]]:
         keys = pygame.key.get_pressed()
