@@ -87,11 +87,11 @@ class ReplayQualityFilter:
             return False, "Rejeitado: Futsal Multi-agente (2v2/3v3/4v4/5v5/Voley)"
 
         if not frames:
-            # If match has inputs but frames were not pre-simulated, consider valid if 1v1 explicit
-            players = getattr(match_data, "players", {}) if not isinstance(match_data, dict) else match_data.get("players", {})
-            if len(players) == 2 or len(players) == 0:
-                return True, "OK"
-            return False, "Rejeitado: Partida sem frames de física"
+            # Check if match has actual recorded inputs (> 20 key inputs)
+            inputs = getattr(match_data, "inputs", []) if not isinstance(match_data, dict) else match_data.get("inputs", [])
+            if len(inputs) < 20:
+                return False, "Rejeitado: Partida vazia sem inputs de teclas (0 a 19 inputs)"
+            return True, "OK"
 
         # Check player counts across match frames
         max_red = 0
