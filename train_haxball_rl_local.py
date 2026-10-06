@@ -194,11 +194,13 @@ def save_training_checkpoint(
 
 
 class TrainingDashboard:
-    """Live notebook-style dashboard with a PNG snapshot for later inspection."""
+    """Live notebook-style dashboard with customizable scale adjustments and PNG snapshot."""
 
-    def __init__(self, output_dir: Path, mode: str):
+    def __init__(self, output_dir: Path, mode: str, use_log_scale: bool = False, y_limit_margin: float = 1.0):
         self.output_dir = output_dir
         self.output_path = output_dir / "training_dashboard.png"
+        self.use_log_scale = use_log_scale
+        self.y_limit_margin = y_limit_margin
         self.plt = None
         self.figure = None
         self.axes = None
@@ -217,9 +219,12 @@ class TrainingDashboard:
         except Exception as error:
             print(f"Aviso: gráficos desativados ({error})")
 
-    def update(self, metrics: list[dict]) -> None:
+    def update(self, metrics: list[dict], use_log_scale: Optional[bool] = None, custom_y_limits: Optional[Dict[str, tuple]] = None) -> None:
         if self.plt is None or self.figure is None or self.axes is None:
             return
+
+        if use_log_scale is not None:
+            self.use_log_scale = use_log_scale
 
         iterations = [row["iteration"] for row in metrics]
         reward = [row["mean_reward"] for row in metrics]
@@ -231,32 +236,46 @@ class TrainingDashboard:
 
         for axis in self.axes.flat:
             axis.clear()
-            axis.grid(True, alpha=0.25)
+            axis.grid(True, alpha=0.25, which="both" if self.use_log_scale else "major")
 
+        # 1. Recompensa média
         self.axes[0, 0].plot(iterations, reward, color="#20a464", linewidth=2)
         self.axes[0, 0].set_title("Recompensa média")
         self.axes[0, 0].set_xlabel("Iteração")
+        if custom_y_limits and "reward" in custom_y_limits:
+            self.axes[0, 0].set_ylim(custom_y_limits["reward"])
 
+        # 2. Win rate no treino
         self.axes[0, 1].plot(iterations, win_rate, color="#2878c8", linewidth=2)
         self.axes[0, 1].set_title("Win rate no treino (%)")
         self.axes[0, 1].set_ylim(0, 100)
         self.axes[0, 1].set_xlabel("Iteração")
 
+        # 3. Losses PPO (com opção de Escala Logarítmica gigante p/ aproximar de reta/linha)
         self.axes[0, 2].plot(iterations, policy_loss, label="Policy", color="#d84a4a", linewidth=2)
         self.axes[0, 2].plot(iterations, value_loss, label="Value", color="#e39a25", linewidth=2)
-        self.axes[0, 2].set_title("Losses PPO")
-        self.axes[0, 2].legend()
+        self.axes[0, 2].set_title("Losses PPO" + (" (Escala Log)" if self.use_log_scale else ""))
         self.axes[0, 2].set_xlabel("Iteração")
+        self.axes[0, 2].legend()
+        if self.use_log_scale:
+            self.axes[0, 2].set_yscale("log")
+        if custom_y_limits and "losses" in custom_y_limits:
+            self.axes[0, 2].set_ylim(custom_y_limits["losses"])
 
+        # 4. Entropia da política
         self.axes[1, 0].plot(iterations, entropy, color="#824caf", linewidth=2)
         self.axes[1, 0].set_title("Entropia da política")
         self.axes[1, 0].set_xlabel("Iteração")
+        if custom_y_limits and "entropy" in custom_y_limits:
+            self.axes[1, 0].set_ylim(custom_y_limits["entropy"])
 
+        # 5. Gauntlet médio
         self.axes[1, 1].plot(iterations, gauntlet, marker="o", color="#dc6b28", linewidth=2)
         self.axes[1, 1].set_title("Gauntlet médio (%)")
         self.axes[1, 1].set_ylim(0, 100)
         self.axes[1, 1].set_xlabel("Iteração")
 
+        # 6. Avaliação por bot
         latest_eval = metrics[-1].get("evaluation", {})
         names = list(latest_eval)
         values = [latest_eval[name]["win_rate"] for name in names]

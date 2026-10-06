@@ -32,6 +32,105 @@ class HaxBallReplayDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.obs[idx], self.act[idx]
 
+class ReplayQualityFilter:
+    """
+    Quality and Sanity Filter for HaxBall Replays (.hbr2).
+    Ensures dataset only contains high-quality 1v1 Futsal matches.
+    """
+    def __init__(self, allowed_stadium_keywords: Optional[List[str]] = None):
+        self.allowed_keywords = allowed_stadium_keywords or ["futsal"]
+
+    def validate_match(self, match_data: Dict[str, Any]) -> Tuple[bool, str]:
+        """
+        Validates match metadata before processing frames.
+        Checks:
+        1. Stadium is FUTSAL (rejects Classic, Big, Football, Real Soccer, etc.)
+        2. Strictly 1v1 (exactly 1 Red player, 1 Blue player active during gameplay)
+        3. Coherent score (no absurd blowouts like 15x0)
+        """
+        stadium_name = str(match_data.get("stadium", "")).lower()
+        room_name = str(match_data.get("room_name", "")).lower()
+
+        # 1. Stadium Check: MUST BE FUTSAL ONLY (rejects Football, Classic, etc.)
+        is_futsal = any(kw in stadium_name or kw in room_name for kw in self.allowed_keywords)
+        # If stadium tag is default (0) or missing string, allow if room or dimensions match futsal aspect
+        if not is_futsal and "stadium" in match_data:
+            # Check width/height aspect if custom stadium
+            sw = match_data.get("stadium_w", 450.0)
+            sh = match_data.get("stadium_h", 200.0)
+            if 350.0 <= sw <= 650.0 and 150.0 <= sh <= 300.0:
+                is_futsal = True
+
+        if not is_futsal:
+            return False, f"Rejeitado: Estádio/Sala não é Futsal ('{stadium_name}')"
+
+        frames = match_data.get("frames", [])
+        if not frames:
+            return False, "Rejeitado: Partida sem frames de física"
+
+        # Check player counts across match frames
+        max_red = 0
+        max_blue = 0
+        for f in frames[::30]: # sample every 0.5s
+            players = f.get("players", [])
+            reds = sum(1 for p in players if p.get("team") == 1)
+            blues = sum(1 for p in players if p.get("team") == 2)
+            if reds > max_red: max_red = reds
+            if blues > max_blue: max_blue = blues
+
+        # 2. Strict 1v1 Format Check
+        if max_red != 1 or max_blue != 1:
+            return False, f"Rejeitado: Não é 1v1 (Red: {max_red}, Blue: {max_blue})"
+
+        # 3. Coherent Score Check
+        red_score = match_data.get("red_score", 0)
+        blue_score = match_data.get("blue_score", 0)
+        score_diff = abs(red_score - blue_score)
+        if score_diff > 8:
+            return False, f"Rejeitado: Placar incoerente ({red_score} x {blue_score})"
+
+        return True, "OK"
+
+    def filter_frames_and_afk(self, frames: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Filters out AFK/typing frames and rage-quit segments.
+        Considers kickoff pauses and typing breaks as valid idle states if short (< 4.0s).
+        Drops frames if a player is completely inactive/AFK for extended periods (> 4.0s without any input change or ball movement).
+        """
+        valid_frames = []
+        idle_counter = {1: 0, 2: 0} # per-team idle ticks
+        last_inputs = {1: None, 2: None}
+
+        for frame in frames:
+            ball = frame.get("ball", {})
+            bvx = ball.get("vx", 0.0)
+            bvy = ball.get("vy", 0.0)
+            ball_speed = math.hypot(bvx, bvy)
+
+            players = frame.get("players", [])
+            frame_is_afk = False
+
+            for p in players:
+                team = p.get("team", 1)
+                inp = p.get("input", 0)
+
+                if inp == last_inputs[team]:
+                    idle_counter[team] += 1
+                else:
+                    idle_counter[team] = 0
+                    last_inputs[team] = inp
+
+                # If idle for > 4 seconds (240 ticks at 60Hz) AND ball is not moving fast (not kickoff reset)
+                if idle_counter[team] > 240 and ball_speed < 0.1:
+                    frame_is_afk = True
+                    break
+
+            if not frame_is_afk:
+                valid_frames.append(frame)
+
+        return valid_frames
+
+
 class ReplayDatasetBuilder:
     """
     Converts raw replays and high-level human expert tactics into normalized training datasets.
@@ -39,6 +138,7 @@ class ReplayDatasetBuilder:
     def __init__(self):
         self.action_handler = ActionHandler()
         self.obs_builder = DecoupledObservationBuilder()
+        self.quality_filter = ReplayQualityFilter()
 
     def input_mask_to_action_idx(self, mask: int) -> int:
         """
@@ -87,10 +187,19 @@ class ReplayDatasetBuilder:
         for file_path in files[:max_replays]:
             try:
                 match_data = decode_hbr2_match(file_path)
-                if not match_data or not match_data.get("frames"):
+                if not match_data:
                     continue
 
-                frames = match_data["frames"]
+                # Apply strict 1v1 Futsal & score validation
+                is_valid, reason = self.quality_filter.validate_match(match_data)
+                if not is_valid:
+                    # Skip replay if not futsal 1v1 or score invalid
+                    continue
+
+                frames = self.quality_filter.filter_frames_and_afk(match_data.get("frames", []))
+                if not frames:
+                    continue
+
                 players_meta = match_data.get("players", {})
 
                 # Find winner team if recorded
