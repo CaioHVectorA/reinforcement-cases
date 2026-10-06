@@ -44,9 +44,9 @@ class ReplayQualityFilter:
         """
         Validates match metadata before processing frames.
         Checks:
-        1. Stadium is FUTSAL (rejects Classic, Big, Football, Real Soccer, etc.)
-        2. Strictly 1v1 (exactly 1 Red player, 1 Blue player active during gameplay)
-        3. Coherent score (no absurd blowouts like 15x0)
+        1. Stadium is FUTSAL (rejects Classic, Big, Football, Real Soccer, Voley, etc.)
+        2. Rejects Futsal Multi-agent (2v2, 3v3, 4v4, 5v5, x3, x4, x5)
+        3. Strictly 1v1 Futsal
         """
         if isinstance(match_data, dict):
             stadium_name = str(match_data.get("stadium", "")).lower()
@@ -68,20 +68,28 @@ class ReplayQualityFilter:
             filepath = getattr(match_data, "filepath", "")
 
         file_basename = os.path.basename(filepath).lower()
+        combined_meta = f"{file_basename} {room_name} {stadium_name}"
 
-        # 1. Stadium Check: MUST BE FUTSAL ONLY (rejects Football, Classic, etc.)
-        is_futsal = any(kw in stadium_name or kw in room_name or kw in file_basename for kw in self.allowed_keywords)
+        # 1. Check Mode: MUST BE FUTSAL
+        is_futsal = any(kw in combined_meta for kw in self.allowed_keywords)
         if not is_futsal:
             if 350.0 <= stadium_w <= 650.0 and 150.0 <= stadium_h <= 300.0:
                 is_futsal = True
 
         if not is_futsal:
-            return False, f"Rejeitado: Estádio/Sala/Arquivo não é Futsal ('{stadium_name or room_name or file_basename}')"
+            return False, f"Rejeitado: Não é Futsal ('{stadium_name or room_name or file_basename}')"
+
+        # 2. Reject explicit multi-player tags (3v3, 4v4, 5v5, 2v2, voley, etc.)
+        multi_tags = ['3v3', 'x3', '3x3', '4v4', 'x4', '4x4', '5v5', 'x5', '5x5', '2v2', 'x2', '2x2', 'voley', 'volley']
+        explicit_1v1 = any(tag in combined_meta for tag in ['1v1', 'x1', '1x1'])
+
+        if any(tag in combined_meta for tag in multi_tags) and not explicit_1v1:
+            return False, "Rejeitado: Futsal Multi-agente (2v2/3v3/4v4/5v5/Voley)"
 
         if not frames:
-            # If match has inputs but frames were not pre-simulated, consider valid if 2 players
+            # If match has inputs but frames were not pre-simulated, consider valid if 1v1 explicit
             players = getattr(match_data, "players", {}) if not isinstance(match_data, dict) else match_data.get("players", {})
-            if len(players) == 2 or len(players) == 0: # 0 means default 1v1 inputs stream
+            if len(players) == 2 or len(players) == 0:
                 return True, "OK"
             return False, "Rejeitado: Partida sem frames de física"
 
@@ -95,11 +103,11 @@ class ReplayQualityFilter:
             if reds > max_red: max_red = reds
             if blues > max_blue: max_blue = blues
 
-        # 2. Strict 1v1 Format Check
+        # 3. Strict 1v1 Format Check
         if max_red > 1 or max_blue > 1:
             return False, f"Rejeitado: Não é 1v1 (Red: {max_red}, Blue: {max_blue})"
 
-        # 3. Coherent Score Check
+        # 4. Coherent Score Check
         score_diff = abs(red_score - blue_score)
         if score_diff > 8:
             return False, f"Rejeitado: Placar incoerente ({red_score} x {blue_score})"
