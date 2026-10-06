@@ -99,3 +99,21 @@ O repositório fornece o módulo [`headless_agent.py`](file:///c:/Users/caihe/Do
 1. Traduzir o estado da sala para o vetor normalizado desacoplado.
 2. Calcular a ação e exportá-la no formato nativo: `{ xdir: -1 | 0 | 1, ydir: -1 | 0 | 1, kick: boolean }`.
 3. Exportar pesos da rede neural em formato JSON leve para execução direta em JavaScript sem latência de rede.
+
+---
+
+## 6. Realidade dos Dados Humanos: Behavioral Cloning vs. Self-Play Puro
+
+A tentativa empírica de minerar milhares de replays de terceiros (`replay.thehax.pl` e canais de bots no Discord) revelou limitações fundamentais do ecossistema público de HaxBall:
+
+1. **Inexistência de Replays 1v1 Públicos em Massa:**
+   * A comunidade competitiva e os sistemas de ligas jogam e gravam quase exclusivamente modalidades de time: **3v3 Futsal**, **4v4 Real Soccer** e **5v5 Big**.
+   * Partidas 1v1 são esmagadoramente casuais ou disputadas em salas privadas não-gravadas.
+2. **Poluição Severa por Bots de Hospedagem:**
+   * Bots de sala automatizados (MrHOST, X Hosting, sala3) geram arquivos `.hbr2` periódicos (a cada 2~5 minutos) continuamente, resultando em milhares de arquivos com **0 jogadores humanos ativos** e sem inputs de teclado.
+3. **Armadilha Semântica de Nomenclatura:**
+   * Nomes de arquivos contendo "2x1", "3x1" ou "4x1" referem-se ao **placar de gols** da partida, e não à modalidade ("1v1"), gerando falsos positivos catastróficos caso o cabeçalho binário interno do estádio não seja auditado diretamente.
+4. **Diretriz Estratégica do Projeto:**
+   * **Para Behavioral Cloning (BC) em 1v1:** Não depender de scraping público em massa. Utilizar exclusivamente gravações locais sob demanda do próprio usuário humano ou demonstrações sintéticas de alta performance geradas pelos bots heurísticos analíticos (`HeuristicBot`, `WallReboundBot`).
+   * **Para Aprendizado Principal:** Foco total no **Aprendizado por Reforço por Auto-Confronto (PPO Self-Play)**, que aprende a física e as táticas do zero sem dependência de dados externos.
+

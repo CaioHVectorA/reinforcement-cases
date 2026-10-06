@@ -205,3 +205,25 @@ Na Central de Controle (`main.py`), implementamos o **Modo 2x2 Self-Play Treino 
    * **Fase 3: Alinhamento ao Gol e Espaçamento ($25.000$ a $70.000$ passos):** Surgem chutes direcionados às traves e separação mútua dos companheiros devido à penalidade de *spacing*.
    * **Fase 4: Team-Play e Passes Coordenados ($> 70.000$ passos):** Troca intencional de passes quando pressionado, finalização após assistência, tabelas nas paredes e cobertura na retaguarda.
 
+---
+
+## 9. Auditoria Empírica de Dados e Viabilidade de Behavioral Cloning (BC)
+
+### 9.1. A Falácia da Mineração Pública em Massa para 1v1
+A auditoria minuciosa de mais de 4.500 replays obtidos de servidores comunitários e ligas públicas (`replay.thehax.pl` e canais de log de bots no Discord) comprovou empiricamente que:
+* **Escassez Extrema de 1v1:** O ecossistema competitivo de HaxBall online gira em torno de ligas 3v3 (Futsal), 4v4/7v7 (Real Soccer) e 5v5 (Big). Menos de 1% dos replays arquivados por bots de hospedagem correspondem a partidas 1v1 reais com jogadores humanos jogando ativamente.
+* **Falso Positivo de Placar ("x1"):** Títulos de replay com termos como `2x1`, `3x1` ou `4x1` representam o placar final do confronto e jamais devem ser interpretados isoladamente como indicadores da modalidade 1v1.
+* **Poluição de Salas Vazias:** Servidores de host salvam arquivos a cada intervalo de tempo fixo (2 a 5 minutos), gerando milhares de replays sem entradas de teclas de jogadores humanos.
+
+### 9.2. Protocolo Rigoroso de Validação de Replays (Anti-Alucinação)
+Qualquer inclusão de dados no pipeline de Behavioral Cloning exige obrigatoriamente:
+1. **Desempacotamento do Cabeçalho Binário HBR2:** Leitura direta do nome do estádio decodificado em memória (`stadium_name`), rejeitando categoricamente mapas com descritores de multiagente (`x3`, `3v3`, `x4`, `4v4`, `x5`, `5v5`, `x7`, `real soccer`, `voley`).
+2. **Contagem Efetiva de Jogadores:** Verificação da lista de jogadores por frame. O número de atletas ativos em campo deve ser estritamente $1 \text{ Red}$ e $1 \text{ Blue}$.
+3. **Volume Mínimo de Inputs Ativos:** Descarte compulsório de gravações com menos de 100 mudanças de estado de controle.
+
+### 9.3. Diretriz de Desenvolvimento para Agentes 1v1
+Para evitar desperdício de tempo e alucinações com scraping de fontes descontroladas:
+* **Abordagem Principal:** O treinamento de agentes 1v1 apoia-se em **PPO Self-Play e currículo de baselines analíticos (`HeuristicBot`, `WallReboundBot`)**. O aprendizado por reforço descobre a mecânica ótima diretamente do motor de física sem depender de bancos de dados públicos viciados.
+* **Abordagem Secundária (BC Controlado):** Caso Behavioral Cloning seja empregado, os dados devem originar-se de sessões intencionais gravadas pelo próprio operador/usuário ou geradas sinteticamente por controladores especialistas, garantindo 100% de integridade e relevância.
+
+
