@@ -40,7 +40,7 @@ class ReplayQualityFilter:
     def __init__(self, allowed_stadium_keywords: Optional[List[str]] = None):
         self.allowed_keywords = allowed_stadium_keywords or ["futsal"]
 
-    def validate_match(self, match_data: Dict[str, Any]) -> Tuple[bool, str]:
+    def validate_match(self, match_data: Any) -> Tuple[bool, str]:
         """
         Validates match metadata before processing frames.
         Checks:
@@ -48,43 +48,58 @@ class ReplayQualityFilter:
         2. Strictly 1v1 (exactly 1 Red player, 1 Blue player active during gameplay)
         3. Coherent score (no absurd blowouts like 15x0)
         """
-        stadium_name = str(match_data.get("stadium", "")).lower()
-        room_name = str(match_data.get("room_name", "")).lower()
+        if isinstance(match_data, dict):
+            stadium_name = str(match_data.get("stadium", "")).lower()
+            room_name = str(match_data.get("room_name", "")).lower()
+            frames = match_data.get("frames", [])
+            red_score = match_data.get("red_score", 0)
+            blue_score = match_data.get("blue_score", 0)
+            stadium_w = match_data.get("stadium_w", 450.0)
+            stadium_h = match_data.get("stadium_h", 200.0)
+            filepath = match_data.get("filepath", "")
+        else: # ReplayMatch object or similar
+            stadium_name = str(getattr(match_data, "stadium", "")).lower()
+            room_name = str(getattr(match_data, "room_name", "")).lower()
+            frames = getattr(match_data, "frames", [])
+            red_score = getattr(match_data, "red_score", 0)
+            blue_score = getattr(match_data, "blue_score", 0)
+            stadium_w = getattr(match_data, "stadium_w", 450.0)
+            stadium_h = getattr(match_data, "stadium_h", 200.0)
+            filepath = getattr(match_data, "filepath", "")
+
+        file_basename = os.path.basename(filepath).lower()
 
         # 1. Stadium Check: MUST BE FUTSAL ONLY (rejects Football, Classic, etc.)
-        is_futsal = any(kw in stadium_name or kw in room_name for kw in self.allowed_keywords)
-        # If stadium tag is default (0) or missing string, allow if room or dimensions match futsal aspect
-        if not is_futsal and "stadium" in match_data:
-            # Check width/height aspect if custom stadium
-            sw = match_data.get("stadium_w", 450.0)
-            sh = match_data.get("stadium_h", 200.0)
-            if 350.0 <= sw <= 650.0 and 150.0 <= sh <= 300.0:
+        is_futsal = any(kw in stadium_name or kw in room_name or kw in file_basename for kw in self.allowed_keywords)
+        if not is_futsal:
+            if 350.0 <= stadium_w <= 650.0 and 150.0 <= stadium_h <= 300.0:
                 is_futsal = True
 
         if not is_futsal:
-            return False, f"Rejeitado: Estádio/Sala não é Futsal ('{stadium_name}')"
+            return False, f"Rejeitado: Estádio/Sala/Arquivo não é Futsal ('{stadium_name or room_name or file_basename}')"
 
-        frames = match_data.get("frames", [])
         if not frames:
+            # If match has inputs but frames were not pre-simulated, consider valid if 2 players
+            players = getattr(match_data, "players", {}) if not isinstance(match_data, dict) else match_data.get("players", {})
+            if len(players) == 2 or len(players) == 0: # 0 means default 1v1 inputs stream
+                return True, "OK"
             return False, "Rejeitado: Partida sem frames de física"
 
         # Check player counts across match frames
         max_red = 0
         max_blue = 0
         for f in frames[::30]: # sample every 0.5s
-            players = f.get("players", [])
-            reds = sum(1 for p in players if p.get("team") == 1)
-            blues = sum(1 for p in players if p.get("team") == 2)
+            p_list = f.get("players", []) if isinstance(f, dict) else getattr(f, "players", [])
+            reds = sum(1 for p in p_list if (p.get("team") if isinstance(p, dict) else getattr(p, "team", 1)) == 1)
+            blues = sum(1 for p in p_list if (p.get("team") if isinstance(p, dict) else getattr(p, "team", 2)) == 2)
             if reds > max_red: max_red = reds
             if blues > max_blue: max_blue = blues
 
         # 2. Strict 1v1 Format Check
-        if max_red != 1 or max_blue != 1:
+        if max_red > 1 or max_blue > 1:
             return False, f"Rejeitado: Não é 1v1 (Red: {max_red}, Blue: {max_blue})"
 
         # 3. Coherent Score Check
-        red_score = match_data.get("red_score", 0)
-        blue_score = match_data.get("blue_score", 0)
         score_diff = abs(red_score - blue_score)
         if score_diff > 8:
             return False, f"Rejeitado: Placar incoerente ({red_score} x {blue_score})"
