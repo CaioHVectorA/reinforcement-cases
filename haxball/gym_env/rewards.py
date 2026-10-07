@@ -111,11 +111,17 @@ class RewardShaper:
         if player.is_kicking and not made_kick and curr_dist_to_ball > (reach + 10.0):
             reward -= self.whiff_kick_penalty
 
-        # 6. Defensive Positioning: Reward staying between ball and own goal
-        dist_player_to_own_goal = player.pos.distance_to(own_goal)
-        dist_ball_to_own_goal = ball.pos.distance_to(own_goal)
-        if dist_player_to_own_goal < dist_ball_to_own_goal:
-            # Player is covering the goal
-            reward += self.defensive_position_weight
+        # 6. Penalizar severamente camperar dentro do próprio gol (Anti-Goal-Camping)
+        p_depth = player.pos.x if is_red else -player.pos.x
+        if p_depth < -stad.bg_width + 15.0:
+            reward -= 0.05  # Punição por entrar na própria rede e ficar parado lá
+
+        # 7. Posicionamento Defensivo Ativo (apenas quando a bola estiver no campo de defesa)
+        ball_in_defense = (ball.pos.x < 0.0) if is_red else (ball.pos.x > 0.0)
+        if ball_in_defense and p_depth > -stad.bg_width + 30.0:
+            dist_player_to_own_goal = player.pos.distance_to(own_goal)
+            dist_ball_to_own_goal = ball.pos.distance_to(own_goal)
+            if dist_player_to_own_goal < dist_ball_to_own_goal:
+                reward += self.defensive_position_weight * 0.5
 
         return reward

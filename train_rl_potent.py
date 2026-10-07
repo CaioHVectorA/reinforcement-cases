@@ -84,7 +84,9 @@ class BCOpponentBot(BaseBot):
                 act_idx = 9 + torch.argmax(probs[9:]).item()
             else:
                 act_idx = torch.argmax(probs[:9]).item()
-            return self.action_handler.decode_discrete(act_idx)
+            mx, my, kick = self.action_handler.decode_discrete(act_idx)
+            attack_sign = 1.0 if player.team == Team.RED else -1.0
+            return (mx * attack_sign, my, kick)
 
 
 class SelfPlayOpponentBot(BaseBot):
@@ -101,7 +103,9 @@ class SelfPlayOpponentBot(BaseBot):
             obs_t = torch.from_numpy(obs).unsqueeze(0)
             action, _, _, _ = self.agent.get_action_and_value(obs_t)
             act_idx = action.item()
-            return self.action_handler.decode_discrete(act_idx)
+            mx, my, kick = self.action_handler.decode_discrete(act_idx)
+            attack_sign = 1.0 if player.team == Team.RED else -1.0
+            return (mx * attack_sign, my, kick)
 
 
 class AdaptiveCurriculumOpponent(BaseBot):

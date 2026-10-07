@@ -339,9 +339,13 @@ class HaxBallStudioApp:
                 raw_act = self.action_handler.decode_discrete(act_idx)
                 rx, ry, rkick = raw_act
 
+                # Inversão necessária para o time Azul (Ego-perspective para coordenadas globais)
+                attack_sign = 1.0 if player.team == Team.RED else -1.0
+                world_rx = rx * attack_sign
+
                 # Suavização de movimento para evitar tremores robóticos
                 prev_x, prev_y = self._bc_prev_action.get(player.player_id, (0.0, 0.0))
-                smooth_x = prev_x * 0.65 + rx * 0.35
+                smooth_x = prev_x * 0.65 + world_rx * 0.35
                 smooth_y = prev_y * 0.65 + ry * 0.35
                 self._bc_prev_action[player.player_id] = (smooth_x, smooth_y)
 
@@ -363,8 +367,12 @@ class HaxBallStudioApp:
                 raw_act = self.action_handler.decode_discrete(act_idx)
                 rx, ry, rkick = raw_act
 
+                # Inversão necessária para o time Azul (Ego-perspective para coordenadas globais)
+                attack_sign = 1.0 if player.team == Team.RED else -1.0
+                world_rx = rx * attack_sign
+
                 prev_x, prev_y = self._rl_prev_action.get(player.player_id, (0.0, 0.0))
-                smooth_x = prev_x * 0.65 + rx * 0.35
+                smooth_x = prev_x * 0.65 + world_rx * 0.35
                 smooth_y = prev_y * 0.65 + ry * 0.35
                 self._rl_prev_action[player.player_id] = (smooth_x, smooth_y)
 
