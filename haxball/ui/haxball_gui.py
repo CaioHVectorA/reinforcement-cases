@@ -1,21 +1,31 @@
 """
-HaxBall Futsal Studio - Modern Interactive UI Suite.
-Features:
-- Pure Futsal Competitive Engine (Futsal 3v3 GLH, Futsal 2v2, Futsal 1v1).
-- Authentic Matte Gray Futsal Court (#3C3F43) with crisp white markings and diamond mesh goal nets.
-- Granular Per-Player Customization: Click any player slot (Red 1-3, Blue 1-3) to toggle:
-  [HUMANO | IA BC (Calibrada) | IA RL (PPO) | BOT FIXO | BOT ALA | BOT PRESS | BOT TABELAS | IDLE].
-- Calibrated Behavioral Cloning inference (active goal shooting & clearing).
-- Real-time High-Speed Simulation multiplier (0.5x to 10x).
-- Procedural Audio Engine (kicks, post bounces, referee whistles, goal celebration horns).
-- Live Telemetry: Real-time Possession bar, Shots on goal, and on-field role badges.
+HaxBall Futsal Studio - Arena Oficial com Painel de Checkboxes & Visual Autêntico.
+
+Características Principais:
+1. Visual 100% Idêntico à Referência Oficial de Futsal:
+   - Quadra cinza fosca uniforme (#424D55 / rgb(66, 77, 85)) em toda a extensão.
+   - Linhas brancas sólidas, marcações de out-of-bounds (ticks) fora das linhas.
+   - 4 pontos amarelos (#FFCC00) nos cantos, 2 pontos de pênalti brancos em cada metade.
+   - Traves autênticas: Rosa/Vermelha (#FF7B7B) na esquerda, Azul Celeste (#4DA3FF) na direita com trilhos guias.
+   - Bola de futsal pequena laranja (#FFA000) com aro escuro.
+   - Avatares com números e nicks renderizados abaixo (Umbabaraum, özil, lucasfera15, alex atacante, etc.).
+2. Painel Interativo com Checkboxes:
+   - Configuração de cada slot por CHECKBOXES intuitivos [✔] / [ ].
+   - Seleção de Formato (3v3, 2v2, 1v1) e Velocidade por checkboxes.
+   - Alternância rápida com tecla 'C', 'Tab' ou botão no topo.
+3. Bots Humanizados & Clusterização de Funções:
+   - Bot Fixo: Âncora defensiva, protege o corredor central e faz saída pelas alas.
+   - Bot Ala: Abertura de espaço nas laterais, triangulação e tabelas nas paredes.
+   - Bot Atacante / Pivô: Pressão alta agressiva e finalização rápida.
+   - Inércia e suavização temporal para eliminar tremores robóticos ("reativos demais").
+4. Áudio 100% Desativado (Silêncio Absoluto).
 """
 
 from __future__ import annotations
 import os
 import sys
-import time
 import math
+import time
 from pathlib import Path
 from typing import Dict, Tuple, Optional, Any, List
 import numpy as np
@@ -36,7 +46,6 @@ from haxball.rl.observations.decoupled_obs import DecoupledObservationBuilder
 from haxball.rl.actions.action_space import ActionHandler
 from haxball.rl.models.entity_attention import EntityAttentionPolicy
 from haxball.rl.models.mlp_policy import ActorCriticMLP
-from haxball.renderer.sound_effects import SoundManager
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MAP_DIR = PROJECT_ROOT / "haxball" / "maps"
@@ -52,7 +61,7 @@ STADIUM_CATALOG = {
     "futsal_2v2": {
         "title": "Futsal 2v2 Arena",
         "file": str(MAP_DIR / "futsal_2v2.hbs"),
-        "desc": "Quadra Cinza Equilibrada (450x200). Espaçamento tático e transições dinâmicas.",
+        "desc": "Quadra Cinza Equilibrada (450x200). Espaçamento tático e transições.",
         "default_format": 2
     },
     "futsal_1v1": {
@@ -63,111 +72,117 @@ STADIUM_CATALOG = {
     }
 }
 
-CONTROLLER_TYPES = [
-    ("human", "HUMANO", (255, 235, 50)),
+CONTROLLER_OPTIONS = [
+    ("human", "Humano", (255, 235, 50)),
     ("bc_ai", "IA BC", (255, 120, 120)),
     ("ppo_rl", "IA RL", (120, 225, 150)),
-    ("bot_fixo", "BOT FIXO", (100, 185, 255)),
-    ("bot_ala", "BOT ALA", (160, 215, 255)),
-    ("bot_press", "BOT PRESS", (255, 145, 80)),
-    ("bot_wall", "BOT TABELA", (195, 145, 255)),
-    ("idle", "IDLE", (130, 135, 145)),
+    ("bot_fixo", "Bot Fixo", (100, 185, 255)),
+    ("bot_ala", "Bot Ala", (160, 215, 255)),
+    ("bot_press", "Bot Atacante", (255, 145, 80)),
+    ("bot_wall", "Bot Tabela", (195, 145, 255)),
+    ("idle", "Inativo", (130, 135, 145)),
 ]
 
-SPEED_OPTIONS = [0.5, 1.0, 2.0, 5.0, 10.0]
+DEFAULT_NICKNAMES = {
+    Team.RED: ["Umbabaraum", "özil", "lucasfera15"],
+    Team.BLUE: ["alex atacante", "gimendez", "falcao12"]
+}
+
+SPEED_OPTIONS = [0.5, 1.0, 2.0, 5.0]
 
 
 class HaxBallStudioApp:
-    def __init__(self, width: int = 1280, height: int = 768):
+    def __init__(self, width: int = 1240, height: int = 680):
         pygame.init()
         pygame.font.init()
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("HaxBall Futsal Studio - Arena Interativa & Benchmarks")
+        pygame.display.set_caption("HaxBall Futsal - Arena Oficial com Painel de Checkboxes")
 
         self.clock = pygame.time.Clock()
         self.running = True
         self.is_paused = False
-        self.speed_idx = 1  # 1.0x by default
-        self.sound_enabled = True
+        self.speed_idx = 1  # 1.0x
 
-        # Fonts
-        self.font_logo = pygame.font.SysFont("Trebuchet MS", 18, bold=True)
-        self.font_score_badge = pygame.font.SysFont("Trebuchet MS", 26, bold=True)
-        self.font_timer = pygame.font.SysFont("Lucida Console", 22, bold=True)
-        self.font_banner = pygame.font.SysFont("Trebuchet MS", 32, bold=True)
-        self.font_btn = pygame.font.SysFont("Arial", 12, bold=True)
-        self.font_slot = pygame.font.SysFont("Arial", 11, bold=True)
-        self.font_player = pygame.font.SysFont("Arial", 14, bold=True)
-        self.font_tag = pygame.font.SysFont("Arial", 11, bold=True)
-        self.font_telemetry = pygame.font.SysFont("Arial", 12, bold=True)
+        # Painel de Checkboxes (overlay modal)
+        self.show_checkbox_panel = False
 
-        self.sound = SoundManager.get_instance()
+        # Fontes do Estilo HaxBall Oficial
+        self.font_nick = pygame.font.SysFont("Verdana", 11, bold=False)
+        self.font_num = pygame.font.SysFont("Verdana", 11, bold=True)
+        self.font_score = pygame.font.SysFont("Trebuchet MS", 22, bold=True)
+        self.font_timer = pygame.font.SysFont("Lucida Console", 18, bold=True)
+        self.font_banner = pygame.font.SysFont("Trebuchet MS", 28, bold=True)
+        self.font_ui_title = pygame.font.SysFont("Trebuchet MS", 15, bold=True)
+        self.font_ui_text = pygame.font.SysFont("Arial", 12, bold=False)
+        self.font_ui_bold = pygame.font.SysFont("Arial", 12, bold=True)
+        self.font_check = pygame.font.SysFont("Arial", 11, bold=True)
+
         self.kick_ripples: List[Dict[str, Any]] = []
         self.last_state: Optional[GameState] = None
 
-        # Game Format & Stadium
+        # Formato e Estádio
         self.current_stadium_key = "futsal_3v3"
-        self.players_per_team = 3  # 1v1, 2v2, 3v3
+        self.players_per_team = 3  # 3v3 default
 
-        # Per-Slot Controller Configuration
-        # Default: Red 1 is Human, Red 2 & 3 are Calibrated BC AI
-        # Blue 1, 2, 3 are Coordinated Futsal Bots (Fixo, Press, Ala)
+        # Controladores por Slot (Default: Red 1 Humano, Red 2 e 3 IA BC; Blue 1 Fixo, Blue 2 Ala, Blue 3 Press)
         self.slot_controllers = {
             Team.RED: ["human", "bc_ai", "bc_ai"],
-            Team.BLUE: ["bot_fixo", "bot_press", "bot_ala"]
+            Team.BLUE: ["bot_fixo", "bot_ala", "bot_press"]
         }
 
-        # Observation and Action Handlers
+        # Nomes dos jogadores
+        self.nicknames = dict(DEFAULT_NICKNAMES)
+
+        # Observações e Ações
         self.obs_builder = DecoupledObservationBuilder()
         self.action_handler = ActionHandler()
 
-        # Cached AI Models & Bots
+        # Modelos de IA e Bots
         self._init_models_and_bots()
 
-        # Telemetry Stats
+        # Estatísticas de Telemetria
         self.red_possession_ticks = 0
         self.blue_possession_ticks = 0
         self.red_shots = 0
         self.blue_shots = 0
 
-        # UI Clickable Hitboxes
+        # Suavização de Ação do BC (Momentum humano)
+        self._bc_prev_action: Dict[int, Tuple[float, float]] = {}
+
+        # Botões e Checkboxes clicáveis da UI
         self.ui_buttons: List[Dict[str, Any]] = []
 
-        # Initialize Game World
+        # Inicializa partida
         self._init_game()
 
     def _init_models_and_bots(self):
-        # 1. Behavioral Cloning Model (Entity Attention)
+        # 1. Behavioral Cloning (Entity Attention)
         self.bc_model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
         bc_path = CHECKPOINT_DIR / "bc_futsal_3v3.pt"
         if bc_path.exists():
             try:
                 self.bc_model.load_state_dict(torch.load(str(bc_path), map_location="cpu"))
-                print(f"[Studio] Modelo BC carregado com sucesso: {bc_path}")
             except Exception as e:
                 print(f"[Studio] Aviso ao carregar BC: {e}")
         self.bc_model.eval()
 
-        # 2. PPO Reinforcement Learning Model (MLP Discrete 18-action)
+        # 2. PPO Reinforcement Learning
         self.rl_model = ActorCriticMLP(obs_dim=61, act_dim=18, is_discrete=True)
         rl_path = PROJECT_ROOT / "checkpoints" / "haxball_rl_best.pt"
         if rl_path.exists():
             try:
                 self.rl_model.load_state_dict(torch.load(str(rl_path), map_location="cpu"))
-                print(f"[Studio] Modelo RL carregado com sucesso: {rl_path}")
             except Exception as e:
                 print(f"[Studio] Aviso ao carregar RL: {e}")
         self.rl_model.eval()
 
-        # 3. Analytical Coordinated Bots
+        # 3. Coordenadores e Bots Especialistas com Humanização
         self.red_coord = Futsal3v3Coordinator(Team.RED)
         self.blue_coord = Futsal3v3Coordinator(Team.BLUE)
-        self.red_futsal_bots = [Futsal3v3Bot(f"Red_{i}", self.red_coord) for i in range(3)]
-        self.blue_futsal_bots = [Futsal3v3Bot(f"Blue_{i}", self.blue_coord) for i in range(3)]
 
-        # 4. Specialist Standalone Bots
+        # 4. Bots com papéis clusterizados
         self.heuristic_bot = HeuristicBot(name="Heuristic")
         self.wall_rebound_bot = WallReboundBot(name="WallRebound")
 
@@ -177,7 +192,7 @@ class HaxBallStudioApp:
         self.game = HaxBallGame(
             stadium=stadium,
             score_limit=5,
-            time_limit_secs=180,
+            time_limit_secs=300,
             red_players_count=self.players_per_team,
             blue_players_count=self.players_per_team
         )
@@ -186,17 +201,15 @@ class HaxBallStudioApp:
         self.red_shots = 0
         self.blue_shots = 0
         self._calc_camera()
-        if self.sound_enabled:
-            self.sound.play_whistle()
 
     def _calc_camera(self):
-        header_h = 56.0
-        footer_h = 92.0
-        margin_x = 60.0
-        margin_y = 35.0
+        # Enquadramento maximizado: a quadra preenche quase toda a janela
+        margin_x = 35.0
+        margin_y = 22.0
+        header_h = 28.0
 
         avail_w = self.width - margin_x * 2.0
-        avail_h = self.height - header_h - footer_h - margin_y * 2.0
+        avail_h = self.height - header_h - margin_y * 2.0
 
         stad = self.game.stadium
         scale_x = avail_w / (stad.width * 2.0)
@@ -214,12 +227,9 @@ class HaxBallStudioApp:
     def world_len_to_screen(self, length: float) -> int:
         return max(1, int(round(length * self.scale)))
 
-    def cycle_slot_controller(self, team: Team, slot_idx: int):
-        current = self.slot_controllers[team][slot_idx]
-        all_keys = [t[0] for t in CONTROLLER_TYPES]
-        curr_idx = all_keys.index(current) if current in all_keys else 0
-        next_key = all_keys[(curr_idx + 1) % len(all_keys)]
-        self.slot_controllers[team][slot_idx] = next_key
+    def set_slot_controller(self, team: Team, slot_idx: int, controller_key: str):
+        if slot_idx < len(self.slot_controllers[team]):
+            self.slot_controllers[team][slot_idx] = controller_key
 
     def set_format(self, n_players: int):
         if n_players in (1, 2, 3) and n_players != self.players_per_team:
@@ -234,7 +244,7 @@ class HaxBallStudioApp:
     def step_simulation(self):
         keys = pygame.key.get_pressed()
 
-        # 1. Capture Human Inputs (WASD / Arrows)
+        # Inputs humanos (WASD / Setas)
         mx = 0.0
         my = 0.0
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -259,7 +269,6 @@ class HaxBallStudioApp:
 
         inputs_dict: Dict[int, Tuple[float, float, bool]] = {}
 
-        # 2. Assign action for each player based on its individual slot controller
         for p_idx, p in enumerate(red_players):
             ctrl = self.slot_controllers[Team.RED][p_idx] if p_idx < len(self.slot_controllers[Team.RED]) else "idle"
             inputs_dict[p.player_id] = self._get_action_for_player(p, ctrl, mx, my, kick, Team.RED, p_idx)
@@ -268,17 +277,13 @@ class HaxBallStudioApp:
             ctrl = self.slot_controllers[Team.BLUE][p_idx] if p_idx < len(self.slot_controllers[Team.BLUE]) else "idle"
             inputs_dict[p.player_id] = self._get_action_for_player(p, ctrl, mx, my, kick, Team.BLUE, p_idx)
 
-        # 3. Advance Physics
+        # Passo da física
         step_info = self.game.step(inputs_dict)
 
-        # 4. Telemetry Tracking
+        # Rastreamento de finalizações
         events = step_info.get("events", {})
         kicks = events.get("kicks", [])
-        bounces = events.get("bounces", [])
-
         if kicks:
-            if self.sound_enabled:
-                self.sound.play_kick()
             for k in kicks:
                 kx, ky = self.world_to_screen(Vec2.from_iterable(k["pos"]))
                 self.kick_ripples.append({"x": kx, "y": ky, "radius": 14, "alpha": 255})
@@ -287,19 +292,9 @@ class HaxBallStudioApp:
                 else:
                     self.blue_shots += 1
 
-        if bounces and self.sound_enabled:
-            self.sound.play_bounce()
+        self.last_state = step_info.get("state")
 
-        if step_info.get("goal_scored", False) and self.sound_enabled:
-            self.sound.play_goal()
-
-        curr_state = step_info.get("state")
-        if curr_state in (GameState.KICKOFF_RED, GameState.KICKOFF_BLUE) and self.last_state == GameState.GOAL_CELEBRATION:
-            if self.sound_enabled:
-                self.sound.play_whistle()
-        self.last_state = curr_state
-
-        # Possession
+        # Posse de bola
         ball = self.game.ball
         if ball:
             min_r = min((p.pos.distance_to(ball.pos) for p in red_players), default=999)
@@ -323,7 +318,7 @@ class HaxBallStudioApp:
             return (human_mx, human_my, human_kick)
 
         elif ctrl == "bc_ai":
-            # Calibrated Behavioral Cloning Inference (prevents argmax kick collapse)
+            # Inferência BC Calibrada com Suavização de Inércia
             with torch.no_grad():
                 obs = self.obs_builder.build_observation(self.game, player)
                 obs_t = torch.from_numpy(obs).unsqueeze(0)
@@ -331,13 +326,22 @@ class HaxBallStudioApp:
                 probs = torch.softmax(logits, dim=-1)
 
                 kick_prob = probs[9:].sum().item()
-                # Calibrated threshold: if kick intent is over 22%, trigger kick direction!
+                # Limiar marginal calibrado: dispara chute se intenção for > 22%
                 if kick_prob > 0.22:
                     act_idx = 9 + torch.argmax(probs[9:]).item()
                 else:
                     act_idx = torch.argmax(probs[:9]).item()
 
-                return self.action_handler.decode_discrete(act_idx)
+                raw_act = self.action_handler.decode_discrete(act_idx)
+                rx, ry, rkick = raw_act
+
+                # Suavização de movimento para evitar tremores robóticos
+                prev_x, prev_y = self._bc_prev_action.get(player.player_id, (0.0, 0.0))
+                smooth_x = prev_x * 0.65 + rx * 0.35
+                smooth_y = prev_y * 0.65 + ry * 0.35
+                self._bc_prev_action[player.player_id] = (smooth_x, smooth_y)
+
+                return (smooth_x, smooth_y, rkick)
 
         elif ctrl == "ppo_rl":
             with torch.no_grad():
@@ -347,11 +351,17 @@ class HaxBallStudioApp:
                 act_idx = torch.argmax(logits, dim=-1).item()
                 return self.action_handler.decode_discrete(act_idx)
 
-        elif ctrl in ("bot_fixo", "bot_ala", "bot_press"):
+        elif ctrl == "bot_fixo":
             coord = self.red_coord if team == Team.RED else self.blue_coord
-            bots = self.red_futsal_bots if team == Team.RED else self.blue_futsal_bots
-            bot_obj = bots[slot_idx] if slot_idx < len(bots) else bots[0]
-            return bot_obj.act(self.game, player)
+            return coord.get_action(self.game, player, role="fixo")
+
+        elif ctrl == "bot_ala":
+            coord = self.red_coord if team == Team.RED else self.blue_coord
+            return coord.get_action(self.game, player, role="ala")
+
+        elif ctrl == "bot_press":
+            coord = self.red_coord if team == Team.RED else self.blue_coord
+            return coord.get_action(self.game, player, role="press")
 
         elif ctrl == "bot_wall":
             return self.wall_rebound_bot.act(self.game, player)
@@ -362,36 +372,33 @@ class HaxBallStudioApp:
     def render(self):
         self.ui_buttons.clear()
 
-        # 1. Dark Outer Arena Background
-        self.screen.fill((20, 24, 32))
+        # 1. Canvas com a Cor Oficial de Futsal (#424D55 / rgb(66, 77, 85))
+        futsal_gray = (66, 77, 85)
+        self.screen.fill(futsal_gray)
 
         stad = self.game.stadium
 
-        # 2. Authentic Gray Futsal Pitch Surface
-        bg_w = self.world_len_to_screen(stad.bg_width * 2.0)
-        bg_h = self.world_len_to_screen(stad.bg_height * 2.0)
+        # 2. Retângulo Principal da Quadra
+        pw = self.world_len_to_screen(stad.bg_width * 2.0)
+        ph = self.world_len_to_screen(stad.bg_height * 2.0)
         pitch_rect = pygame.Rect(
-            int(self.center_x - bg_w / 2.0),
-            int(self.center_y - bg_h / 2.0),
-            bg_w,
-            bg_h
+            int(self.center_x - pw / 2.0),
+            int(self.center_y - ph / 2.0),
+            pw,
+            ph
         )
 
-        court_gray = hex_to_rgb(stad.bg_color) if hasattr(stad, "bg_color") and stad.bg_color else (60, 63, 67)
-        outer_court = (max(0, court_gray[0] - 16), max(0, court_gray[1] - 16), max(0, court_gray[2] - 16))
+        # Preenchimento uniforme (sem corte de tons externos)
+        pygame.draw.rect(self.screen, futsal_gray, pitch_rect)
 
-        # Perimeter buffer court
-        court_buffer_rect = pitch_rect.inflate(self.world_len_to_screen(35), self.world_len_to_screen(35))
-        pygame.draw.rect(self.screen, outer_court, court_buffer_rect, border_radius=6)
-        pygame.draw.rect(self.screen, court_gray, pitch_rect, border_radius=4)
+        # Linha Externa Branca Sólida (#FFFFFF, width 2)
+        line_color = (255, 255, 255)
+        pygame.draw.rect(self.screen, line_color, pitch_rect, width=2)
 
-        line_color = (250, 250, 250)
-        pygame.draw.rect(self.screen, line_color, pitch_rect, width=2, border_radius=4)
+        # 3. Marcações de Out-of-bounds (Ticks sutis fora das linhas)
+        self._draw_boundary_ticks(pitch_rect)
 
-        # 3. Goal Netting (Cross-hatch diamond mesh)
-        self._draw_goal_nets(pitch_rect)
-
-        # 4. Field Markings
+        # 4. Linha Central e Círculo Central
         c_top = (int(self.center_x), pitch_rect.top)
         c_bottom = (int(self.center_x), pitch_rect.bottom)
         pygame.draw.line(self.screen, line_color, c_top, c_bottom, width=2)
@@ -399,14 +406,46 @@ class HaxBallStudioApp:
         ko_rad = self.world_len_to_screen(stad.bg_kickoff_radius)
         center_pt = (int(self.center_x), int(self.center_y))
         pygame.draw.circle(self.screen, line_color, center_pt, ko_rad, width=2)
-        pygame.draw.circle(self.screen, line_color, center_pt, 4)
+        pygame.draw.circle(self.screen, line_color, center_pt, 3)
 
-        # Goal areas (Futsal penalty arcs)
-        area_rad = self.world_len_to_screen(75.0)
-        pygame.draw.circle(self.screen, line_color, (pitch_rect.left, int(self.center_y)), area_rad, width=2)
-        pygame.draw.circle(self.screen, line_color, (pitch_rect.right, int(self.center_y)), area_rad, width=2)
+        # Áreas de Futsal (D-Arcs)
+        self._draw_futsal_penalty_arcs(pitch_rect)
 
-        # 5. Expanding Kick Ripples
+        # Pontos de Pênalti Duplos (2 em cada metade ao longo do eixo central)
+        self._draw_penalty_spots()
+
+        # Trilhos Guias Azuis na Trave Direita
+        self._draw_goal_rails(pitch_rect)
+
+        # 4 Cantos com Pontos Amarelos (#FFCC00)
+        corner_rad = 3
+        c_color = (255, 204, 0)
+        corners = [
+            (pitch_rect.left, pitch_rect.top),
+            (pitch_rect.right, pitch_rect.top),
+            (pitch_rect.left, pitch_rect.bottom),
+            (pitch_rect.right, pitch_rect.bottom)
+        ]
+        for c in corners:
+            pygame.draw.circle(self.screen, c_color, c, corner_rad)
+            pygame.draw.circle(self.screen, (20, 20, 20), c, corner_rad, width=1)
+
+        # 5. Segmentos e Paredes
+        for seg in self.game.physics.segments:
+            if not seg.vis or seg.trait == "goalNet":
+                continue
+            color = seg.color_rgb
+            if seg.is_curved:
+                self._draw_curved_segment(seg, color)
+            else:
+                p0_s = self.world_to_screen(seg.p0)
+                p1_s = self.world_to_screen(seg.p1)
+                pygame.draw.line(self.screen, color, p0_s, p1_s, width=2)
+
+        # 6. Traves Oficiais (Rosa/Vermelho na esquerda, Azul na direita)
+        self._draw_goal_posts()
+
+        # 7. Ondas de Impacto de Chute
         new_ripples = []
         for rip in self.kick_ripples:
             surf = pygame.Surface((rip["radius"] * 2 + 4, rip["radius"] * 2 + 4), pygame.SRCALPHA)
@@ -419,67 +458,143 @@ class HaxBallStudioApp:
                 new_ripples.append(rip)
         self.kick_ripples = new_ripples
 
-        # 6. Segments
-        for seg in self.game.physics.segments:
-            if not seg.vis or seg.trait == "goalNet":
-                continue
-            color = seg.color_rgb
-            if seg.is_curved:
-                self._draw_curved_segment(seg, color)
-            else:
-                p0_s = self.world_to_screen(seg.p0)
-                p1_s = self.world_to_screen(seg.p1)
-                pygame.draw.line(self.screen, color, p0_s, p1_s, width=3)
-
-        # 7. Static Discs (Posts)
-        for d in self.game.physics.discs:
-            if d.is_static:
-                self._draw_disc(d)
-
-        # 8. Dynamic Discs (Ball & Players)
+        # 8. Bola e Jogadores com Estilo Autêntico
         if self.game.ball:
-            self._draw_disc(self.game.ball)
+            self._draw_futsal_ball(self.game.ball)
 
         for p in self.game.players:
-            self._draw_disc(p)
-            self._draw_player_badge(p)
+            self._draw_futsal_player(p)
 
-        # 9. Scoreboard Overlay
-        self._draw_scoreboard()
+        # 9. Placar Minimalista no Topo
+        self._draw_minimal_scoreboard()
 
-        # 10. Top Header Navigation Bar
-        self._draw_top_bar()
+        # 10. Botão Flutuante do Painel de Checkboxes
+        self._draw_toggle_button()
 
-        # 11. Bottom Team Customization Matrix
-        self._draw_bottom_customizer()
+        # 11. Modal de Checkboxes (se aberto)
+        if self.show_checkbox_panel:
+            self._draw_checkbox_modal()
 
         pygame.display.flip()
 
-    def _draw_goal_nets(self, pitch_rect: pygame.Rect):
-        gw = self.world_len_to_screen(40.0)
-        gh = self.world_len_to_screen(160.0)
+    def _draw_boundary_ticks(self, rect: pygame.Rect):
+        tick_len = 10
+        pygame.draw.line(self.screen, (255, 255, 255), (int(self.center_x), rect.top - tick_len), (int(self.center_x), rect.top), width=2)
+        pygame.draw.line(self.screen, (255, 255, 255), (int(self.center_x), rect.bottom), (int(self.center_x), rect.bottom + tick_len), width=2)
 
-        # Left Net
-        lx = pitch_rect.left - gw
-        ly = int(self.center_y - gh / 2.0)
-        l_rect = pygame.Rect(lx, ly, gw, gh)
-        pygame.draw.rect(self.screen, (16, 20, 26), l_rect)
-        for x in range(lx, lx + gw + 8, 8):
-            pygame.draw.line(self.screen, (55, 65, 80), (x, ly), (x + 10, ly + gh), width=1)
-        for y in range(ly, ly + gh + 8, 8):
-            pygame.draw.line(self.screen, (55, 65, 80), (lx, y), (lx + gw, y + 6), width=1)
-        pygame.draw.rect(self.screen, (220, 220, 220), l_rect, width=2)
+        for offset_x in [-self.world_len_to_screen(180), self.world_len_to_screen(180)]:
+            x = int(self.center_x + offset_x)
+            pygame.draw.line(self.screen, (255, 255, 255), (x, rect.top - tick_len), (x, rect.top), width=2)
+            pygame.draw.line(self.screen, (255, 255, 255), (x, rect.bottom), (x, rect.bottom + tick_len), width=2)
 
-        # Right Net
-        rx = pitch_rect.right
-        ry = int(self.center_y - gh / 2.0)
-        r_rect = pygame.Rect(rx, ry, gw, gh)
-        pygame.draw.rect(self.screen, (16, 20, 26), r_rect)
-        for x in range(rx, rx + gw + 8, 8):
-            pygame.draw.line(self.screen, (55, 65, 80), (x, ry), (x - 10, ry + gh), width=1)
-        for y in range(ry, ry + gh + 8, 8):
-            pygame.draw.line(self.screen, (55, 65, 80), (rx, y), (rx + gw, y - 6), width=1)
-        pygame.draw.rect(self.screen, (220, 220, 220), r_rect, width=2)
+        y_mid = int(self.center_y)
+        pygame.draw.line(self.screen, (255, 255, 255), (rect.left - tick_len, y_mid), (rect.left, y_mid), width=2)
+        pygame.draw.line(self.screen, (255, 255, 255), (rect.right, y_mid), (rect.right + tick_len, y_mid), width=2)
+
+    def _draw_futsal_penalty_arcs(self, rect: pygame.Rect):
+        line_color = (255, 255, 255)
+        arc_w = self.world_len_to_screen(125.0)
+        arc_h = self.world_len_to_screen(160.0)
+
+        l_box = pygame.Rect(rect.left - arc_w, int(self.center_y - arc_h), arc_w * 2, arc_h * 2)
+        pygame.draw.arc(self.screen, line_color, l_box, -math.pi / 2, math.pi / 2, width=2)
+
+        r_box = pygame.Rect(rect.right - arc_w, int(self.center_y - arc_h), arc_w * 2, arc_h * 2)
+        pygame.draw.arc(self.screen, line_color, r_box, math.pi / 2, 3 * math.pi / 2, width=2)
+
+    def _draw_penalty_spots(self):
+        p_color = (255, 255, 255)
+        spot_rad = 3
+
+        s1 = self.world_to_screen(Vec2(-380.0, 0.0))
+        s2 = self.world_to_screen(Vec2(-250.0, 0.0))
+        pygame.draw.circle(self.screen, p_color, s1, spot_rad)
+        pygame.draw.circle(self.screen, p_color, s2, spot_rad)
+
+        s3 = self.world_to_screen(Vec2(250.0, 0.0))
+        s4 = self.world_to_screen(Vec2(380.0, 0.0))
+        pygame.draw.circle(self.screen, p_color, s3, spot_rad)
+        pygame.draw.circle(self.screen, p_color, s4, spot_rad)
+
+    def _draw_goal_rails(self, rect: pygame.Rect):
+        blue_rail_col = (74, 163, 255)
+        rail_len = self.world_len_to_screen(45.0)
+        y_top = self.world_to_screen(Vec2(550.0, 80.0))[1]
+        y_bot = self.world_to_screen(Vec2(550.0, -80.0))[1]
+
+        pygame.draw.line(self.screen, blue_rail_col, (rect.right, y_top), (rect.right + rail_len, y_top), width=2)
+        pygame.draw.line(self.screen, blue_rail_col, (rect.right, y_bot), (rect.right + rail_len, y_bot), width=2)
+
+    def _draw_goal_posts(self):
+        post_rad = 5
+
+        # Trave Esquerda (Pink/Red #FF7B7B)
+        red_post_col = (255, 123, 123)
+        p_l_top = self.world_to_screen(Vec2(-550.0, 80.0))
+        p_l_bot = self.world_to_screen(Vec2(-550.0, -80.0))
+        pygame.draw.circle(self.screen, red_post_col, p_l_top, post_rad)
+        pygame.draw.circle(self.screen, (20, 20, 20), p_l_top, post_rad, width=1)
+        pygame.draw.circle(self.screen, red_post_col, p_l_bot, post_rad)
+        pygame.draw.circle(self.screen, (20, 20, 20), p_l_bot, post_rad, width=1)
+
+        # Trave Direita (Sky Blue #4DA3FF)
+        blue_post_col = (77, 163, 255)
+        p_r_top = self.world_to_screen(Vec2(550.0, 80.0))
+        p_r_bot = self.world_to_screen(Vec2(550.0, -80.0))
+        pygame.draw.circle(self.screen, blue_post_col, p_r_top, post_rad)
+        pygame.draw.circle(self.screen, (20, 20, 20), p_r_top, post_rad, width=1)
+        pygame.draw.circle(self.screen, blue_post_col, p_r_bot, post_rad)
+        pygame.draw.circle(self.screen, (20, 20, 20), p_r_bot, post_rad, width=1)
+
+    def _draw_futsal_ball(self, ball: Disc):
+        center_s = self.world_to_screen(ball.pos)
+        rad_s = self.world_len_to_screen(ball.radius)
+
+        # Bola Laranja Oficial (#FFA000)
+        ball_col = (255, 160, 0)
+        pygame.draw.circle(self.screen, ball_col, center_s, rad_s)
+        # Borda escura fina
+        pygame.draw.circle(self.screen, (20, 22, 25), center_s, rad_s, width=2)
+        # Núcleo sutil
+        pygame.draw.circle(self.screen, (230, 130, 0), center_s, max(1, rad_s // 3))
+
+    def _draw_futsal_player(self, p: Disc):
+        cx, cy = self.world_to_screen(p.pos)
+        rad_s = self.world_len_to_screen(p.radius)
+
+        # Anel de chute branco
+        if p.is_kicking or p.kick_flash > 0:
+            pygame.draw.circle(self.screen, (255, 255, 255), (cx, cy), rad_s + 4, width=3)
+
+        # Corpo do Avatar
+        if p.team == Team.RED:
+            # Vermelho com anel branco interno
+            pygame.draw.circle(self.screen, (211, 47, 47), (cx, cy), rad_s)
+            pygame.draw.circle(self.screen, (20, 20, 20), (cx, cy), rad_s, width=2)
+            pygame.draw.circle(self.screen, (255, 255, 255), (cx, cy), max(2, rad_s - 4), width=1)
+        else:
+            # Azul com detalhe amarelo superior (como na foto de referência)
+            pygame.draw.circle(self.screen, (21, 101, 192), (cx, cy), rad_s)
+            y_box = pygame.Rect(cx - rad_s, cy - rad_s, rad_s * 2, rad_s)
+            pygame.draw.arc(self.screen, (255, 214, 0), y_box, 0, math.pi, width=3)
+            pygame.draw.circle(self.screen, (20, 20, 20), (cx, cy), rad_s, width=2)
+            pygame.draw.circle(self.screen, (255, 255, 255), (cx, cy), max(2, rad_s - 4), width=1)
+
+        # Número da Camisa
+        num_str = str(p.player_number)
+        num_surf = self.font_num.render(num_str, True, (255, 255, 255))
+        self.screen.blit(num_surf, num_surf.get_rect(center=(cx, cy)))
+
+        # Nickname renderizado abaixo do avatar
+        team_nicks = self.nicknames.get(p.team, [])
+        idx = p.player_number - 1
+        nick = team_nicks[idx] if idx < len(team_nicks) else f"Player_{p.player_number}"
+
+        ctrl = self.slot_controllers[p.team][idx] if idx < len(self.slot_controllers[p.team]) else "idle"
+        text_col = (255, 235, 60) if ctrl == "human" else (240, 240, 240)
+
+        nick_surf = self.font_nick.render(nick, True, text_col)
+        self.screen.blit(nick_surf, (cx - nick_surf.get_width() // 2, cy + rad_s + 4))
 
     def _draw_curved_segment(self, seg: Segment, color: Tuple[int, int, int]):
         steps = 18
@@ -494,278 +609,218 @@ class HaxBallStudioApp:
             pt = center + Vec2(math.cos(ang), math.sin(ang)) * radius
             pts.append(self.world_to_screen(pt))
         if len(pts) >= 2:
-            pygame.draw.lines(self.screen, color, False, pts, width=3)
+            pygame.draw.lines(self.screen, color, False, pts, width=2)
 
-    def _draw_disc(self, disc: Disc):
-        center_s = self.world_to_screen(disc.pos)
-        rad_s = self.world_len_to_screen(disc.radius)
+    def _draw_minimal_scoreboard(self):
+        r_score = str(self.game.red_score)
+        b_score = str(self.game.blue_score)
+        timer_str = self.game.time_string
 
-        if disc.is_player:
-            # Kick flash white ring
-            if disc.is_kicking or disc.kick_flash > 0:
-                pygame.draw.circle(self.screen, (255, 255, 255), center_s, rad_s + 4, width=3)
+        pill_w = 210
+        pill_h = 28
+        pill_rect = pygame.Rect(int(self.center_x - pill_w / 2.0), 4, pill_w, pill_h)
+        pygame.draw.rect(self.screen, (32, 38, 44), pill_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (60, 72, 84), pill_rect, width=1, border_radius=5)
 
-            # Player body
-            pygame.draw.circle(self.screen, disc.color_rgb, center_s, rad_s)
-            pygame.draw.circle(self.screen, (20, 22, 28), center_s, rad_s, width=2)
-            # Inner white circle
-            pygame.draw.circle(self.screen, (255, 255, 255), center_s, max(2, rad_s - 4), width=1)
+        r_txt = self.font_score.render(r_score, True, (255, 115, 115))
+        self.screen.blit(r_txt, (pill_rect.left + 22, pill_rect.centery - r_txt.get_height() // 2))
 
-            # Number
-            num_surf = self.font_player.render(str(disc.player_number), True, (255, 255, 255))
-            self.screen.blit(num_surf, num_surf.get_rect(center=center_s))
+        t_txt = self.font_timer.render(timer_str, True, (240, 240, 240))
+        self.screen.blit(t_txt, t_txt.get_rect(center=pill_rect.center))
 
-        elif disc.name == "Ball":
-            # Shadow
-            pygame.draw.circle(self.screen, (15, 20, 28, 110), (center_s[0] + 2, center_s[1] + 2), rad_s)
-            # Body (Yellow)
-            pygame.draw.circle(self.screen, disc.color_rgb, center_s, rad_s)
-            pygame.draw.circle(self.screen, (25, 25, 30), center_s, rad_s, width=2)
-            # Center core dot
-            pygame.draw.circle(self.screen, (60, 60, 60), center_s, max(1, rad_s // 3))
-            # Specular highlight
-            pygame.draw.circle(self.screen, (255, 255, 255), (center_s[0] - max(1, rad_s // 3), center_s[1] - max(1, rad_s // 3)), max(1, rad_s // 5))
+        b_txt = self.font_score.render(b_score, True, (110, 180, 255))
+        self.screen.blit(b_txt, (pill_rect.right - 22 - b_txt.get_width(), pill_rect.centery - b_txt.get_height() // 2))
 
-        else:
-            # Goal Posts
-            pygame.draw.circle(self.screen, (255, 255, 255), center_s, rad_s)
-            pygame.draw.circle(self.screen, (40, 45, 55), center_s, rad_s, width=2)
-            pygame.draw.circle(self.screen, (180, 180, 180), center_s, max(1, rad_s - 3), width=1)
-
-    def _draw_player_badge(self, p: Disc):
-        cx, cy = self.world_to_screen(p.pos)
-        rad_s = self.world_len_to_screen(p.radius)
-
-        slot_idx = p.player_number - 1
-        ctrl_key = self.slot_controllers[p.team][slot_idx] if slot_idx < len(self.slot_controllers[p.team]) else "idle"
-
-        if ctrl_key == "human":
-            # Pulsing yellow chevron
-            pts = [(cx, cy - rad_s - 8), (cx - 7, cy - rad_s - 18), (cx + 7, cy - rad_s - 18)]
-            pygame.draw.polygon(self.screen, (255, 230, 40), pts)
-            lbl = self.font_tag.render("VOCÊ", True, (255, 230, 40))
-            self.screen.blit(lbl, (cx - lbl.get_width() // 2, cy - rad_s - 29))
-        else:
-            # Role tag
-            tag_text = next((t[1] for t in CONTROLLER_TYPES if t[0] == ctrl_key), ctrl_key.upper())
-            color = next((t[2] for t in CONTROLLER_TYPES if t[0] == ctrl_key), (200, 200, 200))
-            lbl = self.font_tag.render(tag_text, True, color)
-            self.screen.blit(lbl, (cx - lbl.get_width() // 2, cy - rad_s - 18))
-
-    def _draw_scoreboard(self):
-        # Digital Timer in Center
-        timer_surf = self.font_timer.render(self.game.time_string, True, (255, 255, 255))
-        self.screen.blit(timer_surf, timer_surf.get_rect(center=(int(self.center_x), 27)))
-
-        # Score Badges
-        red_box = pygame.Rect(int(self.center_x - 170), 10, 105, 34)
-        pygame.draw.rect(self.screen, (229, 110, 86), red_box, border_radius=4)
-        r_txt = self.font_score_badge.render(f"RED  {self.game.red_score}", True, (255, 255, 255))
-        self.screen.blit(r_txt, r_txt.get_rect(center=red_box.center))
-
-        blue_box = pygame.Rect(int(self.center_x + 65), 10, 105, 34)
-        pygame.draw.rect(self.screen, (86, 137, 229), blue_box, border_radius=4)
-        b_txt = self.font_score_badge.render(f"{self.game.blue_score}  BLUE", True, (255, 255, 255))
-        self.screen.blit(b_txt, b_txt.get_rect(center=blue_box.center))
-
-        # Goal and Match End Notifications
         if self.game.state == GameState.GOAL_CELEBRATION:
-            team_str = "RED" if self.game.last_goal_team == Team.RED else "BLUE"
-            color = (229, 110, 86) if self.game.last_goal_team == Team.RED else (86, 137, 229)
-            banner = self.font_banner.render(f"GOAL! {team_str} SCORED!", True, color)
-            b_rect = banner.get_rect(center=(int(self.center_x), int(self.center_y - 75)))
-            box = b_rect.inflate(40, 18)
-            pygame.draw.rect(self.screen, (12, 16, 22), box, border_radius=8)
-            pygame.draw.rect(self.screen, color, box, width=3, border_radius=8)
-            self.screen.blit(banner, b_rect)
-        elif self.game.state == GameState.GAME_OVER:
-            w_str = "RED VENCEU!" if self.game.red_score > self.game.blue_score else "BLUE VENCEU!"
-            banner = self.font_banner.render(f"FIM DE JOGO - {w_str}", True, (255, 215, 0))
-            b_rect = banner.get_rect(center=(int(self.center_x), int(self.center_y - 75)))
-            box = b_rect.inflate(40, 18)
-            pygame.draw.rect(self.screen, (12, 16, 22), box, border_radius=8)
-            pygame.draw.rect(self.screen, (255, 215, 0), box, width=3, border_radius=8)
-            self.screen.blit(banner, b_rect)
-        elif self.game.state in (GameState.KICKOFF_RED, GameState.KICKOFF_BLUE):
-            ko_str = "SAÍDA RED" if self.game.state == GameState.KICKOFF_RED else "SAÍDA BLUE"
-            ko_color = (229, 110, 86) if self.game.state == GameState.KICKOFF_RED else (86, 137, 229)
-            ko_surf = self.font_btn.render(ko_str, True, ko_color)
-            self.screen.blit(ko_surf, ko_surf.get_rect(center=(int(self.center_x), 66)))
+            t_str = "RED" if self.game.last_goal_team == Team.RED else "BLUE"
+            col = (255, 115, 115) if self.game.last_goal_team == Team.RED else (110, 180, 255)
+            banner = self.font_banner.render(f"GOL! {t_str} MARCOU!", True, col)
+            b_r = banner.get_rect(center=(int(self.center_x), int(self.center_y - 65)))
+            pygame.draw.rect(self.screen, (24, 28, 34), b_r.inflate(36, 16), border_radius=6)
+            pygame.draw.rect(self.screen, col, b_r.inflate(36, 16), width=2, border_radius=6)
+            self.screen.blit(banner, b_r)
 
-    def _draw_top_bar(self):
-        bar_h = 54
-        bar_rect = pygame.Rect(0, 0, self.width, bar_h)
-        pygame.draw.rect(self.screen, (15, 18, 25), bar_rect)
-        pygame.draw.line(self.screen, (32, 40, 54), (0, bar_h), (self.width, bar_h), width=2)
+    def _draw_toggle_button(self):
+        btn_w = 260
+        btn_h = 28
+        btn_rect = pygame.Rect(20, 6, btn_w, btn_h)
 
-        # Title & Stadium Mode
-        logo = self.font_logo.render("HAXBALL FUTSAL", True, (255, 255, 255))
-        self.screen.blit(logo, (20, 16))
+        bg_col = (45, 95, 175) if self.show_checkbox_panel else (32, 40, 52)
+        pygame.draw.rect(self.screen, bg_col, btn_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (70, 95, 130), btn_rect, width=1, border_radius=5)
 
-        # Stadium Selector Buttons
-        cur_x = 205
-        for s_key in ["futsal_3v3", "futsal_2v2", "futsal_1v1"]:
-            info = STADIUM_CATALOG[s_key]
-            is_active = (s_key == self.current_stadium_key)
-            label = info["title"].split(" ")[1]  # "3v3", "2v2", "1v1"
-            btn_w = 46
-            btn_rect = pygame.Rect(cur_x, 12, btn_w, 28)
-            bg_col = (45, 95, 175) if is_active else (28, 35, 48)
-            pygame.draw.rect(self.screen, bg_col, btn_rect, border_radius=4)
-            pygame.draw.rect(self.screen, (70, 90, 120), btn_rect, width=1, border_radius=4)
-            txt = self.font_btn.render(label, True, (255, 255, 255) if is_active else (160, 175, 195))
-            self.screen.blit(txt, txt.get_rect(center=btn_rect.center))
-            self.ui_buttons.append({"rect": btn_rect, "action": "set_stadium", "val": s_key})
-            cur_x += btn_w + 6
+        lbl = "⚙ OCULTAR CHECKBOXES [C]" if self.show_checkbox_panel else "⚙ CONFIGURAR JOGADORES [C]"
+        txt = self.font_check.render(lbl, True, (255, 255, 255))
+        self.screen.blit(txt, txt.get_rect(center=btn_rect.center))
 
-        # Format Switcher Buttons (1v1, 2v2, 3v3)
-        cur_x += 16
-        for fmt in [1, 2, 3]:
-            is_active = (fmt == self.players_per_team)
-            btn_w = 42
-            btn_rect = pygame.Rect(cur_x, 12, btn_w, 28)
-            bg_col = (35, 135, 80) if is_active else (28, 35, 48)
-            pygame.draw.rect(self.screen, bg_col, btn_rect, border_radius=4)
-            pygame.draw.rect(self.screen, (70, 90, 120), btn_rect, width=1, border_radius=4)
-            txt = self.font_btn.render(f"{fmt}x{fmt}", True, (255, 255, 255) if is_active else (160, 175, 195))
-            self.screen.blit(txt, txt.get_rect(center=btn_rect.center))
-            self.ui_buttons.append({"rect": btn_rect, "action": "set_format", "val": fmt})
-            cur_x += btn_w + 6
+        self.ui_buttons.append({"rect": btn_rect, "action": "toggle_panel"})
 
-        # Right Controls: Speed, Pause, Reset, Sound
-        r_x = self.width - 20
+    def _draw_checkbox_modal(self):
+        """Desenha o painel moderno e intuitivo de checkboxes para configurar slots e modos."""
+        modal_w = 1140
+        modal_h = 580
+        modal_x = (self.width - modal_w) // 2
+        modal_y = 42
 
-        # Sound Button
-        r_x -= 65
-        snd_rect = pygame.Rect(r_x, 12, 65, 28)
-        snd_bg = (35, 110, 80) if self.sound_enabled else (70, 35, 35)
-        pygame.draw.rect(self.screen, snd_bg, snd_rect, border_radius=4)
-        snd_txt = self.font_btn.render("SOM: ON" if self.sound_enabled else "MUDO", True, (255, 255, 255))
-        self.screen.blit(snd_txt, snd_txt.get_rect(center=snd_rect.center))
-        self.ui_buttons.append({"rect": snd_rect, "action": "toggle_sound"})
+        # Fundo do Modal
+        modal_surf = pygame.Surface((modal_w, modal_h), pygame.SRCALPHA)
+        modal_surf.fill((22, 27, 36, 245))  # Vidro escuro semi-transparente
+        self.screen.blit(modal_surf, (modal_x, modal_y))
 
-        # Speed Multiplier Button
-        r_x -= 65
-        spd_rect = pygame.Rect(r_x, 12, 60, 28)
-        pygame.draw.rect(self.screen, (36, 45, 62), spd_rect, border_radius=4)
-        spd_val = SPEED_OPTIONS[self.speed_idx]
-        spd_txt = self.font_btn.render(f"{spd_val}x", True, (255, 215, 60))
-        self.screen.blit(spd_txt, spd_txt.get_rect(center=spd_rect.center))
-        self.ui_buttons.append({"rect": spd_rect, "action": "cycle_speed"})
+        modal_rect = pygame.Rect(modal_x, modal_y, modal_w, modal_h)
+        pygame.draw.rect(self.screen, (65, 85, 115), modal_rect, width=2, border_radius=8)
 
-        # Reset Round (R)
-        r_x -= 70
-        rst_rect = pygame.Rect(r_x, 12, 65, 28)
-        pygame.draw.rect(self.screen, (40, 48, 65), rst_rect, border_radius=4)
-        rst_txt = self.font_btn.render("RESET (R)", True, (210, 220, 235))
-        self.screen.blit(rst_txt, rst_txt.get_rect(center=rst_rect.center))
-        self.ui_buttons.append({"rect": rst_rect, "action": "reset_round"})
+        # Cabeçalho do Modal
+        header_txt = self.font_ui_title.render("PAINEL DE CONFIGURAÇÃO DE JOGADORES & IA (SELEÇÃO POR CHECKBOXES)", True, (255, 255, 255))
+        self.screen.blit(header_txt, (modal_x + 20, modal_y + 16))
 
-        # Pause / Play
-        r_x -= 75
-        p_rect = pygame.Rect(r_x, 12, 70, 28)
-        p_bg = (180, 50, 50) if self.is_paused else (40, 100, 180)
-        pygame.draw.rect(self.screen, p_bg, p_rect, border_radius=4)
-        p_txt = self.font_btn.render("RESUMIR" if self.is_paused else "PAUSAR", True, (255, 255, 255))
-        self.screen.blit(p_txt, p_txt.get_rect(center=p_rect.center))
-        self.ui_buttons.append({"rect": p_rect, "action": "toggle_pause"})
+        # Botão Fechar [X]
+        close_rect = pygame.Rect(modal_x + modal_w - 90, modal_y + 12, 75, 26)
+        pygame.draw.rect(self.screen, (180, 55, 55), close_rect, border_radius=4)
+        close_txt = self.font_check.render("FECHAR [C]", True, (255, 255, 255))
+        self.screen.blit(close_txt, close_txt.get_rect(center=close_rect.center))
+        self.ui_buttons.append({"rect": close_rect, "action": "toggle_panel"})
 
-    def _draw_bottom_customizer(self):
-        bot_h = 88
-        bot_rect = pygame.Rect(0, self.height - bot_h, self.width, bot_h)
-        pygame.draw.rect(self.screen, (15, 18, 25), bot_rect)
-        pygame.draw.line(self.screen, (32, 40, 54), (0, self.height - bot_h), (self.width, self.height - bot_h), width=2)
+        # Linha Divisória
+        pygame.draw.line(self.screen, (50, 65, 85), (modal_x + 20, modal_y + 48), (modal_x + modal_w - 20, modal_y + 48), width=1)
 
-        # Team Red Slots (Left Side)
-        cur_x = 25
-        card_w = 145
-        card_h = 64
-        card_y = self.height - bot_h + 12
+        cur_y = modal_y + 58
 
-        lbl_red = self.font_btn.render("TIME VERMELHO (Clique p/ Trocar):", True, (229, 110, 86))
-        self.screen.blit(lbl_red, (cur_x, card_y - 10))
+        # --- SEÇÃO 1: FORMATO DA PARTIDA & VELOCIDADE (CHECKBOXES) ---
+        fmt_lbl = self.font_ui_bold.render("Formato da Partida:", True, (200, 215, 235))
+        self.screen.blit(fmt_lbl, (modal_x + 24, cur_y + 2))
 
-        for idx in range(self.players_per_team):
-            ctrl_key = self.slot_controllers[Team.RED][idx]
-            tag_name, tag_color = next(((t[1], t[2]) for t in CONTROLLER_TYPES if t[0] == ctrl_key), ("IDLE", (150, 150, 150)))
+        chk_x = modal_x + 165
+        for fmt, label in [(3, "3v3 Futsal"), (2, "2v2 Futsal"), (1, "1v1 Futsal")]:
+            is_checked = (self.players_per_team == fmt)
+            box_rect = pygame.Rect(chk_x, cur_y, 16, 16)
+            self._draw_checkbox_widget(box_rect, is_checked)
+            txt = self.font_ui_text.render(label, True, (255, 255, 255) if is_checked else (170, 180, 195))
+            self.screen.blit(txt, (chk_x + 22, cur_y))
 
-            slot_rect = pygame.Rect(cur_x, card_y + 10, card_w, 48)
-            pygame.draw.rect(self.screen, (28, 34, 46), slot_rect, border_radius=6)
-            border_col = (229, 110, 86) if ctrl_key != "idle" else (60, 70, 85)
-            pygame.draw.rect(self.screen, border_col, slot_rect, width=2, border_radius=6)
+            hit_rect = pygame.Rect(chk_x, cur_y - 2, 110, 20)
+            self.ui_buttons.append({"rect": hit_rect, "action": "set_format", "val": fmt})
+            chk_x += 125
 
-            p_title = self.font_slot.render(f"JOGADOR #{idx+1} [RED]", True, (200, 210, 225))
-            c_title = self.font_slot.render(tag_name, True, tag_color)
-            self.screen.blit(p_title, (slot_rect.x + 8, slot_rect.y + 7))
-            self.screen.blit(c_title, (slot_rect.x + 8, slot_rect.y + 26))
+        # Velocidade
+        spd_lbl = self.font_ui_bold.render("Velocidade:", True, (200, 215, 235))
+        self.screen.blit(spd_lbl, (modal_x + 600, cur_y + 2))
 
-            self.ui_buttons.append({"rect": slot_rect, "action": "cycle_slot", "team": Team.RED, "idx": idx})
-            cur_x += card_w + 10
+        s_chk_x = modal_x + 695
+        for s_idx, spd_val in enumerate(SPEED_OPTIONS):
+            is_checked = (self.speed_idx == s_idx)
+            box_rect = pygame.Rect(s_chk_x, cur_y, 16, 16)
+            self._draw_checkbox_widget(box_rect, is_checked)
+            txt = self.font_ui_text.render(f"{spd_val}x", True, (255, 215, 60) if is_checked else (170, 180, 195))
+            self.screen.blit(txt, (s_chk_x + 22, cur_y))
 
-        # Center Telemetry Bar
-        center_w = 260
-        cx = int(self.center_x - center_w / 2.0)
-        cy = card_y + 12
+            hit_rect = pygame.Rect(s_chk_x, cur_y - 2, 65, 20)
+            self.ui_buttons.append({"rect": hit_rect, "action": "set_speed", "val": s_idx})
+            s_chk_x += 75
 
-        tot_poss = max(1, self.red_possession_ticks + self.blue_possession_ticks)
-        r_pct = 100.0 * self.red_possession_ticks / tot_poss
-        b_pct = 100.0 * self.blue_possession_ticks / tot_poss
+        cur_y += 36
+        pygame.draw.line(self.screen, (50, 65, 85), (modal_x + 20, cur_y), (modal_x + modal_w - 20, cur_y), width=1)
+        cur_y += 14
 
-        poss_lbl = self.font_telemetry.render(f"Posse: RED {r_pct:.0f}%  |  BLUE {b_pct:.0f}%", True, (220, 225, 235))
-        self.screen.blit(poss_lbl, (cx + (center_w - poss_lbl.get_width()) // 2, cy - 8))
+        # --- SEÇÃO 2: SLOTS TIME VERMELHO (RED) ---
+        red_title = self.font_ui_bold.render("🔴 TIME VERMELHO (RED)", True, (255, 115, 115))
+        self.screen.blit(red_title, (modal_x + 24, cur_y))
+        cur_y += 24
 
-        # Possession Bar
-        bar_w = 240
-        bar_h = 10
-        bx = cx + (center_w - bar_w) // 2
-        by = cy + 14
-        r_w = int(bar_w * (r_pct / 100.0))
-        pygame.draw.rect(self.screen, (229, 110, 86), (bx, by, r_w, bar_h), border_top_left_radius=3, border_bottom_left_radius=3)
-        pygame.draw.rect(self.screen, (86, 137, 229), (bx + r_w, by, bar_w - r_w, bar_h), border_top_right_radius=3, border_bottom_right_radius=3)
+        for s_idx in range(self.players_per_team):
+            cur_ctrl = self.slot_controllers[Team.RED][s_idx]
+            nick = self.nicknames[Team.RED][s_idx] if s_idx < len(self.nicknames[Team.RED]) else f"Red_{s_idx+1}"
 
-        shots_lbl = self.font_slot.render(f"Finalizações: Red {self.red_shots}  |  Blue {self.blue_shots}", True, (160, 175, 195))
-        self.screen.blit(shots_lbl, (cx + (center_w - shots_lbl.get_width()) // 2, by + 16))
+            row_lbl = self.font_ui_bold.render(f"Slot {s_idx+1} ({nick}):", True, (230, 230, 230))
+            self.screen.blit(row_lbl, (modal_x + 36, cur_y + 2))
 
-        # Team Blue Slots (Right Side)
-        rx = self.width - 25 - (card_w + 10) * self.players_per_team
-        lbl_blue = self.font_btn.render("TIME AZUL (Clique p/ Trocar):", True, (86, 137, 229))
-        self.screen.blit(lbl_blue, (rx, card_y - 10))
+            opt_x = modal_x + 215
+            for opt_key, opt_name, opt_color in CONTROLLER_OPTIONS:
+                is_checked = (cur_ctrl == opt_key)
+                b_rect = pygame.Rect(opt_x, cur_y, 15, 15)
+                self._draw_checkbox_widget(b_rect, is_checked)
 
-        for idx in range(self.players_per_team):
-            ctrl_key = self.slot_controllers[Team.BLUE][idx]
-            tag_name, tag_color = next(((t[1], t[2]) for t in CONTROLLER_TYPES if t[0] == ctrl_key), ("IDLE", (150, 150, 150)))
+                txt_col = opt_color if is_checked else (160, 170, 185)
+                t_surf = self.font_check.render(opt_name, True, txt_col)
+                self.screen.blit(t_surf, (opt_x + 20, cur_y))
 
-            slot_rect = pygame.Rect(rx, card_y + 10, card_w, 48)
-            pygame.draw.rect(self.screen, (28, 34, 46), slot_rect, border_radius=6)
-            border_col = (86, 137, 229) if ctrl_key != "idle" else (60, 70, 85)
-            pygame.draw.rect(self.screen, border_col, slot_rect, width=2, border_radius=6)
+                hit_w = t_surf.get_width() + 26
+                hit_rect = pygame.Rect(opt_x, cur_y - 2, hit_w, 20)
+                self.ui_buttons.append({"rect": hit_rect, "action": "set_slot", "team": Team.RED, "slot": s_idx, "ctrl": opt_key})
 
-            p_title = self.font_slot.render(f"JOGADOR #{idx+1} [BLUE]", True, (200, 210, 225))
-            c_title = self.font_slot.render(tag_name, True, tag_color)
-            self.screen.blit(p_title, (slot_rect.x + 8, slot_rect.y + 7))
-            self.screen.blit(c_title, (slot_rect.x + 8, slot_rect.y + 26))
+                opt_x += hit_w + 12
 
-            self.ui_buttons.append({"rect": slot_rect, "action": "cycle_slot", "team": Team.BLUE, "idx": idx})
-            rx += card_w + 10
+            cur_y += 32
+
+        cur_y += 8
+        pygame.draw.line(self.screen, (50, 65, 85), (modal_x + 20, cur_y), (modal_x + modal_w - 20, cur_y), width=1)
+        cur_y += 14
+
+        # --- SEÇÃO 3: SLOTS TIME AZUL (BLUE) ---
+        blue_title = self.font_ui_bold.render("🔵 TIME AZUL (BLUE)", True, (110, 180, 255))
+        self.screen.blit(blue_title, (modal_x + 24, cur_y))
+        cur_y += 24
+
+        for s_idx in range(self.players_per_team):
+            cur_ctrl = self.slot_controllers[Team.BLUE][s_idx]
+            nick = self.nicknames[Team.BLUE][s_idx] if s_idx < len(self.nicknames[Team.BLUE]) else f"Blue_{s_idx+1}"
+
+            row_lbl = self.font_ui_bold.render(f"Slot {s_idx+1} ({nick}):", True, (230, 230, 230))
+            self.screen.blit(row_lbl, (modal_x + 36, cur_y + 2))
+
+            opt_x = modal_x + 215
+            for opt_key, opt_name, opt_color in CONTROLLER_OPTIONS:
+                is_checked = (cur_ctrl == opt_key)
+                b_rect = pygame.Rect(opt_x, cur_y, 15, 15)
+                self._draw_checkbox_widget(b_rect, is_checked)
+
+                txt_col = opt_color if is_checked else (160, 170, 185)
+                t_surf = self.font_check.render(opt_name, True, txt_col)
+                self.screen.blit(t_surf, (opt_x + 20, cur_y))
+
+                hit_w = t_surf.get_width() + 26
+                hit_rect = pygame.Rect(opt_x, cur_y - 2, hit_w, 20)
+                self.ui_buttons.append({"rect": hit_rect, "action": "set_slot", "team": Team.BLUE, "slot": s_idx, "ctrl": opt_key})
+
+                opt_x += hit_w + 12
+
+            cur_y += 32
+
+        # Dica no rodapé do modal
+        cur_y = modal_y + modal_h - 45
+        pygame.draw.line(self.screen, (50, 65, 85), (modal_x + 20, cur_y), (modal_x + modal_w - 20, cur_y), width=1)
+        tip_text = "Dica: Você pode misturar como quiser (ex: Você + 2 IAs vs 3 Bots, ou 6 IAs em auto-jogo). Pressione 'C' para fechar e ver o jogo."
+        tip_surf = self.font_ui_text.render(tip_text, True, (160, 175, 195))
+        self.screen.blit(tip_surf, (modal_x + 24, cur_y + 12))
+
+    def _draw_checkbox_widget(self, rect: pygame.Rect, checked: bool):
+        """Desenha uma caixinha de checkbox nítida [✔] ou [ ]."""
+        border_col = (75, 150, 240) if checked else (85, 100, 120)
+        bg_col = (30, 80, 160) if checked else (35, 42, 54)
+
+        pygame.draw.rect(self.screen, bg_col, rect, border_radius=3)
+        pygame.draw.rect(self.screen, border_col, rect, width=1, border_radius=3)
+
+        if checked:
+            # Símbolo de check
+            p1 = (rect.left + 3, rect.top + 7)
+            p2 = (rect.left + 6, rect.top + 11)
+            p3 = (rect.left + 12, rect.top + 3)
+            pygame.draw.line(self.screen, (255, 255, 255), p1, p2, width=2)
+            pygame.draw.line(self.screen, (255, 255, 255), p2, p3, width=2)
 
     def handle_click(self, pos: Tuple[int, int]):
         for btn in self.ui_buttons:
             if btn["rect"].collidepoint(pos):
                 act = btn["action"]
-                if act == "set_stadium":
-                    self.set_stadium(btn["val"])
+                if act == "toggle_panel":
+                    self.show_checkbox_panel = not self.show_checkbox_panel
                 elif act == "set_format":
                     self.set_format(btn["val"])
-                elif act == "cycle_speed":
-                    self.speed_idx = (self.speed_idx + 1) % len(SPEED_OPTIONS)
-                elif act == "toggle_sound":
-                    self.sound_enabled = not self.sound_enabled
-                elif act == "toggle_pause":
-                    self.is_paused = not self.is_paused
-                elif act == "reset_round":
-                    self.game.reset_round()
-                elif act == "cycle_slot":
-                    self.cycle_slot_controller(btn["team"], btn["idx"])
+                elif act == "set_speed":
+                    self.speed_idx = btn["val"]
+                elif act == "set_slot":
+                    self.set_slot_controller(btn["team"], btn["slot"], btn["ctrl"])
                 break
 
     def run(self):
@@ -777,15 +832,16 @@ class HaxBallStudioApp:
                     self.handle_click(event.pos)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.running = False
+                        if self.show_checkbox_panel:
+                            self.show_checkbox_panel = False
+                        else:
+                            self.running = False
+                    elif event.key in (pygame.K_c, pygame.K_TAB):
+                        self.show_checkbox_panel = not self.show_checkbox_panel
                     elif event.key == pygame.K_r:
                         self.game.reset_round()
-                    elif event.key == pygame.K_n:
-                        self._init_game()
                     elif event.key in (pygame.K_p, pygame.K_PAUSE):
                         self.is_paused = not self.is_paused
-                    elif event.key == pygame.K_m:
-                        self.sound_enabled = not self.sound_enabled
                     elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
                         self.set_format(int(event.unicode))
                     elif event.key in (pygame.K_PLUS, pygame.K_EQUALS):

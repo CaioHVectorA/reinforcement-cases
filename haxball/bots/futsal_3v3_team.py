@@ -30,6 +30,7 @@ class Futsal3v3Coordinator:
     """
     Coordinates tactical decision-making for a 3-player Futsal team.
     Synchronizes assignments across players in the same simulation tick.
+    Includes humanized action smoothing, commitment inertia, and role specialization.
     """
     def __init__(self, team: Team):
         self.team = team
@@ -37,13 +38,95 @@ class Futsal3v3Coordinator:
         self._cached_actions: Dict[int, Tuple[float, float, bool]] = {}
         self._field_cache: Optional[Field] = None
 
-    def get_action(self, game: HaxBallGame, player: Disc) -> Tuple[float, float, bool]:
+        # Humanization: action commitment and exponential momentum smoothing
+        self._prev_moves: Dict[int, Tuple[float, float]] = {}
+        self._commit_ticks: Dict[int, int] = {}
+        self._kick_cooldown: Dict[int, int] = {}
+
+        # Role hysteresis (prevents tick-by-tick role swapping)
+        self._assigned_presser_id: Optional[int] = None
+        self._assigned_fixo_id: Optional[int] = None
+        self._assigned_ala_id: Optional[int] = None
+
+    def get_action(self, game: HaxBallGame, player: Disc, role: Optional[str] = None) -> Tuple[float, float, bool]:
         curr_tick = game.time_ticks
         if curr_tick != self._last_tick:
             self._update_team_plan(game)
             self._last_tick = curr_tick
 
-        return self._cached_actions.get(player.player_id, (0.0, 0.0, False))
+        # If a fixed role is explicitly requested for this player
+        if role is not None and role in ("fixo", "ala", "press", "pivo"):
+            raw_act = self._compute_specialized_action(game, player, role)
+        else:
+            raw_act = self._cached_actions.get(player.player_id, (0.0, 0.0, False))
+
+        # Apply Humanized Inertia & Smoothing Filter
+        return self._apply_human_smoothing(player.player_id, raw_act)
+
+    def _apply_human_smoothing(self, pid: int, raw_act: Tuple[float, float, bool]) -> Tuple[float, float, bool]:
+        rx, ry, rkick = raw_act
+
+        # 1. Kick smoothing: human tap lasts 2-3 ticks, then brief cooldown
+        prev_move = self._prev_moves.get(pid, (0.0, 0.0))
+        commit = self._commit_ticks.get(pid, 0)
+        cooldown = self._kick_cooldown.get(pid, 0)
+
+        kick_out = False
+        if rkick and cooldown <= 0:
+            kick_out = True
+            self._kick_cooldown[pid] = 4
+        elif cooldown > 0:
+            self._kick_cooldown[pid] = cooldown - 1
+            if cooldown >= 2:
+                kick_out = True
+
+        # 2. Movement smoothing with human reaction inertia
+        # If in a committed sprint and target direction is similar, keep momentum
+        target_len = math.hypot(rx, ry)
+        if target_len < 0.1:
+            # Player is stopping
+            smooth_x = prev_move[0] * 0.7
+            smooth_y = prev_move[1] * 0.7
+            self._commit_ticks[pid] = 0
+        else:
+            # Exponential moving average filter (alpha = 0.35)
+            # Simulates human finger holding key rather than instant 60Hz discrete flutter
+            alpha = 0.35
+            smooth_x = prev_move[0] * (1.0 - alpha) + rx * alpha
+            smooth_y = prev_move[1] * (1.0 - alpha) + ry * alpha
+
+            # Normalize to clean unit vector if running
+            sm_len = math.hypot(smooth_x, smooth_y)
+            if sm_len > 0.15:
+                smooth_x /= sm_len
+                smooth_y /= sm_len
+
+        self._prev_moves[pid] = (smooth_x, smooth_y)
+        return (smooth_x, smooth_y, kick_out)
+
+    def _compute_specialized_action(self, game: HaxBallGame, me: Disc, role: str) -> Tuple[float, float, bool]:
+        if self._field_cache is None or self._field_cache.half_w != float(game.stadium.bg_width):
+            self._field_cache = Field(game)
+        f = self._field_cache
+        ball = game.ball
+        attack_dir = 1.0 if self.team == Team.RED else -1.0
+        own_goal = f.own_goal_center(self.team)
+        enemy_goal_x, gy0, gy1 = f.goal_to_score(self.team)
+        enemy_goal_y = (gy0 + gy1) * 0.5
+        opponents = [p for p in game.players if p.team != self.team and p.team != Team.NONE]
+        teammates = [p for p in game.players if p.team == self.team and p.player_id != me.player_id]
+
+        if role == "fixo":
+            presser = min(teammates, key=lambda p: p.pos.distance_to(ball.pos)) if teammates else me
+            return self._compute_fixo_action(f, me, ball, presser, opponents, attack_dir, own_goal)
+        elif role == "ala":
+            presser = min(teammates, key=lambda p: p.pos.distance_to(ball.pos)) if teammates else me
+            fixo = max(teammates, key=lambda p: -p.pos.x * attack_dir) if teammates else me
+            return self._compute_ala_action(f, me, ball, presser, fixo, opponents, attack_dir, enemy_goal_x, enemy_goal_y)
+        else:
+            # Atacante / Presser
+            ala = teammates[0] if teammates else None
+            return self._compute_presser_action(f, me, ball, opponents, ala, attack_dir, enemy_goal_x, enemy_goal_y)
 
     def _update_team_plan(self, game: HaxBallGame):
         self._cached_actions.clear()
@@ -63,24 +146,36 @@ class Futsal3v3Coordinator:
         if not teammates:
             return
 
-        # 1. Dynamic Role Assignment
-        # Sort teammates by distance to ball
-        teammates_by_ball_dist = sorted(teammates, key=lambda p: p.pos.distance_to(ball.pos))
-        presser = teammates_by_ball_dist[0]
+        # Role Assignment with Hysteresis (prevents jitter when 2 players are close to ball)
+        teammates_by_dist = sorted(teammates, key=lambda p: p.pos.distance_to(ball.pos))
+        closest_p = teammates_by_dist[0]
 
-        remaining = teammates_by_ball_dist[1:]
+        # Keep current presser unless another teammate is significantly closer (threshold 40px)
+        curr_presser = next((p for p in teammates if p.player_id == self._assigned_presser_id), None)
+        if curr_presser is not None:
+            curr_dist = curr_presser.pos.distance_to(ball.pos)
+            best_dist = closest_p.pos.distance_to(ball.pos)
+            if best_dist < curr_dist - 40.0:
+                presser = closest_p
+            else:
+                presser = curr_presser
+        else:
+            presser = closest_p
+
+        self._assigned_presser_id = presser.player_id
+
+        remaining = [p for p in teammates if p.player_id != presser.player_id]
         fixo = None
         ala = None
 
         if len(remaining) == 1:
             fixo = remaining[0]
         elif len(remaining) >= 2:
-            # Fixo is the one deepest towards own goal
             if self.team == Team.RED:
                 fixo = min(remaining, key=lambda p: p.pos.x)
             else:
                 fixo = max(remaining, key=lambda p: p.pos.x)
-            ala = [p for p in remaining if p is not fixo][0]
+            ala = [p for p in remaining if p.player_id != fixo.player_id][0]
 
         # 2. Compute Individual Actions
         # A) PRESSER / BALL HANDLER ACTION
@@ -260,18 +355,22 @@ class Futsal3v3Bot(BaseBot):
     """
     Individual bot participant in a coordinated Futsal 3v3 team.
     Shares a tactical coordinator instance with its teammates.
+    Can be assigned an explicit role ("fixo", "ala", "press") or dynamically coordinated.
     """
-    def __init__(self, name: str = "Futsal3v3Bot", coordinator: Optional[Futsal3v3Coordinator] = None):
+    def __init__(self, name: str = "Futsal3v3Bot", coordinator: Optional[Futsal3v3Coordinator] = None, role: Optional[str] = None):
         super().__init__(name)
         self.coordinator = coordinator
+        self.role = role
 
     def act(self, game: HaxBallGame, player: Disc) -> Tuple[float, float, bool]:
         if self.coordinator is None:
             # Fallback coordinator for player's team
             self.coordinator = Futsal3v3Coordinator(player.team)
-        return self.coordinator.get_action(game, player)
+        return self.coordinator.get_action(game, player, role=self.role)
 
     def reset(self):
         if self.coordinator is not None:
             self.coordinator._last_tick = -1
             self.coordinator._cached_actions.clear()
+            self.coordinator._prev_moves.clear()
+            self.coordinator._commit_ticks.clear()

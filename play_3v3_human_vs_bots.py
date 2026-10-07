@@ -75,9 +75,13 @@ def run_3v3_human_match():
     obs_builder = DecoupledObservationBuilder()
     action_handler = ActionHandler()
 
-    # 4. Configurar time adversário (Azul) com Bots Coordenados
+    # 4. Configurar time adversário (Azul) com Bots Coordenados e Funções Especializadas
     blue_coord = Futsal3v3Coordinator(Team.BLUE)
-    blue_bots = [Futsal3v3Bot(f"Bot_Blue_{i+1}", blue_coord) for i in range(3)]
+    blue_bots = [
+        Futsal3v3Bot("Bot_Blue_Fixo", blue_coord, role="fixo"),
+        Futsal3v3Bot("Bot_Blue_Ala", blue_coord, role="ala"),
+        Futsal3v3Bot("Bot_Blue_Press", blue_coord, role="press")
+    ]
 
     # 5. Inicializar Renderer Pygame
     renderer = PygameRenderer(game, width=1100, height=620)
@@ -86,9 +90,8 @@ def run_3v3_human_match():
     clock = pygame.time.Clock()
     running = True
 
-    # Fontes extras para HUD
-    font_hud = pygame.font.SysFont("Arial", 15, bold=True)
-    font_badge = pygame.font.SysFont("Arial", 12, bold=True)
+    # Cache de suavização para BC
+    bc_smooth_moves = {}
 
     print("\n" + "="*60)
     print("=== PARTIDA 3v3 INICIADA ===")
@@ -142,19 +145,33 @@ def run_3v3_human_match():
         if red_players:
             inputs_dict[red_players[0].player_id] = (mx, my, kick)
 
-        # IAs BC controlam red_players[1] e red_players[2]
+        # IAs BC controlam red_players[1] e red_players[2] com Inferência Calibrada
         with torch.no_grad():
             ai_players = red_players[1:]
             if ai_players:
                 obs_batch = np.stack([obs_builder.build_observation(game, p) for p in ai_players])
                 obs_t = torch.from_numpy(obs_batch)
                 logits = bc_model.actor(bc_model.forward_repr(obs_t))
-                preds = torch.argmax(logits, dim=-1).tolist()
-                for p, act_idx in zip(ai_players, preds):
-                    ai_mx, ai_my, ai_kick = action_handler.decode_discrete(act_idx)
-                    inputs_dict[p.player_id] = (ai_mx, ai_my, ai_kick)
+                probs = torch.softmax(logits, dim=-1)
 
-        # Bots Coordenados controlam o Time Azul
+                for idx, p in enumerate(ai_players):
+                    p_probs = probs[idx]
+                    kick_prob = p_probs[9:].sum().item()
+                    # Limiar marginal calibrado: ativa chute se intenção for > 22%
+                    if kick_prob > 0.22:
+                        act_idx = 9 + torch.argmax(p_probs[9:]).item()
+                    else:
+                        act_idx = torch.argmax(p_probs[:9]).item()
+
+                    raw_x, raw_y, ai_kick = action_handler.decode_discrete(act_idx)
+                    # Suavização de inércia humana
+                    prev_x, prev_y = bc_smooth_moves.get(p.player_id, (0.0, 0.0))
+                    sm_x = prev_x * 0.65 + raw_x * 0.35
+                    sm_y = prev_y * 0.65 + raw_y * 0.35
+                    bc_smooth_moves[p.player_id] = (sm_x, sm_y)
+                    inputs_dict[p.player_id] = (sm_x, sm_y, ai_kick)
+
+        # Bots Coordenados controlam o Time Azul com Funções Especializadas
         for b, p in zip(blue_bots, blue_players):
             inputs_dict[p.player_id] = b.act(game, p)
 

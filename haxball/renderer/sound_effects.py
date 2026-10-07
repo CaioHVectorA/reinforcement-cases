@@ -22,19 +22,9 @@ class SoundManager:
     _instance = None
 
     def __init__(self):
+        # Sound permanently disabled as requested by user
         self.enabled = False
         self.sounds = {}
-        if not PYGAME_AVAILABLE:
-            return
-
-        try:
-            if not pygame.mixer.get_init():
-                pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
-            self._generate_sounds()
-            self.enabled = True
-        except Exception as e:
-            print(f"[SoundManager] Audio device unavailable, running in silent mode: {e}")
-            self.enabled = False
 
     @classmethod
     def get_instance(cls) -> SoundManager:
