@@ -228,5 +228,33 @@ Para evitar desperdício de tempo e alucinações com scraping de fontes descont
 
 > Para detalhes completos sobre a estrutura binária, codificação LEB128, bitmask de input e ecossistema comunitário de replays, consulte a especificação técnica completa: [`docs/HAXBALL_REPLAY_SPECIFICATION.md`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/docs/HAXBALL_REPLAY_SPECIFICATION.md).
 
+---
+
+## 10. A Linha de Estudo Dedicada de Dodgeball (Queimada / Pursuit-Evasion)
+
+O modo Dodgeball (Queimada) transforma o problema de navegação e atração contínua do futebol em um **Jogo de Perseguição e Evasão Balística (*Pursuit-Evasion Game*)**, onde o núcleo mecânico é invariante entre 1v1 e multiagente (2v2/3v3).
+
+### 10.1. Regras do Modo e a Mecânica da Parede Mortal (*Deadly Wall Suicide*)
+1. **Espaço Particionado:** A arena [`dodgeball.hbs`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/maps/dodgeball.hbs) possui um divisor central intransponível por jogadores (`cMask: ["red", "blue"]`), mas 100% permeável à bola.
+2. **A Parede Mortal / Suicídio:**
+   * Se um jogador colar ou encostar na parede de contorno do seu próprio campo (bordas externas superior, inferior ou de fundo da sua metade), **ele "sai" (é eliminado da rodada) e seu time perde um ponto imediatamente** ($+1$ para o oponente).
+   * Essa mecânica impede que jogadores fiquem camperando encostados na parede, cria o risco de encurralamento por pressão e viabiliza a desistência/suicídio voluntário do jogador ao se jogar na parede.
+3. **Queimada por Bola Letal:**
+   * Se a bola for arremessada pelo time adversário em velocidade letal ($v \ge 2.5$) e atingir um jogador em sua metade, ele é **queimado (eliminado)** e o adversário ganha $+1$ ponto.
+   * Bola morta ou parada ($v < 2.0$) é munição neutra segura para contra-ataque.
+
+### 10.2. Dinâmica Cooperativa Exclusiva em Equipe (2v2 / 3v3)
+* **Aliados Saírem da Frente (*Corridor Clearance*):** Quando um jogador ganha posse de bola para atirar, os companheiros devem desocupar o corredor central de tiro, abrindo para as alas.
+* **Anti-Fogo Amigo (*Anti-Friendly Fire*):** A política de tiro só dispara se o cone balístico estiver livre de aliados, ou calcula tabelas de ricochete óptico na parede superior/inferior para contornar companheiros bloqueando o caminho.
+* **Esquiva Coordenada:** Aliados desviam em direções ortogonais sem colidirem entre si, evitando o "abraço da morte" mútuo.
+
+### 10.3. Módulos Implementados no Ecossistema
+* [`haxball/core/dodgeball_game.py`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/core/dodgeball_game.py): Gerenciador oficial de ciclo de rodadas, rastreamento de vivos/eliminados, mortes por parede e queimadas.
+* [`haxball/rl/observations/dodgeball_obs.py`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/rl/observations/dodgeball_obs.py): Observador vetorial de 48 dimensões com tempo-até-impacto balístico ($\tau$), proximidade de paredes letais e flag de oclusão de tiro por companheiro.
+* [`haxball/rl/rewards/dodgeball_reward.py`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/rl/rewards/dodgeball_reward.py): Recompensas balanceadas para abates ($\pm 10.0$), penalidade de suicídio na parede ($-12.0$), evasão de projéteis velozes ($+1.5$), desobstrução de corredor ($+1.0$) e penalidade de fogo amigo ($-3.5$).
+* [`haxball/bots/dodge_bot.py`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/bots/dodge_bot.py): Baseline heurístico especialista com repulsão ativa de paredes mortais, evasão perpendicular, tiro preditivo e tabela de desvio de aliados.
+* [`haxball/gym_env/dodgeball_env.py`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/haxball/gym_env/dodgeball_env.py): Ambiente compatível com Gymnasium para treinamento de PPO / Self-Play.
+
+
 
 

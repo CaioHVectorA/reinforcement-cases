@@ -1,13 +1,14 @@
 """
-HaxBall AI Battle Studio - Modern Interactive UI Suite.
+HaxBall Futsal Studio - Modern Interactive UI Suite.
 Features:
-- Full Model vs Model Arena: Put any AI (.pt) against any AI (.pt), bot, or human!
-- Flexible Team Sizing: 1v1, 2v2, 3v3 in all official stadiums.
-- Red Team Controller: [Human | AI Model A | Bot Script].
-- Blue Team Controller: [AI Model B | Bot Script | Human 2].
-- Instant .pt model loading with Drag-and-Drop and dynamic file scanner.
-- High-Speed Simulation multiplier (1x to 50x) for AI vs AI fast-forward.
-- Real-time dual-team tactical telemetry and intent vectors.
+- Pure Futsal Competitive Engine (Futsal 3v3 GLH, Futsal 2v2, Futsal 1v1).
+- Authentic Matte Gray Futsal Court (#3C3F43) with crisp white markings and diamond mesh goal nets.
+- Granular Per-Player Customization: Click any player slot (Red 1-3, Blue 1-3) to toggle:
+  [HUMANO | IA BC (Calibrada) | IA RL (PPO) | BOT FIXO | BOT ALA | BOT PRESS | BOT TABELAS | IDLE].
+- Calibrated Behavioral Cloning inference (active goal shooting & clearing).
+- Real-time High-Speed Simulation multiplier (0.5x to 10x).
+- Procedural Audio Engine (kicks, post bounces, referee whistles, goal celebration horns).
+- Live Telemetry: Real-time Possession bar, Shots on goal, and on-field role badges.
 """
 
 from __future__ import annotations
@@ -15,165 +16,187 @@ import os
 import sys
 import time
 import math
-import shutil
-import subprocess
 from pathlib import Path
 from typing import Dict, Tuple, Optional, Any, List
+import numpy as np
 import pygame
 import torch
 
 from haxball.core.vector import Vec2
 from haxball.core.constants import Team, GameState, FPS
-from haxball.core.disc import hex_to_rgb
+from haxball.core.disc import Disc, hex_to_rgb
+from haxball.core.segment import Segment
 from haxball.core.stadium import Stadium
 from haxball.core.game import HaxBallGame
-from haxball.bots import NPC_BOTS, GAUNTLET_ORDER, BaseBot, RLBot
-from haxball.ui.widgets import (
-    ICON_DISPATCH, draw_icon_stadium, draw_icon_lightning,
-    draw_icon_robot, draw_icon_user, draw_icon_reset,
-    draw_icon_play, draw_icon_pause, draw_icon_brain, draw_icon_help,
-    draw_icon_upload
-)
+from haxball.bots.base_bot import BaseBot
+from haxball.bots.heuristic_bot import HeuristicBot
+from haxball.bots.wall_rebound_bot import WallReboundBot
+from haxball.bots.futsal_3v3_team import Futsal3v3Bot, Futsal3v3Coordinator
+from haxball.rl.observations.decoupled_obs import DecoupledObservationBuilder
+from haxball.rl.actions.action_space import ActionHandler
+from haxball.rl.models.entity_attention import EntityAttentionPolicy
+from haxball.rl.models.mlp_policy import ActorCriticMLP
+from haxball.renderer.sound_effects import SoundManager
 
-MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "maps")
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CHECKPOINT_DIR = PROJECT_ROOT / "checkpoints"
+MAP_DIR = PROJECT_ROOT / "haxball" / "maps"
+CHECKPOINT_DIR = PROJECT_ROOT / "models" / "checkpoints"
 
 STADIUM_CATALOG = {
+    "futsal_3v3": {
+        "title": "Futsal 3v3 GLH",
+        "file": str(MAP_DIR / "futsal_3v3.hbs"),
+        "desc": "Quadra Cinza Oficial Bazinga (550x240). Tabelas perfeitas e alta velocidade.",
+        "default_format": 3
+    },
     "futsal_2v2": {
         "title": "Futsal 2v2 Arena",
-        "file": os.path.join(MAP_DIR, "futsal_2v2.hbs"),
-        "desc": "Quadra balanceada (450x200). Paredes elásticas e condução ágil.",
-        "format": 2
+        "file": str(MAP_DIR / "futsal_2v2.hbs"),
+        "desc": "Quadra Cinza Equilibrada (450x200). Espaçamento tático e transições dinâmicas.",
+        "default_format": 2
     },
-    "micro_1v1": {
-        "title": "Micro 1v1 Arena",
-        "file": os.path.join(MAP_DIR, "micro_1v1.hbs"),
-        "desc": "Arena compacta (340x160) com transições imediatas de 1x1.",
-        "format": 1
-    },
-    "futsal_3v3": {
-        "title": "Futsal 3v3 GLH (7899)",
-        "file": os.path.join(MAP_DIR, "futsal_3v3.hbs"),
-        "desc": "Mapa oficial mais jogado do mundo. Bola rápida e tabelas perfeitas.",
-        "format": 3
-    },
-    "classic": {
-        "title": "Classic Stadium Oficial",
-        "file": os.path.join(MAP_DIR, "classic.hbs"),
-        "desc": "Campo de grama padrão de HaxBall com traves arredondadas.",
-        "format": 1
-    },
-    "big_stadium": {
-        "title": "Big Stadium Oficial",
-        "file": os.path.join(MAP_DIR, "big_stadium.hbs"),
-        "desc": "Campo amplo de grama (840x400) para passes longos e cruzamentos.",
-        "format": 3
+    "futsal_1v1": {
+        "title": "Futsal 1v1 Rápido",
+        "file": str(MAP_DIR / "futsal.hbs"),
+        "desc": "Duelo individual (380x180). Ataque e defesa imediatos.",
+        "default_format": 1
     }
 }
 
-SPEED_LEVELS = [1, 2, 5, 10, 25, 50]
+CONTROLLER_TYPES = [
+    ("human", "HUMANO", (255, 235, 50)),
+    ("bc_ai", "IA BC", (255, 120, 120)),
+    ("ppo_rl", "IA RL", (120, 225, 150)),
+    ("bot_fixo", "BOT FIXO", (100, 185, 255)),
+    ("bot_ala", "BOT ALA", (160, 215, 255)),
+    ("bot_press", "BOT PRESS", (255, 145, 80)),
+    ("bot_wall", "BOT TABELA", (195, 145, 255)),
+    ("idle", "IDLE", (130, 135, 145)),
+]
 
-class HaxBallApp:
-    def __init__(
-        self,
-        width: int = 1280,
-        height: int = 768,
-        mode: str = "human",
-        model_path: Optional[str] = None,
-        bot_key: str = "rl"
-    ):
+SPEED_OPTIONS = [0.5, 1.0, 2.0, 5.0, 10.0]
+
+
+class HaxBallStudioApp:
+    def __init__(self, width: int = 1280, height: int = 768):
         pygame.init()
         pygame.font.init()
         self.width = width
         self.height = height
         self.screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("HaxBall AI Battle Studio - Arena Multimodelos & Duelos")
+        pygame.display.set_caption("HaxBall Futsal Studio - Arena Interativa & Benchmarks")
 
         self.clock = pygame.time.Clock()
         self.running = True
         self.is_paused = False
-
-        # App Screen State: "lobby" or "match"
-        self.screen_mode = "lobby"
-
-        # Team Setup
-        self.players_per_team = 1  # 1v1, 2v2, 3v3
-        self.speed_multiplier = 1
-
-        # Red Team Controller: "human", "ai_model", or bot_key (e.g. "press")
-        self.red_controller_type = "human"
-        self.red_model_file = str(CHECKPOINT_DIR / "haxball_rl_best.pt")
-
-        # Blue Team Controller: "ai_model", bot_key, or "human"
-        self.blue_controller_type = "ai_model"
-        self.blue_model_file = str(CHECKPOINT_DIR / "haxball_rl_best.pt")
-
-        if model_path:
-            self.blue_controller_type = "ai_model"
-            self.blue_model_file = os.path.abspath(model_path)
+        self.speed_idx = 1  # 1.0x by default
+        self.sound_enabled = True
 
         # Fonts
-        self.font_title_huge = pygame.font.SysFont("Verdana", 24, bold=True)
-        self.font_title = pygame.font.SysFont("Verdana", 17, bold=True)
-        self.font_score = pygame.font.SysFont("Verdana", 24, bold=True)
-        self.font_time = pygame.font.SysFont("Verdana", 18, bold=True)
-        self.font_hud = pygame.font.SysFont("Verdana", 13, bold=True)
-        self.font_regular = pygame.font.SysFont("Arial", 13)
-        self.font_bold = pygame.font.SysFont("Arial", 13, bold=True)
-        self.font_player = pygame.font.SysFont("Verdana", 11, bold=True)
-        self.font_telemetry = pygame.font.SysFont("Verdana", 11, bold=True)
-        self.font_small = pygame.font.SysFont("Arial", 11)
+        self.font_logo = pygame.font.SysFont("Trebuchet MS", 18, bold=True)
+        self.font_score_badge = pygame.font.SysFont("Trebuchet MS", 26, bold=True)
+        self.font_timer = pygame.font.SysFont("Lucida Console", 22, bold=True)
+        self.font_banner = pygame.font.SysFont("Trebuchet MS", 32, bold=True)
+        self.font_btn = pygame.font.SysFont("Arial", 12, bold=True)
+        self.font_slot = pygame.font.SysFont("Arial", 11, bold=True)
+        self.font_player = pygame.font.SysFont("Arial", 14, bold=True)
+        self.font_tag = pygame.font.SysFont("Arial", 11, bold=True)
+        self.font_telemetry = pygame.font.SysFont("Arial", 12, bold=True)
 
-        # Modals & Feedback
-        self.show_help_modal = False
-        self.checkpoint_feedback = ""
-        self.feedback_time = 0.0
+        self.sound = SoundManager.get_instance()
+        self.kick_ripples: List[Dict[str, Any]] = []
+        self.last_state: Optional[GameState] = None
 
-        # Current Stadium
-        self.current_stadium_key = "futsal_2v2"
+        # Game Format & Stadium
+        self.current_stadium_key = "futsal_3v3"
+        self.players_per_team = 3  # 1v1, 2v2, 3v3
 
-        # Initialize Bot Instances
-        self._init_bot_catalogs()
-        if not model_path and bot_key in self.bot_instances:
-            self.blue_controller_type = bot_key
+        # Per-Slot Controller Configuration
+        # Default: Red 1 is Human, Red 2 & 3 are Calibrated BC AI
+        # Blue 1, 2, 3 are Coordinated Futsal Bots (Fixo, Press, Ala)
+        self.slot_controllers = {
+            Team.RED: ["human", "bc_ai", "bc_ai"],
+            Team.BLUE: ["bot_fixo", "bot_press", "bot_ala"]
+        }
+
+        # Observation and Action Handlers
+        self.obs_builder = DecoupledObservationBuilder()
+        self.action_handler = ActionHandler()
+
+        # Cached AI Models & Bots
+        self._init_models_and_bots()
+
+        # Telemetry Stats
+        self.red_possession_ticks = 0
+        self.blue_possession_ticks = 0
+        self.red_shots = 0
+        self.blue_shots = 0
+
+        # UI Clickable Hitboxes
+        self.ui_buttons: List[Dict[str, Any]] = []
 
         # Initialize Game World
-        self._init_game(self.current_stadium_key, self.players_per_team)
+        self._init_game()
 
-    def _init_bot_catalogs(self):
-        self.bot_instances: Dict[str, BaseBot] = {}
-        for k, (cls, label, title, desc, col) in NPC_BOTS.items():
-            self.bot_instances[k] = cls(name=title.split(" ")[0])
+    def _init_models_and_bots(self):
+        # 1. Behavioral Cloning Model (Entity Attention)
+        self.bc_model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
+        bc_path = CHECKPOINT_DIR / "bc_futsal_3v3.pt"
+        if bc_path.exists():
+            try:
+                self.bc_model.load_state_dict(torch.load(str(bc_path), map_location="cpu"))
+                print(f"[Studio] Modelo BC carregado com sucesso: {bc_path}")
+            except Exception as e:
+                print(f"[Studio] Aviso ao carregar BC: {e}")
+        self.bc_model.eval()
 
-        # RL Bots Cache
-        self.rl_bots: Dict[str, RLBot] = {}
+        # 2. PPO Reinforcement Learning Model (MLP Discrete 18-action)
+        self.rl_model = ActorCriticMLP(obs_dim=61, act_dim=18, is_discrete=True)
+        rl_path = PROJECT_ROOT / "checkpoints" / "haxball_rl_best.pt"
+        if rl_path.exists():
+            try:
+                self.rl_model.load_state_dict(torch.load(str(rl_path), map_location="cpu"))
+                print(f"[Studio] Modelo RL carregado com sucesso: {rl_path}")
+            except Exception as e:
+                print(f"[Studio] Aviso ao carregar RL: {e}")
+        self.rl_model.eval()
 
-    def get_rl_bot(self, model_file: str) -> RLBot:
-        if model_file not in self.rl_bots:
-            self.rl_bots[model_file] = RLBot(model_path=model_file, name=os.path.basename(model_file))
-        return self.rl_bots[model_file]
+        # 3. Analytical Coordinated Bots
+        self.red_coord = Futsal3v3Coordinator(Team.RED)
+        self.blue_coord = Futsal3v3Coordinator(Team.BLUE)
+        self.red_futsal_bots = [Futsal3v3Bot(f"Red_{i}", self.red_coord) for i in range(3)]
+        self.blue_futsal_bots = [Futsal3v3Bot(f"Blue_{i}", self.blue_coord) for i in range(3)]
 
-    def _init_game(self, stadium_key: str, players_count: int = 1):
-        self.current_stadium_key = stadium_key
-        stadium_info = STADIUM_CATALOG[stadium_key]
+        # 4. Specialist Standalone Bots
+        self.heuristic_bot = HeuristicBot(name="Heuristic")
+        self.wall_rebound_bot = WallReboundBot(name="WallRebound")
+
+    def _init_game(self):
+        stadium_info = STADIUM_CATALOG[self.current_stadium_key]
         stadium = Stadium.load_from_file(stadium_info["file"])
-
-        self.players_per_team = players_count
         self.game = HaxBallGame(
             stadium=stadium,
-            score_limit=3,
+            score_limit=5,
             time_limit_secs=180,
-            red_players_count=players_count,
-            blue_players_count=players_count
+            red_players_count=self.players_per_team,
+            blue_players_count=self.players_per_team
         )
+        self.red_possession_ticks = 0
+        self.blue_possession_ticks = 0
+        self.red_shots = 0
+        self.blue_shots = 0
         self._calc_camera()
+        if self.sound_enabled:
+            self.sound.play_whistle()
 
     def _calc_camera(self):
-        top_offset = 64
-        bottom_bar_h = 60
-        avail_w = self.width - 60
-        avail_h = self.height - top_offset - bottom_bar_h - 30
+        header_h = 56.0
+        footer_h = 92.0
+        margin_x = 60.0
+        margin_y = 35.0
+
+        avail_w = self.width - margin_x * 2.0
+        avail_h = self.height - header_h - footer_h - margin_y * 2.0
 
         stad = self.game.stadium
         scale_x = avail_w / (stad.width * 2.0)
@@ -181,7 +204,7 @@ class HaxBallApp:
         self.scale = min(scale_x, scale_y)
 
         self.center_x = self.width / 2.0
-        self.center_y = top_offset + avail_h / 2.0 + 8
+        self.center_y = header_h + (avail_h / 2.0) + margin_y
 
     def world_to_screen(self, vec: Vec2) -> Tuple[int, int]:
         sx = int(self.center_x + vec.x * self.scale)
@@ -191,106 +214,29 @@ class HaxBallApp:
     def world_len_to_screen(self, length: float) -> int:
         return max(1, int(round(length * self.scale)))
 
-    def get_available_checkpoints(self) -> List[str]:
-        cp_dir = CHECKPOINT_DIR
-        if not cp_dir.exists():
-            return []
-        files = [str(path) for path in cp_dir.rglob("*.pt")]
-        files.sort(key=os.path.getmtime, reverse=True)
-        return files
+    def cycle_slot_controller(self, team: Team, slot_idx: int):
+        current = self.slot_controllers[team][slot_idx]
+        all_keys = [t[0] for t in CONTROLLER_TYPES]
+        curr_idx = all_keys.index(current) if current in all_keys else 0
+        next_key = all_keys[(curr_idx + 1) % len(all_keys)]
+        self.slot_controllers[team][slot_idx] = next_key
 
-    def plug_in_model(self, file_path: str, target_team: str = "blue", auto_start: bool = True):
-        file_path = os.path.abspath(os.path.expanduser(file_path))
-        if not os.path.isfile(file_path):
-            self.checkpoint_feedback = "Erro: arquivo .pt não encontrado."
-            self.feedback_time = time.time()
-            return False
+    def set_format(self, n_players: int):
+        if n_players in (1, 2, 3) and n_players != self.players_per_team:
+            self.players_per_team = n_players
+            self._init_game()
 
-        CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-        base_name = os.path.basename(file_path)
-        dest_path = str(CHECKPOINT_DIR / base_name)
-        if os.path.abspath(file_path) != os.path.abspath(dest_path):
-            try:
-                shutil.copy2(file_path, dest_path)
-            except OSError as error:
-                self.checkpoint_feedback = f"Erro ao copiar modelo: {error}"
-                self.feedback_time = time.time()
-                return False
+    def set_stadium(self, stad_key: str):
+        if stad_key in STADIUM_CATALOG and stad_key != self.current_stadium_key:
+            self.current_stadium_key = stad_key
+            self._init_game()
 
-        # Test load
-        test_bot = RLBot(model_path=dest_path, name=base_name)
-        if test_bot.policy is None:
-            self.checkpoint_feedback = f"Erro: não foi possível carregar {base_name}."
-            self.feedback_time = time.time()
-            return False
-        self.rl_bots[dest_path] = test_bot
-
-        if target_team == "red":
-            self.red_controller_type = "ai_model"
-            self.red_model_file = dest_path
-        else:
-            self.blue_controller_type = "ai_model"
-            self.blue_model_file = dest_path
-
-        self.checkpoint_feedback = f"Modelo {base_name} carregado no Time {target_team.upper()}!"
-        self.feedback_time = time.time()
-        if auto_start:
-            self.screen_mode = "match"
-            self.game.reset_match()
-        return True
-
-    def prompt_upload_model(self, target_team: str = "blue"):
-        selected_file = None
-
-        # Windows has no zenity; use the native file picker instead of silently
-        # selecting an unrelated checkpoint from Downloads.
-        if sys.platform.startswith("win"):
-            try:
-                import tkinter as tk
-                from tkinter import filedialog
-
-                root = tk.Tk()
-                root.withdraw()
-                root.attributes("-topmost", True)
-                selected_file = filedialog.askopenfilename(
-                    title=f"Selecione o modelo PyTorch para o time {target_team.upper()}",
-                    initialdir=str(CHECKPOINT_DIR if CHECKPOINT_DIR.exists() else PROJECT_ROOT),
-                    filetypes=[("Modelos PyTorch", "*.pt"), ("Todos os arquivos", "*.*")],
-                )
-                root.destroy()
-            except Exception as error:
-                self.checkpoint_feedback = f"Seletor de arquivo indisponível: {error}"
-                self.feedback_time = time.time()
-
-        zenity_path = shutil.which("zenity")
-
-        if not selected_file and zenity_path:
-            try:
-                cmd = [
-                    zenity_path,
-                    "--file-selection",
-                    "--title=Selecione o Modelo PyTorch (.pt)",
-                    "--file-filter=Modelos PyTorch (*.pt) | *.pt",
-                    "--file-filter=Todos os Arquivos | *"
-                ]
-                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
-                if res.returncode == 0 and res.stdout.strip():
-                    selected_file = res.stdout.strip()
-            except Exception as e:
-                print(f"[GUI] Aviso zenity: {e}")
-
-        if not selected_file:
-            # Do not guess a file. The user can cancel and choose again.
-            selected_file = None
-
-        if selected_file and os.path.exists(selected_file):
-            self.plug_in_model(selected_file, target_team=target_team, auto_start=False)
-
-    def get_player_inputs(self) -> Dict[int, Tuple[float, float, bool]]:
+    def step_simulation(self):
         keys = pygame.key.get_pressed()
+
+        # 1. Capture Human Inputs (WASD / Arrows)
         mx = 0.0
         my = 0.0
-
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             mx -= 1.0
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -300,7 +246,7 @@ class HaxBallApp:
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
             my -= 1.0
 
-        kick = (
+        kick = bool(
             keys[pygame.K_SPACE] or
             keys[pygame.K_x] or
             keys[pygame.K_c] or
@@ -308,642 +254,568 @@ class HaxBallApp:
             keys[pygame.K_RSHIFT]
         )
 
-        inputs: Dict[int, Tuple[float, float, bool]] = {}
-
-        # 1. Red Team Control
         red_players = [p for p in self.game.players if p.team == Team.RED]
-        for i, p in enumerate(red_players):
-            if self.red_controller_type == "human" and i == 0:
-                inputs[p.player_id] = (mx, my, kick)
-            elif self.red_controller_type == "ai_model":
-                bot = self.get_rl_bot(self.red_model_file)
-                inputs[p.player_id] = bot.act(self.game, p)
-            elif self.red_controller_type in self.bot_instances:
-                bot = self.bot_instances[self.red_controller_type]
-                inputs[p.player_id] = bot.act(self.game, p)
-            else:
-                # Default heuristic
-                inputs[p.player_id] = self.bot_instances["heuristic"].act(self.game, p)
-
-        # 2. Blue Team Control
         blue_players = [p for p in self.game.players if p.team == Team.BLUE]
-        for i, p in enumerate(blue_players):
-            if self.blue_controller_type == "human" and i == 0:
-                inputs[p.player_id] = (mx, my, kick)
-            elif self.blue_controller_type == "ai_model":
-                bot = self.get_rl_bot(self.blue_model_file)
-                inputs[p.player_id] = bot.act(self.game, p)
-            elif self.blue_controller_type in self.bot_instances:
-                bot = self.bot_instances[self.blue_controller_type]
-                inputs[p.player_id] = bot.act(self.game, p)
+
+        inputs_dict: Dict[int, Tuple[float, float, bool]] = {}
+
+        # 2. Assign action for each player based on its individual slot controller
+        for p_idx, p in enumerate(red_players):
+            ctrl = self.slot_controllers[Team.RED][p_idx] if p_idx < len(self.slot_controllers[Team.RED]) else "idle"
+            inputs_dict[p.player_id] = self._get_action_for_player(p, ctrl, mx, my, kick, Team.RED, p_idx)
+
+        for p_idx, p in enumerate(blue_players):
+            ctrl = self.slot_controllers[Team.BLUE][p_idx] if p_idx < len(self.slot_controllers[Team.BLUE]) else "idle"
+            inputs_dict[p.player_id] = self._get_action_for_player(p, ctrl, mx, my, kick, Team.BLUE, p_idx)
+
+        # 3. Advance Physics
+        step_info = self.game.step(inputs_dict)
+
+        # 4. Telemetry Tracking
+        events = step_info.get("events", {})
+        kicks = events.get("kicks", [])
+        bounces = events.get("bounces", [])
+
+        if kicks:
+            if self.sound_enabled:
+                self.sound.play_kick()
+            for k in kicks:
+                kx, ky = self.world_to_screen(Vec2.from_iterable(k["pos"]))
+                self.kick_ripples.append({"x": kx, "y": ky, "radius": 14, "alpha": 255})
+                if k["team"] == Team.RED:
+                    self.red_shots += 1
+                else:
+                    self.blue_shots += 1
+
+        if bounces and self.sound_enabled:
+            self.sound.play_bounce()
+
+        if step_info.get("goal_scored", False) and self.sound_enabled:
+            self.sound.play_goal()
+
+        curr_state = step_info.get("state")
+        if curr_state in (GameState.KICKOFF_RED, GameState.KICKOFF_BLUE) and self.last_state == GameState.GOAL_CELEBRATION:
+            if self.sound_enabled:
+                self.sound.play_whistle()
+        self.last_state = curr_state
+
+        # Possession
+        ball = self.game.ball
+        if ball:
+            min_r = min((p.pos.distance_to(ball.pos) for p in red_players), default=999)
+            min_b = min((p.pos.distance_to(ball.pos) for p in blue_players), default=999)
+            if min_r < min_b and min_r < 90:
+                self.red_possession_ticks += 1
+            elif min_b < min_r and min_b < 90:
+                self.blue_possession_ticks += 1
+
+    def _get_action_for_player(
+        self,
+        player: Disc,
+        ctrl: str,
+        human_mx: float,
+        human_my: float,
+        human_kick: bool,
+        team: Team,
+        slot_idx: int
+    ) -> Tuple[float, float, bool]:
+        if ctrl == "human":
+            return (human_mx, human_my, human_kick)
+
+        elif ctrl == "bc_ai":
+            # Calibrated Behavioral Cloning Inference (prevents argmax kick collapse)
+            with torch.no_grad():
+                obs = self.obs_builder.build_observation(self.game, player)
+                obs_t = torch.from_numpy(obs).unsqueeze(0)
+                logits = self.bc_model.actor(self.bc_model.forward_repr(obs_t))[0]
+                probs = torch.softmax(logits, dim=-1)
+
+                kick_prob = probs[9:].sum().item()
+                # Calibrated threshold: if kick intent is over 22%, trigger kick direction!
+                if kick_prob > 0.22:
+                    act_idx = 9 + torch.argmax(probs[9:]).item()
+                else:
+                    act_idx = torch.argmax(probs[:9]).item()
+
+                return self.action_handler.decode_discrete(act_idx)
+
+        elif ctrl == "ppo_rl":
+            with torch.no_grad():
+                obs = self.obs_builder.build_observation(self.game, player)
+                obs_t = torch.from_numpy(obs).unsqueeze(0)
+                logits = self.rl_model.actor(obs_t)
+                act_idx = torch.argmax(logits, dim=-1).item()
+                return self.action_handler.decode_discrete(act_idx)
+
+        elif ctrl in ("bot_fixo", "bot_ala", "bot_press"):
+            coord = self.red_coord if team == Team.RED else self.blue_coord
+            bots = self.red_futsal_bots if team == Team.RED else self.blue_futsal_bots
+            bot_obj = bots[slot_idx] if slot_idx < len(bots) else bots[0]
+            return bot_obj.act(self.game, player)
+
+        elif ctrl == "bot_wall":
+            return self.wall_rebound_bot.act(self.game, player)
+
+        # "idle"
+        return (0.0, 0.0, False)
+
+    def render(self):
+        self.ui_buttons.clear()
+
+        # 1. Dark Outer Arena Background
+        self.screen.fill((20, 24, 32))
+
+        stad = self.game.stadium
+
+        # 2. Authentic Gray Futsal Pitch Surface
+        bg_w = self.world_len_to_screen(stad.bg_width * 2.0)
+        bg_h = self.world_len_to_screen(stad.bg_height * 2.0)
+        pitch_rect = pygame.Rect(
+            int(self.center_x - bg_w / 2.0),
+            int(self.center_y - bg_h / 2.0),
+            bg_w,
+            bg_h
+        )
+
+        court_gray = hex_to_rgb(stad.bg_color) if hasattr(stad, "bg_color") and stad.bg_color else (60, 63, 67)
+        outer_court = (max(0, court_gray[0] - 16), max(0, court_gray[1] - 16), max(0, court_gray[2] - 16))
+
+        # Perimeter buffer court
+        court_buffer_rect = pitch_rect.inflate(self.world_len_to_screen(35), self.world_len_to_screen(35))
+        pygame.draw.rect(self.screen, outer_court, court_buffer_rect, border_radius=6)
+        pygame.draw.rect(self.screen, court_gray, pitch_rect, border_radius=4)
+
+        line_color = (250, 250, 250)
+        pygame.draw.rect(self.screen, line_color, pitch_rect, width=2, border_radius=4)
+
+        # 3. Goal Netting (Cross-hatch diamond mesh)
+        self._draw_goal_nets(pitch_rect)
+
+        # 4. Field Markings
+        c_top = (int(self.center_x), pitch_rect.top)
+        c_bottom = (int(self.center_x), pitch_rect.bottom)
+        pygame.draw.line(self.screen, line_color, c_top, c_bottom, width=2)
+
+        ko_rad = self.world_len_to_screen(stad.bg_kickoff_radius)
+        center_pt = (int(self.center_x), int(self.center_y))
+        pygame.draw.circle(self.screen, line_color, center_pt, ko_rad, width=2)
+        pygame.draw.circle(self.screen, line_color, center_pt, 4)
+
+        # Goal areas (Futsal penalty arcs)
+        area_rad = self.world_len_to_screen(75.0)
+        pygame.draw.circle(self.screen, line_color, (pitch_rect.left, int(self.center_y)), area_rad, width=2)
+        pygame.draw.circle(self.screen, line_color, (pitch_rect.right, int(self.center_y)), area_rad, width=2)
+
+        # 5. Expanding Kick Ripples
+        new_ripples = []
+        for rip in self.kick_ripples:
+            surf = pygame.Surface((rip["radius"] * 2 + 4, rip["radius"] * 2 + 4), pygame.SRCALPHA)
+            alpha = max(0, int(rip["alpha"]))
+            pygame.draw.circle(surf, (255, 255, 255, alpha), (rip["radius"] + 2, rip["radius"] + 2), rip["radius"], width=2)
+            self.screen.blit(surf, (rip["x"] - rip["radius"] - 2, rip["y"] - rip["radius"] - 2))
+            rip["radius"] += 2
+            rip["alpha"] -= 28
+            if rip["alpha"] > 0:
+                new_ripples.append(rip)
+        self.kick_ripples = new_ripples
+
+        # 6. Segments
+        for seg in self.game.physics.segments:
+            if not seg.vis or seg.trait == "goalNet":
+                continue
+            color = seg.color_rgb
+            if seg.is_curved:
+                self._draw_curved_segment(seg, color)
             else:
-                inputs[p.player_id] = self.bot_instances["press"].act(self.game, p)
+                p0_s = self.world_to_screen(seg.p0)
+                p1_s = self.world_to_screen(seg.p1)
+                pygame.draw.line(self.screen, color, p0_s, p1_s, width=3)
 
-        return inputs
+        # 7. Static Discs (Posts)
+        for d in self.game.physics.discs:
+            if d.is_static:
+                self._draw_disc(d)
 
-    def update(self):
-        if self.screen_mode != "match" or self.is_paused or self.show_help_modal:
-            return
+        # 8. Dynamic Discs (Ball & Players)
+        if self.game.ball:
+            self._draw_disc(self.game.ball)
 
-        for _ in range(self.speed_multiplier):
-            inputs = self.get_player_inputs()
-            self.game.step(inputs)
+        for p in self.game.players:
+            self._draw_disc(p)
+            self._draw_player_badge(p)
 
-    def draw(self):
-        if self.screen_mode == "lobby":
-            self._draw_lobby()
-        else:
-            self._draw_match()
+        # 9. Scoreboard Overlay
+        self._draw_scoreboard()
 
-        if self.show_help_modal:
-            self._draw_help_modal()
+        # 10. Top Header Navigation Bar
+        self._draw_top_bar()
+
+        # 11. Bottom Team Customization Matrix
+        self._draw_bottom_customizer()
 
         pygame.display.flip()
 
-    # =========================================================================
-    # LOBBY / CONFIGURATION HUB
-    # =========================================================================
-    def _draw_lobby(self):
-        self.screen.fill((16, 22, 30))
+    def _draw_goal_nets(self, pitch_rect: pygame.Rect):
+        gw = self.world_len_to_screen(40.0)
+        gh = self.world_len_to_screen(160.0)
 
-        # Title Header
-        title_surf = self.font_title_huge.render("⚽ HAXBALL AI BATTLE STUDIO - HUB DE CONFRONTO", True, (255, 255, 255))
-        self.screen.blit(title_surf, (40, 24))
+        # Left Net
+        lx = pitch_rect.left - gw
+        ly = int(self.center_y - gh / 2.0)
+        l_rect = pygame.Rect(lx, ly, gw, gh)
+        pygame.draw.rect(self.screen, (16, 20, 26), l_rect)
+        for x in range(lx, lx + gw + 8, 8):
+            pygame.draw.line(self.screen, (55, 65, 80), (x, ly), (x + 10, ly + gh), width=1)
+        for y in range(ly, ly + gh + 8, 8):
+            pygame.draw.line(self.screen, (55, 65, 80), (lx, y), (lx + gw, y + 6), width=1)
+        pygame.draw.rect(self.screen, (220, 220, 220), l_rect, width=2)
 
-        sub_txt = "Configure qualquer time: Duelo Humano vs IA, IA vs IA (Modelo vs Modelo), 1v1, 2v2 ou 3v3!"
-        sub_surf = self.font_regular.render(sub_txt, True, (160, 175, 195))
-        self.screen.blit(sub_surf, (42, 58))
+        # Right Net
+        rx = pitch_rect.right
+        ry = int(self.center_y - gh / 2.0)
+        r_rect = pygame.Rect(rx, ry, gw, gh)
+        pygame.draw.rect(self.screen, (16, 20, 26), r_rect)
+        for x in range(rx, rx + gw + 8, 8):
+            pygame.draw.line(self.screen, (55, 65, 80), (x, ry), (x - 10, ry + gh), width=1)
+        for y in range(ry, ry + gh + 8, 8):
+            pygame.draw.line(self.screen, (55, 65, 80), (rx, y), (rx + gw, y - 6), width=1)
+        pygame.draw.rect(self.screen, (220, 220, 220), r_rect, width=2)
 
-        # Feedback Toast
-        if self.checkpoint_feedback and (time.time() - self.feedback_time < 4.0):
-            fb_surf = self.font_bold.render(f"✓ {self.checkpoint_feedback}", True, (60, 230, 130))
-            self.screen.blit(fb_surf, (self.width - fb_surf.get_width() - 40, 30))
-
-        col_y = 95
-        col_h = 555
-
-        # ---------------------------------------------------------------------
-        # COLUMN 1: TIME VERMELHO (Red Team) - Width 380
-        # ---------------------------------------------------------------------
-        c1_w = 380
-        c1_r = pygame.Rect(40, col_y, c1_w, col_h)
-        pygame.draw.rect(self.screen, (24, 30, 40), c1_r, border_radius=10)
-        pygame.draw.rect(self.screen, (229, 110, 86), c1_r, width=2, border_radius=10)
-
-        h1 = self.font_title.render("🔴 TIME VERMELHO", True, (255, 130, 110))
-        self.screen.blit(h1, (58, col_y + 14))
-
-        # Red Options
-        self.red_ctrl_buttons = {}
-        red_opts = [
-            ("human", "👤 Humano (Você no Teclado)", "Controle manual via WASD / Setas"),
-            ("ai_model", f"🤖 Modelo IA: {os.path.basename(self.red_model_file)[:22]}", "Rede neural carregada (.pt)"),
-            ("master", "👑 Bot: Master Pro (Mestre)", "Tabelas, fintas e chutes nos cantos"),
-            ("press", "⚡ Bot: Pressão Total", "Marcação sob pressão alta"),
-            ("wall", "🧱 Bot: Tabelador de Parede", "Especialista em rebotes"),
-        ]
-
-        for i, (k, title, desc) in enumerate(red_opts):
-            btn_r = pygame.Rect(58, col_y + 48 + i * 58, c1_w - 36, 52)
-            self.red_ctrl_buttons[k] = btn_r
-            is_active = (self.red_controller_type == k)
-
-            bg_c = (55, 38, 38) if is_active else (30, 36, 46)
-            bd_c = (240, 90, 80) if is_active else (48, 58, 72)
-            pygame.draw.rect(self.screen, bg_c, btn_r, border_radius=6)
-            pygame.draw.rect(self.screen, bd_c, btn_r, width=2 if is_active else 1, border_radius=6)
-
-            t_s = self.font_bold.render(title, True, (255, 255, 255))
-            self.screen.blit(t_s, (btn_r.x + 10, btn_r.y + 8))
-            d_s = self.font_small.render(desc, True, (180, 190, 205))
-            self.screen.blit(d_s, (btn_r.x + 10, btn_r.y + 28))
-
-            tag = "● ATIVO" if is_active else "Escolher"
-            tag_c = (255, 120, 100) if is_active else (70, 150, 230)
-            tag_s = self.font_bold.render(tag, True, tag_c)
-            self.screen.blit(tag_s, (btn_r.right - tag_s.get_width() - 10, btn_r.y + 16))
-
-        # Checkpoints Picker for Red
-        self.btn_red_upload_r = pygame.Rect(58, col_y + 350, c1_w - 36, 36)
-        self._draw_btn(self.btn_red_upload_r, "📤 Trocar .PT Vermelho", (215, 115, 35), icon="upload")
-
-        # Quick model buttons for Red
-        all_cps = self.get_available_checkpoints()
-        self.red_quick_cp_buttons = {}
-        for idx, cp_p in enumerate(all_cps[:3]):
-            cp_name = os.path.basename(cp_p)
-            cp_btn_r = pygame.Rect(58, col_y + 396 + idx * 42, c1_w - 36, 36)
-            self.red_quick_cp_buttons[cp_p] = cp_btn_r
-            is_cur = (self.red_controller_type == "ai_model" and self.red_model_file == cp_p)
-            self._draw_btn(cp_btn_r, f"► {cp_name[:24]}", (45, 55, 70) if not is_cur else (160, 50, 50))
-
-        # ---------------------------------------------------------------------
-        # COLUMN 2: TIME AZUL (Blue Team) - Width 380
-        # ---------------------------------------------------------------------
-        c2_x = 450
-        c2_w = 380
-        c2_r = pygame.Rect(c2_x, col_y, c2_w, col_h)
-        pygame.draw.rect(self.screen, (24, 30, 40), c2_r, border_radius=10)
-        pygame.draw.rect(self.screen, (86, 137, 229), c2_r, width=2, border_radius=10)
-
-        h2 = self.font_title.render("🔵 TIME AZUL", True, (110, 170, 255))
-        self.screen.blit(h2, (c2_x + 18, col_y + 14))
-
-        # Blue Options
-        self.blue_ctrl_buttons = {}
-        blue_opts = [
-            ("ai_model", f"🤖 Modelo IA: {os.path.basename(self.blue_model_file)[:22]}", "Rede neural carregada (.pt)"),
-            ("human", "👤 Humano 2 (WASD / Setas)", "Controle manual secundário"),
-            ("master", "👑 Bot: Master Pro (Mestre)", "Tabelas, fintas e chutes nos cantos"),
-            ("press", "⚡ Bot: Pressão Total", "Marcação sob pressão alta"),
-            ("heuristic", "🎯 Bot: Heurístico Clássico", "Perseguição e chute em linha reta"),
-        ]
-
-        for i, (k, title, desc) in enumerate(blue_opts):
-            btn_r = pygame.Rect(c2_x + 18, col_y + 48 + i * 58, c2_w - 36, 52)
-            self.blue_ctrl_buttons[k] = btn_r
-            is_active = (self.blue_controller_type == k)
-
-            bg_c = (35, 48, 68) if is_active else (30, 36, 46)
-            bd_c = (86, 137, 229) if is_active else (48, 58, 72)
-            pygame.draw.rect(self.screen, bg_c, btn_r, border_radius=6)
-            pygame.draw.rect(self.screen, bd_c, btn_r, width=2 if is_active else 1, border_radius=6)
-
-            t_s = self.font_bold.render(title, True, (255, 255, 255))
-            self.screen.blit(t_s, (btn_r.x + 10, btn_r.y + 8))
-            d_s = self.font_small.render(desc, True, (180, 190, 205))
-            self.screen.blit(d_s, (btn_r.x + 10, btn_r.y + 28))
-
-            tag = "● ATIVO" if is_active else "Escolher"
-            tag_c = (100, 180, 255) if is_active else (70, 150, 230)
-            tag_s = self.font_bold.render(tag, True, tag_c)
-            self.screen.blit(tag_s, (btn_r.right - tag_s.get_width() - 10, btn_r.y + 16))
-
-        # Checkpoints Picker for Blue
-        self.btn_blue_upload_r = pygame.Rect(c2_x + 18, col_y + 350, c2_w - 36, 36)
-        self._draw_btn(self.btn_blue_upload_r, "📤 Trocar .PT Azul", (215, 115, 35), icon="upload")
-
-        self.blue_quick_cp_buttons = {}
-        for idx, cp_p in enumerate(all_cps[:3]):
-            cp_name = os.path.basename(cp_p)
-            cp_btn_r = pygame.Rect(c2_x + 18, col_y + 396 + idx * 42, c2_w - 36, 36)
-            self.blue_quick_cp_buttons[cp_p] = cp_btn_r
-            is_cur = (self.blue_controller_type == "ai_model" and self.blue_model_file == cp_p)
-            self._draw_btn(cp_btn_r, f"► {cp_name[:24]}", (45, 55, 70) if not is_cur else (50, 90, 160))
-
-        # ---------------------------------------------------------------------
-        # COLUMN 3: MAPA & FORMATO (1v1, 2v2, 3v3) - Width 370
-        # ---------------------------------------------------------------------
-        c3_x = 860
-        c3_w = 380
-        c3_r = pygame.Rect(c3_x, col_y, c3_w, col_h)
-        pygame.draw.rect(self.screen, (24, 30, 40), c3_r, border_radius=10)
-        pygame.draw.rect(self.screen, (60, 210, 120), c3_r, width=2, border_radius=10)
-
-        h3 = self.font_title.render("⚙️ FORMATO & ESTÁDIO", True, (100, 230, 150))
-        self.screen.blit(h3, (c3_x + 18, col_y + 14))
-
-        # Player Count Selector (1v1, 2v2, 3v3)
-        self.format_buttons = {}
-        f_opts = [(1, "1v1 Duelo"), (2, "2v2 Futsal"), (3, "3v3 GLH")]
-        for idx, (f_num, f_label) in enumerate(f_opts):
-            f_r = pygame.Rect(c3_x + 18 + idx * 116, col_y + 48, 110, 40)
-            self.format_buttons[f_num] = f_r
-            is_f_act = (self.players_per_team == f_num)
-            f_bg = (40, 90, 60) if is_f_act else (32, 40, 52)
-            self._draw_btn(f_r, f_label, f_bg)
-
-        # Stadium list
-        self.lobby_stadium_buttons = {}
-        stads = list(STADIUM_CATALOG.keys())
-        for i, s_key in enumerate(stads):
-            s_info = STADIUM_CATALOG[s_key]
-            s_rect = pygame.Rect(c3_x + 18, col_y + 104 + i * 88, c3_w - 36, 78)
-            self.lobby_stadium_buttons[s_key] = s_rect
-
-            is_active_stad = (self.current_stadium_key == s_key)
-            bg_s = (35, 55, 50) if is_active_stad else (30, 36, 46)
-            bd_s = (60, 210, 120) if is_active_stad else (48, 58, 72)
-            pygame.draw.rect(self.screen, bg_s, s_rect, border_radius=8)
-            pygame.draw.rect(self.screen, bd_s, s_rect, width=2 if is_active_stad else 1, border_radius=8)
-
-            t_s = self.font_bold.render(s_info["title"][:26], True, (255, 255, 255))
-            self.screen.blit(t_s, (s_rect.x + 12, s_rect.y + 12))
-            d_s = self.font_small.render(s_info["desc"][:42] + "...", True, (170, 185, 200))
-            self.screen.blit(d_s, (s_rect.x + 12, s_rect.y + 34))
-
-            status_txt = "● ATIVO" if is_active_stad else "Escolher"
-            status_col = (60, 210, 120) if is_active_stad else (70, 150, 230)
-            b_surf = self.font_bold.render(status_txt, True, status_col)
-            self.screen.blit(b_surf, (s_rect.right - b_surf.get_width() - 12, s_rect.y + 50))
-
-        # ---------------------------------------------------------------------
-        # BOTTOM ACTION DOCK: START & QUICK SUMMARIES
-        # ---------------------------------------------------------------------
-        dock_y = self.height - 90
-        dock_w = self.width - 80
-        pygame.draw.rect(self.screen, (22, 28, 38), (40, dock_y, dock_w, 75), border_radius=12)
-        pygame.draw.rect(self.screen, (45, 58, 76), (40, dock_y, dock_w, 75), width=1, border_radius=12)
-
-        # Start Button
-        self.btn_lobby_start_r = pygame.Rect(self.width // 2 - 160, dock_y + 12, 320, 50)
-        self._draw_btn(self.btn_lobby_start_r, "▶  INICIAR PARTIDA (START)", (40, 180, 100), icon="play")
-
-        # Summary text on left
-        red_desc = "Humano" if self.red_controller_type == "human" else (os.path.basename(self.red_model_file)[:16] if self.red_controller_type == "ai_model" else self.red_controller_type.upper())
-        blue_desc = "Humano" if self.blue_controller_type == "human" else (os.path.basename(self.blue_model_file)[:16] if self.blue_controller_type == "ai_model" else self.blue_controller_type.upper())
-        summary_txt = f"🔴 {red_desc}  VS  🔵 {blue_desc}  ({self.players_per_team}v{self.players_per_team})"
-        sum_surf = self.font_bold.render(summary_txt, True, (240, 245, 255))
-        self.screen.blit(sum_surf, (60, dock_y + 16))
-
-        hint_surf = self.font_small.render("💡 Arraste e solte qualquer .pt para carregar como IA Vermelha ou Azul!", True, (160, 180, 205))
-        self.screen.blit(hint_surf, (60, dock_y + 44))
-
-        # Help button
-        self.btn_lobby_help_r = pygame.Rect(self.width - 160, dock_y + 18, 90, 38)
-        self._draw_btn(self.btn_lobby_help_r, "Teclas", (45, 58, 76), icon="help")
-
-    # =========================================================================
-    # IN-GAME MATCH SCREEN
-    # =========================================================================
-    def _draw_match(self):
-        self.screen.fill((20, 26, 34))
-
-        stad = self.game.stadium
-        p_top_left = self.world_to_screen(Vec2(-stad.width, stad.height))
-        p_bottom_right = self.world_to_screen(Vec2(stad.width, -stad.height))
-        pitch_rect = pygame.Rect(
-            p_top_left[0],
-            p_top_left[1],
-            p_bottom_right[0] - p_top_left[0],
-            p_bottom_right[1] - p_top_left[1]
-        )
-
-        pitch_color = hex_to_rgb(stad.color) if hasattr(stad, 'color') and stad.color else (45, 60, 75)
-        pygame.draw.rect(self.screen, pitch_color, pitch_rect)
-        pygame.draw.rect(self.screen, (255, 255, 255), pitch_rect, width=2)
-
-        # Center line & circle
-        c_top = self.world_to_screen(Vec2(0, stad.height))
-        c_bottom = self.world_to_screen(Vec2(0, -stad.height))
-        pygame.draw.line(self.screen, (255, 255, 255), c_top, c_bottom, width=2)
-
-        c_center = self.world_to_screen(Vec2(0, 0))
-        c_radius = self.world_len_to_screen(60.0)
-        pygame.draw.circle(self.screen, (255, 255, 255), c_center, c_radius, width=2)
-        pygame.draw.circle(self.screen, (255, 255, 255), c_center, 4)
-
-        # Segments & Goals
-        for seg in stad.segments:
-            if not seg.vis:
-                continue
-            p0 = self.world_to_screen(seg.p0)
-            p1 = self.world_to_screen(seg.p1)
-            c = getattr(seg, 'color_rgb', None) or (hex_to_rgb(seg.color) if hasattr(seg, 'color') and seg.color else (255, 255, 255))
-            if getattr(seg, 'is_curved', False) or getattr(seg, 'curve', 0.0) != 0.0:
-                self._draw_curved_segment(seg, c)
-            else:
-                pygame.draw.line(self.screen, c, p0, p1, width=2)
-
-        for goal in stad.goals:
-            p0 = self.world_to_screen(goal.p0)
-            p1 = self.world_to_screen(goal.p1)
-            g_c = (229, 110, 86) if goal.team == Team.RED else (86, 137, 229)
-            pygame.draw.line(self.screen, g_c, p0, p1, width=4)
-
-        # Discs & Ball
-        discs_list = getattr(self.game, 'discs', getattr(self.game.physics, 'discs', []))
-        for disc in discs_list:
-            pos = self.world_to_screen(disc.pos)
-            rad = self.world_len_to_screen(disc.radius)
-            c = getattr(disc, 'color_rgb', None) or (hex_to_rgb(disc.color) if hasattr(disc, 'color') and disc.color else (255, 255, 255))
-            pygame.draw.circle(self.screen, c, pos, rad)
-            pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
-
-        # Players
-        for player in self.game.players:
-            pos = self.world_to_screen(player.pos)
-            rad = self.world_len_to_screen(player.radius)
-            c = (229, 110, 86) if player.team == Team.RED else (86, 137, 229)
-
-            if getattr(player, 'kick', False) or getattr(player, 'is_kicking', False) or getattr(player, 'kick_flash', 0) > 0:
-                pygame.draw.circle(self.screen, (255, 255, 255), pos, rad + 3, width=2)
-
-            pygame.draw.circle(self.screen, c, pos, rad)
-            pygame.draw.circle(self.screen, (0, 0, 0), pos, rad, width=2)
-
-            # Intent / Velocity Vector
-            if player.speed.length_sq() > 0.05:
-                vel_end = player.pos + player.speed.normalized() * (player.radius + 16.0)
-                s_end = self.world_to_screen(vel_end)
-                vec_col = (255, 200, 80) if player.team == Team.RED else (255, 255, 100)
-                pygame.draw.line(self.screen, vec_col, pos, s_end, width=2)
-                pygame.draw.circle(self.screen, (255, 255, 255), s_end, 3)
-
-            num_str = str(player.player_id)
-            num_surf = self.font_player.render(num_str, True, (255, 255, 255))
-            self.screen.blit(num_surf, num_surf.get_rect(center=pos))
-
-        # Scoreboard & Overlays
-        self._draw_scoreboard()
-        self._draw_dual_telemetry_hud()
-        self._draw_in_game_dock()
-
-    def _draw_curved_segment(self, seg, color):
-        center = getattr(seg, 'arc_center', getattr(seg, 'center', None))
-        radius = getattr(seg, 'arc_radius', getattr(seg, 'radius', 0.0))
-        if radius <= 0.0 or center is None:
-            return
-        start_a = getattr(seg, 'arc_start_angle', getattr(seg, 'start_angle', 0.0))
-        span_a = getattr(seg, 'arc_span_angle', getattr(seg, 'span_angle', 0.0))
-        steps = 16
+    def _draw_curved_segment(self, seg: Segment, color: Tuple[int, int, int]):
+        steps = 18
         pts = []
+        center = seg.arc_center
+        start_a = seg.arc_start_angle
+        span_a = seg.arc_span_angle
+        radius = seg.arc_radius
         for i in range(steps + 1):
             t = i / steps
             ang = start_a + span_a * t
             pt = center + Vec2(math.cos(ang), math.sin(ang)) * radius
             pts.append(self.world_to_screen(pt))
         if len(pts) >= 2:
-            pygame.draw.lines(self.screen, color, False, pts, width=2)
+            pygame.draw.lines(self.screen, color, False, pts, width=3)
+
+    def _draw_disc(self, disc: Disc):
+        center_s = self.world_to_screen(disc.pos)
+        rad_s = self.world_len_to_screen(disc.radius)
+
+        if disc.is_player:
+            # Kick flash white ring
+            if disc.is_kicking or disc.kick_flash > 0:
+                pygame.draw.circle(self.screen, (255, 255, 255), center_s, rad_s + 4, width=3)
+
+            # Player body
+            pygame.draw.circle(self.screen, disc.color_rgb, center_s, rad_s)
+            pygame.draw.circle(self.screen, (20, 22, 28), center_s, rad_s, width=2)
+            # Inner white circle
+            pygame.draw.circle(self.screen, (255, 255, 255), center_s, max(2, rad_s - 4), width=1)
+
+            # Number
+            num_surf = self.font_player.render(str(disc.player_number), True, (255, 255, 255))
+            self.screen.blit(num_surf, num_surf.get_rect(center=center_s))
+
+        elif disc.name == "Ball":
+            # Shadow
+            pygame.draw.circle(self.screen, (15, 20, 28, 110), (center_s[0] + 2, center_s[1] + 2), rad_s)
+            # Body (Yellow)
+            pygame.draw.circle(self.screen, disc.color_rgb, center_s, rad_s)
+            pygame.draw.circle(self.screen, (25, 25, 30), center_s, rad_s, width=2)
+            # Center core dot
+            pygame.draw.circle(self.screen, (60, 60, 60), center_s, max(1, rad_s // 3))
+            # Specular highlight
+            pygame.draw.circle(self.screen, (255, 255, 255), (center_s[0] - max(1, rad_s // 3), center_s[1] - max(1, rad_s // 3)), max(1, rad_s // 5))
+
+        else:
+            # Goal Posts
+            pygame.draw.circle(self.screen, (255, 255, 255), center_s, rad_s)
+            pygame.draw.circle(self.screen, (40, 45, 55), center_s, rad_s, width=2)
+            pygame.draw.circle(self.screen, (180, 180, 180), center_s, max(1, rad_s - 3), width=1)
+
+    def _draw_player_badge(self, p: Disc):
+        cx, cy = self.world_to_screen(p.pos)
+        rad_s = self.world_len_to_screen(p.radius)
+
+        slot_idx = p.player_number - 1
+        ctrl_key = self.slot_controllers[p.team][slot_idx] if slot_idx < len(self.slot_controllers[p.team]) else "idle"
+
+        if ctrl_key == "human":
+            # Pulsing yellow chevron
+            pts = [(cx, cy - rad_s - 8), (cx - 7, cy - rad_s - 18), (cx + 7, cy - rad_s - 18)]
+            pygame.draw.polygon(self.screen, (255, 230, 40), pts)
+            lbl = self.font_tag.render("VOCÊ", True, (255, 230, 40))
+            self.screen.blit(lbl, (cx - lbl.get_width() // 2, cy - rad_s - 29))
+        else:
+            # Role tag
+            tag_text = next((t[1] for t in CONTROLLER_TYPES if t[0] == ctrl_key), ctrl_key.upper())
+            color = next((t[2] for t in CONTROLLER_TYPES if t[0] == ctrl_key), (200, 200, 200))
+            lbl = self.font_tag.render(tag_text, True, color)
+            self.screen.blit(lbl, (cx - lbl.get_width() // 2, cy - rad_s - 18))
 
     def _draw_scoreboard(self):
-        sb_w = 260
-        sb_h = 36
-        sb_x = int(self.width / 2.0 - sb_w / 2.0)
-        sb_y = 12
+        # Digital Timer in Center
+        timer_surf = self.font_timer.render(self.game.time_string, True, (255, 255, 255))
+        self.screen.blit(timer_surf, timer_surf.get_rect(center=(int(self.center_x), 27)))
 
-        red_box = pygame.Rect(sb_x, sb_y, 75, sb_h)
-        pygame.draw.rect(self.screen, (229, 110, 86), red_box, border_top_left_radius=6, border_bottom_left_radius=6)
-        r_txt = self.font_score.render(str(self.game.red_score), True, (255, 255, 255))
+        # Score Badges
+        red_box = pygame.Rect(int(self.center_x - 170), 10, 105, 34)
+        pygame.draw.rect(self.screen, (229, 110, 86), red_box, border_radius=4)
+        r_txt = self.font_score_badge.render(f"RED  {self.game.red_score}", True, (255, 255, 255))
         self.screen.blit(r_txt, r_txt.get_rect(center=red_box.center))
 
-        time_box = pygame.Rect(sb_x + 75, sb_y, 110, sb_h)
-        pygame.draw.rect(self.screen, (34, 43, 53), time_box)
-        t_txt = self.font_time.render(self.game.time_string, True, (240, 240, 240))
-        self.screen.blit(t_txt, t_txt.get_rect(center=time_box.center))
-
-        blue_box = pygame.Rect(sb_x + 185, sb_y, 75, sb_h)
-        pygame.draw.rect(self.screen, (86, 137, 229), blue_box, border_top_right_radius=6, border_bottom_right_radius=6)
-        b_txt = self.font_score.render(str(self.game.blue_score), True, (255, 255, 255))
+        blue_box = pygame.Rect(int(self.center_x + 65), 10, 105, 34)
+        pygame.draw.rect(self.screen, (86, 137, 229), blue_box, border_radius=4)
+        b_txt = self.font_score_badge.render(f"{self.game.blue_score}  BLUE", True, (255, 255, 255))
         self.screen.blit(b_txt, b_txt.get_rect(center=blue_box.center))
 
-    def _draw_dual_telemetry_hud(self):
-        ball = self.game.ball
-        if not ball:
-            return
+        # Goal and Match End Notifications
+        if self.game.state == GameState.GOAL_CELEBRATION:
+            team_str = "RED" if self.game.last_goal_team == Team.RED else "BLUE"
+            color = (229, 110, 86) if self.game.last_goal_team == Team.RED else (86, 137, 229)
+            banner = self.font_banner.render(f"GOAL! {team_str} SCORED!", True, color)
+            b_rect = banner.get_rect(center=(int(self.center_x), int(self.center_y - 75)))
+            box = b_rect.inflate(40, 18)
+            pygame.draw.rect(self.screen, (12, 16, 22), box, border_radius=8)
+            pygame.draw.rect(self.screen, color, box, width=3, border_radius=8)
+            self.screen.blit(banner, b_rect)
+        elif self.game.state == GameState.GAME_OVER:
+            w_str = "RED VENCEU!" if self.game.red_score > self.game.blue_score else "BLUE VENCEU!"
+            banner = self.font_banner.render(f"FIM DE JOGO - {w_str}", True, (255, 215, 0))
+            b_rect = banner.get_rect(center=(int(self.center_x), int(self.center_y - 75)))
+            box = b_rect.inflate(40, 18)
+            pygame.draw.rect(self.screen, (12, 16, 22), box, border_radius=8)
+            pygame.draw.rect(self.screen, (255, 215, 0), box, width=3, border_radius=8)
+            self.screen.blit(banner, b_rect)
+        elif self.game.state in (GameState.KICKOFF_RED, GameState.KICKOFF_BLUE):
+            ko_str = "SAÍDA RED" if self.game.state == GameState.KICKOFF_RED else "SAÍDA BLUE"
+            ko_color = (229, 110, 86) if self.game.state == GameState.KICKOFF_RED else (86, 137, 229)
+            ko_surf = self.font_btn.render(ko_str, True, ko_color)
+            self.screen.blit(ko_surf, ko_surf.get_rect(center=(int(self.center_x), 66)))
 
-        red_p = next((p for p in self.game.players if p.team == Team.RED), None)
-        blue_p = next((p for p in self.game.players if p.team == Team.BLUE), None)
+    def _draw_top_bar(self):
+        bar_h = 54
+        bar_rect = pygame.Rect(0, 0, self.width, bar_h)
+        pygame.draw.rect(self.screen, (15, 18, 25), bar_rect)
+        pygame.draw.line(self.screen, (32, 40, 54), (0, bar_h), (self.width, bar_h), width=2)
 
-        hud_w = 210
-        hud_h = 92
-        hud_y = 12
+        # Title & Stadium Mode
+        logo = self.font_logo.render("HAXBALL FUTSAL", True, (255, 255, 255))
+        self.screen.blit(logo, (20, 16))
 
-        # 1. Red Team Telemetry Card (Left)
-        if red_p:
-            dist_r = red_p.pos.distance_to(ball.pos)
-            red_ctrl = "Humano" if self.red_controller_type == "human" else (os.path.basename(self.red_model_file)[:14] if self.red_controller_type == "ai_model" else self.red_controller_type.upper())
-            r_card = pygame.Rect(20, hud_y, hud_w, hud_h)
-            pygame.draw.rect(self.screen, (26, 20, 20), r_card, border_radius=8)
-            pygame.draw.rect(self.screen, (229, 110, 86), r_card, width=1, border_radius=8)
-            r_t1 = self.font_telemetry.render(f"🔴 RED: {red_ctrl}", True, (255, 140, 120))
-            r_t2 = self.font_small.render(f"• Distância Bola: {int(dist_r)} px", True, (220, 230, 240))
-            r_t3 = self.font_small.render(f"• Velocidade: {red_p.speed.length():.1f} px/f", True, (220, 230, 240))
-            self.screen.blit(r_t1, (30, hud_y + 8))
-            self.screen.blit(r_t2, (30, hud_y + 32))
-            self.screen.blit(r_t3, (30, hud_y + 54))
+        # Stadium Selector Buttons
+        cur_x = 205
+        for s_key in ["futsal_3v3", "futsal_2v2", "futsal_1v1"]:
+            info = STADIUM_CATALOG[s_key]
+            is_active = (s_key == self.current_stadium_key)
+            label = info["title"].split(" ")[1]  # "3v3", "2v2", "1v1"
+            btn_w = 46
+            btn_rect = pygame.Rect(cur_x, 12, btn_w, 28)
+            bg_col = (45, 95, 175) if is_active else (28, 35, 48)
+            pygame.draw.rect(self.screen, bg_col, btn_rect, border_radius=4)
+            pygame.draw.rect(self.screen, (70, 90, 120), btn_rect, width=1, border_radius=4)
+            txt = self.font_btn.render(label, True, (255, 255, 255) if is_active else (160, 175, 195))
+            self.screen.blit(txt, txt.get_rect(center=btn_rect.center))
+            self.ui_buttons.append({"rect": btn_rect, "action": "set_stadium", "val": s_key})
+            cur_x += btn_w + 6
 
-        # 2. Blue Team Telemetry Card (Right)
-        if blue_p:
-            dist_b = blue_p.pos.distance_to(ball.pos)
-            blue_ctrl = "Humano" if self.blue_controller_type == "human" else (os.path.basename(self.blue_model_file)[:14] if self.blue_controller_type == "ai_model" else self.blue_controller_type.upper())
-            b_card = pygame.Rect(self.width - hud_w - 20, hud_y, hud_w, hud_h)
-            pygame.draw.rect(self.screen, (20, 26, 36), b_card, border_radius=8)
-            pygame.draw.rect(self.screen, (86, 137, 229), b_card, width=1, border_radius=8)
-            b_t1 = self.font_telemetry.render(f"🔵 BLUE: {blue_ctrl}", True, (120, 180, 255))
-            b_t2 = self.font_small.render(f"• Distância Bola: {int(dist_b)} px", True, (220, 230, 240))
-            b_t3 = self.font_small.render(f"• Velocidade: {blue_p.speed.length():.1f} px/f", True, (220, 230, 240))
-            self.screen.blit(b_t1, (self.width - hud_w - 10, hud_y + 8))
-            self.screen.blit(b_t2, (self.width - hud_w - 10, hud_y + 32))
-            self.screen.blit(b_t3, (self.width - hud_w - 10, hud_y + 54))
+        # Format Switcher Buttons (1v1, 2v2, 3v3)
+        cur_x += 16
+        for fmt in [1, 2, 3]:
+            is_active = (fmt == self.players_per_team)
+            btn_w = 42
+            btn_rect = pygame.Rect(cur_x, 12, btn_w, 28)
+            bg_col = (35, 135, 80) if is_active else (28, 35, 48)
+            pygame.draw.rect(self.screen, bg_col, btn_rect, border_radius=4)
+            pygame.draw.rect(self.screen, (70, 90, 120), btn_rect, width=1, border_radius=4)
+            txt = self.font_btn.render(f"{fmt}x{fmt}", True, (255, 255, 255) if is_active else (160, 175, 195))
+            self.screen.blit(txt, txt.get_rect(center=btn_rect.center))
+            self.ui_buttons.append({"rect": btn_rect, "action": "set_format", "val": fmt})
+            cur_x += btn_w + 6
 
-    def _draw_in_game_dock(self):
-        dock_h = 58
-        dock_y = self.height - dock_h
-        pygame.draw.rect(self.screen, (22, 28, 35), (0, dock_y, self.width, dock_h))
-        pygame.draw.line(self.screen, (45, 56, 70), (0, dock_y), (self.width, dock_y), width=1)
+        # Right Controls: Speed, Pause, Reset, Sound
+        r_x = self.width - 20
 
-        # 1. Back to Lobby
-        self.btn_back_lobby_r = pygame.Rect(12, dock_y + 10, 125, 38)
-        self._draw_btn(self.btn_back_lobby_r, "🏠 Menu Principal", (50, 62, 78))
+        # Sound Button
+        r_x -= 65
+        snd_rect = pygame.Rect(r_x, 12, 65, 28)
+        snd_bg = (35, 110, 80) if self.sound_enabled else (70, 35, 35)
+        pygame.draw.rect(self.screen, snd_bg, snd_rect, border_radius=4)
+        snd_txt = self.font_btn.render("SOM: ON" if self.sound_enabled else "MUDO", True, (255, 255, 255))
+        self.screen.blit(snd_txt, snd_txt.get_rect(center=snd_rect.center))
+        self.ui_buttons.append({"rect": snd_rect, "action": "toggle_sound"})
 
-        # 2. Play / Pause
-        self.btn_pause_r = pygame.Rect(145, dock_y + 10, 95, 38)
-        p_txt = "Play" if self.is_paused else "Pausar"
-        p_icon = "play" if self.is_paused else "pause"
-        self._draw_btn(self.btn_pause_r, p_txt, (58, 142, 230), icon=p_icon)
+        # Speed Multiplier Button
+        r_x -= 65
+        spd_rect = pygame.Rect(r_x, 12, 60, 28)
+        pygame.draw.rect(self.screen, (36, 45, 62), spd_rect, border_radius=4)
+        spd_val = SPEED_OPTIONS[self.speed_idx]
+        spd_txt = self.font_btn.render(f"{spd_val}x", True, (255, 215, 60))
+        self.screen.blit(spd_txt, spd_txt.get_rect(center=spd_rect.center))
+        self.ui_buttons.append({"rect": spd_rect, "action": "cycle_speed"})
 
-        # 3. Reset match
-        self.btn_reset_r = pygame.Rect(248, dock_y + 10, 85, 38)
-        self._draw_btn(self.btn_reset_r, "Reset", (45, 55, 68), icon="reset")
+        # Reset Round (R)
+        r_x -= 70
+        rst_rect = pygame.Rect(r_x, 12, 65, 28)
+        pygame.draw.rect(self.screen, (40, 48, 65), rst_rect, border_radius=4)
+        rst_txt = self.font_btn.render("RESET (R)", True, (210, 220, 235))
+        self.screen.blit(rst_txt, rst_txt.get_rect(center=rst_rect.center))
+        self.ui_buttons.append({"rect": rst_rect, "action": "reset_round"})
 
-        # 4. Speed Multiplier
-        self.btn_dock_speed_r = pygame.Rect(341, dock_y + 10, 100, 38)
-        sp_c = (210, 120, 30) if self.speed_multiplier > 1 else (45, 55, 68)
-        self._draw_btn(self.btn_dock_speed_r, f"Vel: {self.speed_multiplier}x", sp_c, icon="lightning")
+        # Pause / Play
+        r_x -= 75
+        p_rect = pygame.Rect(r_x, 12, 70, 28)
+        p_bg = (180, 50, 50) if self.is_paused else (40, 100, 180)
+        pygame.draw.rect(self.screen, p_bg, p_rect, border_radius=4)
+        p_txt = self.font_btn.render("RESUMIR" if self.is_paused else "PAUSAR", True, (255, 255, 255))
+        self.screen.blit(p_txt, p_txt.get_rect(center=p_rect.center))
+        self.ui_buttons.append({"rect": p_rect, "action": "toggle_pause"})
 
-        # 5. Upload / Switch Model
-        self.btn_match_upload_r = pygame.Rect(449, dock_y + 10, 165, 38)
-        self._draw_btn(self.btn_match_upload_r, "📤 Carregar .PT", (215, 135, 25), icon="upload")
+    def _draw_bottom_customizer(self):
+        bot_h = 88
+        bot_rect = pygame.Rect(0, self.height - bot_h, self.width, bot_h)
+        pygame.draw.rect(self.screen, (15, 18, 25), bot_rect)
+        pygame.draw.line(self.screen, (32, 40, 54), (0, self.height - bot_h), (self.width, self.height - bot_h), width=2)
 
-        # Status Tag in Middle
-        red_label = "Humano" if self.red_controller_type == "human" else os.path.basename(self.red_model_file)[:14]
-        blue_label = "Humano" if self.blue_controller_type == "human" else os.path.basename(self.blue_model_file)[:14]
-        status_tag = f"{self.players_per_team}v{self.players_per_team} Arena: 🔴 {red_label} vs 🔵 {blue_label}"
-        st_surf = self.font_bold.render(status_tag, True, (210, 225, 240))
-        self.screen.blit(st_surf, (625, dock_y + 20))
+        # Team Red Slots (Left Side)
+        cur_x = 25
+        card_w = 145
+        card_h = 64
+        card_y = self.height - bot_h + 12
 
-        # Help / Controls
-        self.btn_help_r = pygame.Rect(self.width - 100, dock_y + 10, 85, 38)
-        self._draw_btn(self.btn_help_r, "Teclas", (45, 55, 68), icon="help")
+        lbl_red = self.font_btn.render("TIME VERMELHO (Clique p/ Trocar):", True, (229, 110, 86))
+        self.screen.blit(lbl_red, (cur_x, card_y - 10))
 
-    def _draw_btn(self, rect: pygame.Rect, text: str, bg_color: Tuple[int, int, int], icon: Optional[str] = None):
-        mouse_pos = pygame.mouse.get_pos()
-        hover = rect.collidepoint(mouse_pos)
-        c = (min(255, bg_color[0] + 25), min(255, bg_color[1] + 25), min(255, bg_color[2] + 25)) if hover else bg_color
-        pygame.draw.rect(self.screen, c, rect, border_radius=6)
-        pygame.draw.rect(self.screen, (55, 68, 85), rect, width=1, border_radius=6)
+        for idx in range(self.players_per_team):
+            ctrl_key = self.slot_controllers[Team.RED][idx]
+            tag_name, tag_color = next(((t[1], t[2]) for t in CONTROLLER_TYPES if t[0] == ctrl_key), ("IDLE", (150, 150, 150)))
 
-        txt = self.font_bold.render(text, True, (240, 245, 250))
-        if icon and icon in ICON_DISPATCH:
-            total_w = 14 + 8 + txt.get_width()
-            start_x = rect.centerx - total_w // 2
-            icon_center = (start_x + 7, rect.centery)
-            ICON_DISPATCH[icon](self.screen, icon_center, (240, 245, 250), size=12)
-            self.screen.blit(txt, (start_x + 18, rect.centery - txt.get_height() // 2))
-        else:
-            self.screen.blit(txt, txt.get_rect(center=rect.center))
+            slot_rect = pygame.Rect(cur_x, card_y + 10, card_w, 48)
+            pygame.draw.rect(self.screen, (28, 34, 46), slot_rect, border_radius=6)
+            border_col = (229, 110, 86) if ctrl_key != "idle" else (60, 70, 85)
+            pygame.draw.rect(self.screen, border_col, slot_rect, width=2, border_radius=6)
 
-    def _draw_help_modal(self):
-        dim = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 170))
-        self.screen.blit(dim, (0, 0))
+            p_title = self.font_slot.render(f"JOGADOR #{idx+1} [RED]", True, (200, 210, 225))
+            c_title = self.font_slot.render(tag_name, True, tag_color)
+            self.screen.blit(p_title, (slot_rect.x + 8, slot_rect.y + 7))
+            self.screen.blit(c_title, (slot_rect.x + 8, slot_rect.y + 26))
 
-        m_w, m_h = 720, 420
-        m_r = pygame.Rect(int((self.width - m_w) / 2.0), int((self.height - m_h) / 2.0), m_w, m_h)
-        pygame.draw.rect(self.screen, (34, 43, 53), m_r, border_radius=12)
-        pygame.draw.rect(self.screen, (58, 142, 230), m_r, width=2, border_radius=12)
+            self.ui_buttons.append({"rect": slot_rect, "action": "cycle_slot", "team": Team.RED, "idx": idx})
+            cur_x += card_w + 10
 
-        t = self.font_title.render("Guia de Controles e Duelo Multimodelos", True, (245, 245, 245))
-        self.screen.blit(t, (m_r.x + 30, m_r.y + 24))
+        # Center Telemetry Bar
+        center_w = 260
+        cx = int(self.center_x - center_w / 2.0)
+        cy = card_y + 12
 
-        lines = [
-            "• Movimentação: TECLAS WASD OU SETAS DO TECLADO simultaneamente.",
-            "• Chute: BARRA DE ESPAÇO, TECLA X, TECLA C ou SHIFT.",
-            "• Modo Modelo vs Modelo: Escolha uma IA para o Vermelho e outra para o Azul!",
-            "• Upload de Modelos: Arraste e solte (Drag & Drop) qualquer .pt na tela a qualquer hora!",
-            "• Reiniciar partida: Tecla R.",
-            "• Pausar partida: Tecla P ou ESC.",
-            "• Velocidade acelerada: Tecla TAB (1x a 50x para partidas aceleradas de IA vs IA).",
-            "• Menu / Lobby: Clique em 'Menu Principal' para trocar modo, arena ou escalação."
-        ]
-        y = m_r.y + 70
-        for l in lines:
-            t_line = self.font_regular.render(l, True, (220, 230, 240))
-            self.screen.blit(t_line, (m_r.x + 30, y))
-            y += 36
+        tot_poss = max(1, self.red_possession_ticks + self.blue_possession_ticks)
+        r_pct = 100.0 * self.red_possession_ticks / tot_poss
+        b_pct = 100.0 * self.blue_possession_ticks / tot_poss
 
-        self.btn_close_help_r = pygame.Rect(m_r.right - 140, m_r.bottom - 46, 110, 34)
-        self._draw_btn(self.btn_close_help_r, "Entendi!", (58, 142, 230))
+        poss_lbl = self.font_telemetry.render(f"Posse: RED {r_pct:.0f}%  |  BLUE {b_pct:.0f}%", True, (220, 225, 235))
+        self.screen.blit(poss_lbl, (cx + (center_w - poss_lbl.get_width()) // 2, cy - 8))
 
-    def cycle_speed(self):
-        curr_idx = SPEED_LEVELS.index(self.speed_multiplier) if self.speed_multiplier in SPEED_LEVELS else 0
-        nxt_idx = (curr_idx + 1) % len(SPEED_LEVELS)
-        self.speed_multiplier = SPEED_LEVELS[nxt_idx]
+        # Possession Bar
+        bar_w = 240
+        bar_h = 10
+        bx = cx + (center_w - bar_w) // 2
+        by = cy + 14
+        r_w = int(bar_w * (r_pct / 100.0))
+        pygame.draw.rect(self.screen, (229, 110, 86), (bx, by, r_w, bar_h), border_top_left_radius=3, border_bottom_left_radius=3)
+        pygame.draw.rect(self.screen, (86, 137, 229), (bx + r_w, by, bar_w - r_w, bar_h), border_top_right_radius=3, border_bottom_right_radius=3)
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
+        shots_lbl = self.font_slot.render(f"Finalizações: Red {self.red_shots}  |  Blue {self.blue_shots}", True, (160, 175, 195))
+        self.screen.blit(shots_lbl, (cx + (center_w - shots_lbl.get_width()) // 2, by + 16))
 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    if self.show_help_modal:
-                        self.show_help_modal = False
-                    elif self.screen_mode == "match":
-                        self.screen_mode = "lobby"
-                elif event.key == pygame.K_p:
+        # Team Blue Slots (Right Side)
+        rx = self.width - 25 - (card_w + 10) * self.players_per_team
+        lbl_blue = self.font_btn.render("TIME AZUL (Clique p/ Trocar):", True, (86, 137, 229))
+        self.screen.blit(lbl_blue, (rx, card_y - 10))
+
+        for idx in range(self.players_per_team):
+            ctrl_key = self.slot_controllers[Team.BLUE][idx]
+            tag_name, tag_color = next(((t[1], t[2]) for t in CONTROLLER_TYPES if t[0] == ctrl_key), ("IDLE", (150, 150, 150)))
+
+            slot_rect = pygame.Rect(rx, card_y + 10, card_w, 48)
+            pygame.draw.rect(self.screen, (28, 34, 46), slot_rect, border_radius=6)
+            border_col = (86, 137, 229) if ctrl_key != "idle" else (60, 70, 85)
+            pygame.draw.rect(self.screen, border_col, slot_rect, width=2, border_radius=6)
+
+            p_title = self.font_slot.render(f"JOGADOR #{idx+1} [BLUE]", True, (200, 210, 225))
+            c_title = self.font_slot.render(tag_name, True, tag_color)
+            self.screen.blit(p_title, (slot_rect.x + 8, slot_rect.y + 7))
+            self.screen.blit(c_title, (slot_rect.x + 8, slot_rect.y + 26))
+
+            self.ui_buttons.append({"rect": slot_rect, "action": "cycle_slot", "team": Team.BLUE, "idx": idx})
+            rx += card_w + 10
+
+    def handle_click(self, pos: Tuple[int, int]):
+        for btn in self.ui_buttons:
+            if btn["rect"].collidepoint(pos):
+                act = btn["action"]
+                if act == "set_stadium":
+                    self.set_stadium(btn["val"])
+                elif act == "set_format":
+                    self.set_format(btn["val"])
+                elif act == "cycle_speed":
+                    self.speed_idx = (self.speed_idx + 1) % len(SPEED_OPTIONS)
+                elif act == "toggle_sound":
+                    self.sound_enabled = not self.sound_enabled
+                elif act == "toggle_pause":
                     self.is_paused = not self.is_paused
-                elif event.key == pygame.K_r:
-                    self.game.reset_match()
-                elif event.key == pygame.K_TAB:
-                    self.cycle_speed()
-
-            elif event.type == pygame.DROPFILE:
-                dropped_file = event.file
-                print(f"[GUI] Arquivo arrastado detectado: {dropped_file}")
-                # Plug as blue opponent by default
-                self.plug_in_model(dropped_file, target_team="blue", auto_start=True)
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                pos = event.pos
-
-                if self.show_help_modal:
-                    if hasattr(self, "btn_close_help_r") and self.btn_close_help_r.collidepoint(pos):
-                        self.show_help_modal = False
-                    continue
-
-                # LOBBY INTERACTIONS
-                if self.screen_mode == "lobby":
-                    # Red controller button clicks
-                    if hasattr(self, "red_ctrl_buttons"):
-                        for k, btn_r in self.red_ctrl_buttons.items():
-                            if btn_r.collidepoint(pos):
-                                self.red_controller_type = k
-                                break
-
-                    if hasattr(self, "red_quick_cp_buttons"):
-                        for cp_p, btn_r in self.red_quick_cp_buttons.items():
-                            if btn_r.collidepoint(pos):
-                                self.red_controller_type = "ai_model"
-                                self.red_model_file = cp_p
-                                break
-
-                    if hasattr(self, "btn_red_upload_r") and self.btn_red_upload_r.collidepoint(pos):
-                        self.prompt_upload_model(target_team="red")
-
-                    # Blue controller button clicks
-                    if hasattr(self, "blue_ctrl_buttons"):
-                        for k, btn_r in self.blue_ctrl_buttons.items():
-                            if btn_r.collidepoint(pos):
-                                self.blue_controller_type = k
-                                break
-
-                    if hasattr(self, "blue_quick_cp_buttons"):
-                        for cp_p, btn_r in self.blue_quick_cp_buttons.items():
-                            if btn_r.collidepoint(pos):
-                                self.blue_controller_type = "ai_model"
-                                self.blue_model_file = cp_p
-                                break
-
-                    if hasattr(self, "btn_blue_upload_r") and self.btn_blue_upload_r.collidepoint(pos):
-                        self.prompt_upload_model(target_team="blue")
-
-                    # Player Count Formats (1v1, 2v2, 3v3)
-                    if hasattr(self, "format_buttons"):
-                        for f_num, f_r in self.format_buttons.items():
-                            if f_r.collidepoint(pos):
-                                self.players_per_team = f_num
-                                self._init_game(self.current_stadium_key, f_num)
-                                break
-
-                    # Stadium button clicks
-                    if hasattr(self, "lobby_stadium_buttons"):
-                        for s_key, s_rect in self.lobby_stadium_buttons.items():
-                            if s_rect.collidepoint(pos):
-                                self.current_stadium_key = s_key
-                                self._init_game(s_key, self.players_per_team)
-                                break
-
-                    # Start button click
-                    if hasattr(self, "btn_lobby_start_r") and self.btn_lobby_start_r.collidepoint(pos):
-                        self.screen_mode = "match"
-                        self.game.reset_match()
-
-                    # Help button click
-                    if hasattr(self, "btn_lobby_help_r") and self.btn_lobby_help_r.collidepoint(pos):
-                        self.show_help_modal = True
-
-                # MATCH INTERACTIONS
-                else:
-                    if hasattr(self, "btn_back_lobby_r") and self.btn_back_lobby_r.collidepoint(pos):
-                        self.screen_mode = "lobby"
-                    elif hasattr(self, "btn_pause_r") and self.btn_pause_r.collidepoint(pos):
-                        self.is_paused = not self.is_paused
-                    elif hasattr(self, "btn_reset_r") and self.btn_reset_r.collidepoint(pos):
-                        self.game.reset_match()
-                    elif hasattr(self, "btn_dock_speed_r") and self.btn_dock_speed_r.collidepoint(pos):
-                        self.cycle_speed()
-                    elif hasattr(self, "btn_match_upload_r") and self.btn_match_upload_r.collidepoint(pos):
-                        self.prompt_upload_model(target_team="blue")
-                    elif hasattr(self, "btn_help_r") and self.btn_help_r.collidepoint(pos):
-                        self.show_help_modal = True
+                elif act == "reset_round":
+                    self.game.reset_round()
+                elif act == "cycle_slot":
+                    self.cycle_slot_controller(btn["team"], btn["idx"])
+                break
 
     def run(self):
         while self.running:
-            self.handle_events()
-            self.update()
-            self.draw()
-            self.clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    self.handle_click(event.pos)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+                    elif event.key == pygame.K_r:
+                        self.game.reset_round()
+                    elif event.key == pygame.K_n:
+                        self._init_game()
+                    elif event.key in (pygame.K_p, pygame.K_PAUSE):
+                        self.is_paused = not self.is_paused
+                    elif event.key == pygame.K_m:
+                        self.sound_enabled = not self.sound_enabled
+                    elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
+                        self.set_format(int(event.unicode))
+                    elif event.key in (pygame.K_PLUS, pygame.K_EQUALS):
+                        self.speed_idx = min(len(SPEED_OPTIONS) - 1, self.speed_idx + 1)
+                    elif event.key == pygame.K_MINUS:
+                        self.speed_idx = max(0, self.speed_idx - 1)
+
+            if not self.is_paused:
+                spd = SPEED_OPTIONS[self.speed_idx]
+                if spd <= 1.0:
+                    self.step_simulation()
+                else:
+                    for _ in range(int(spd)):
+                        self.step_simulation()
+
+            self.render()
+
+            target_fps = 60 if SPEED_OPTIONS[self.speed_idx] >= 1.0 else 30
+            self.clock.tick(target_fps)
 
         pygame.quit()
-        sys.exit()
 
-HaxBallGUI = HaxBallApp
+
+HaxBallApp = HaxBallStudioApp
+HaxBallGUI = HaxBallStudioApp
 
 def main():
-    app = HaxBallApp()
+    app = HaxBallStudioApp()
     app.run()
+
 
 if __name__ == "__main__":
     main()

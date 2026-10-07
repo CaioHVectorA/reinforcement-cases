@@ -110,13 +110,14 @@ class PygameRenderer:
             bg_h
         )
 
-        # Futsal parquet court tone
-        parquet_color = (204, 153, 94)  # Warm wood futsal court
-        border_court_color = (168, 122, 70)
+        # Stadium Court Colors (Authentic competitive gray futsal court)
+        court_color = hex_to_rgb(stad.bg_color) if hasattr(stad, "bg_color") and stad.bg_color else (60, 63, 67)
+        border_court_color = (max(0, court_color[0] - 18), max(0, court_color[1] - 18), max(0, court_color[2] - 18))
+        
         # Perimeter court buffer
         court_buffer_rect = pitch_rect.inflate(self.world_len_to_screen(35), self.world_len_to_screen(35))
         pygame.draw.rect(self.screen, border_court_color, court_buffer_rect, border_radius=6)
-        pygame.draw.rect(self.screen, parquet_color, pitch_rect, border_radius=4)
+        pygame.draw.rect(self.screen, court_color, pitch_rect, border_radius=4)
 
         # Subtle court lines pattern
         line_color = (248, 248, 248)

@@ -1,5 +1,5 @@
 {
-  "name": "Dodgeball Arena",
+  "name": "Dodgeball Arena Oficial",
   "width": 420,
   "height": 220,
   "spawnDistance": 180,
@@ -9,7 +9,7 @@
     "height": 180,
     "kickOffRadius": 40,
     "cornerRadius": 0,
-    "color": "3A405A"
+    "color": "222831"
   },
   "playerPhysics": {
     "radius": 15,
@@ -19,46 +19,48 @@
     "acceleration": 0.12,
     "kickingAcceleration": 0.09,
     "kickingDamping": 0.96,
-    "kickStrength": 6.0,
+    "kickStrength": 6.5,
     "kickMargin": 4.0,
     "kickBack": 0.0
   },
   "ballPhysics": {
     "radius": 9,
-    "bCoef": 0.8,
-    "invMass": 1.2,
-    "damping": 0.992,
-    "color": "FF4B4B",
+    "bCoef": 0.85,
+    "invMass": 1.25,
+    "damping": 0.995,
+    "color": "FF3366",
     "cMask": ["all"],
     "cGroup": ["ball"]
   },
   "traits": {
-    "outerWall": { "vis": true, "bCoef": 1.0, "cMask": ["all"], "cGroup": ["wall"], "color": "FFFFFF" },
-    "centerDivider": { "vis": true, "bCoef": 0.5, "cMask": ["red", "blue"], "cGroup": ["wall"], "color": "FFCC00" }
+    "deadlyWall": { "vis": true, "bCoef": 1.0, "cMask": ["all"], "cGroup": ["wall"], "color": "FF4444" },
+    "centerDivider": { "vis": true, "bCoef": 0.5, "cMask": ["red", "blue"], "cGroup": ["wall"], "color": "FFD369" }
   },
   "vertexes": [
-    // Outer perimeter
-    { "x": -360, "y": 180, "trait": "outerWall" },
-    { "x": 360, "y": 180, "trait": "outerWall" },
-    { "x": 360, "y": -180, "trait": "outerWall" },
-    { "x": -360, "y": -180, "trait": "outerWall" },
+    // Outer perimeter vertices (deadly walls for players)
+    { "x": -360, "y": 180, "trait": "deadlyWall" },
+    { "x": 360, "y": 180, "trait": "deadlyWall" },
+    { "x": 360, "y": -180, "trait": "deadlyWall" },
+    { "x": -360, "y": -180, "trait": "deadlyWall" },
 
-    // Center divider (blocks players from crossing sides, lets ball pass)
+    // Center divider (blocks players from crossing, ball passes through)
     { "x": 0, "y": 180, "trait": "centerDivider" },
     { "x": 0, "y": -180, "trait": "centerDivider" }
   ],
   "segments": [
-    // Outer walls
-    { "v0": 0, "v1": 1, "trait": "outerWall" },
-    { "v0": 1, "v1": 2, "trait": "outerWall" },
-    { "v0": 2, "v1": 3, "trait": "outerWall" },
-    { "v0": 3, "v1": 0, "trait": "outerWall" },
+    // Top deadly wall
+    { "v0": 0, "v1": 1, "trait": "deadlyWall" },
+    // Blue back deadly wall
+    { "v0": 1, "v1": 2, "trait": "deadlyWall" },
+    // Bottom deadly wall
+    { "v0": 2, "v1": 3, "trait": "deadlyWall" },
+    // Red back deadly wall
+    { "v0": 3, "v1": 0, "trait": "deadlyWall" },
 
     // Center divider
     { "v0": 4, "v1": 5, "trait": "centerDivider" }
   ],
   "goals": [
-    // Goals behind the court for scoring hits or target zones
     { "p0": [-360, 180], "p1": [-360, -180], "team": "red" },
     { "p0": [360, 180], "p1": [360, -180], "team": "blue" }
   ],

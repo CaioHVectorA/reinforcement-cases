@@ -1,0 +1,56 @@
+{
+  "name": "Dodgeball Arena Oficial",
+  "width": 420,
+  "height": 220,
+  "spawnDistance": 180,
+  "bg": {
+    "type": "hockey",
+    "width": 360,
+    "height": 180,
+    "kickOffRadius": 40,
+    "cornerRadius": 0,
+    "color": "1E232A"
+  },
+  "playerPhysics": {
+    "radius": 15,
+    "bCoef": 0.5,
+    "invMass": 0.5,
+    "damping": 0.96,
+    "acceleration": 0.13,
+    "kickingAcceleration": 0.10,
+    "kickingDamping": 0.96,
+    "kickStrength": 15.0,
+    "kickMargin": 5.0,
+    "kickBack": 0.0
+  },
+  "ballPhysics": {
+    "radius": 9,
+    "bCoef": 0.75,
+    "invMass": 1.0,
+    "damping": 0.991,
+    "color": "FF4466",
+    "cMask": ["all"],
+    "cGroup": ["ball"]
+  },
+  "traits": {
+    "deadlyWall": { "vis": true, "bCoef": 0.72, "cMask": ["all"], "cGroup": ["wall"], "color": "FF3344" },
+    "centerDivider": { "vis": true, "bCoef": 0.65, "cMask": ["red", "blue"], "cGroup": ["wall"], "color": "FFD369" }
+  },
+  "vertexes": [
+    { "x": -360, "y": 180, "trait": "deadlyWall" },
+    { "x": 360, "y": 180, "trait": "deadlyWall" },
+    { "x": 360, "y": -180, "trait": "deadlyWall" },
+    { "x": -360, "y": -180, "trait": "deadlyWall" },
+    { "x": 0, "y": 180, "trait": "centerDivider" },
+    { "x": 0, "y": -180, "trait": "centerDivider" }
+  ],
+  "segments": [
+    { "v0": 0, "v1": 1, "trait": "deadlyWall", "name": "topWall" },
+    { "v0": 1, "v1": 2, "trait": "deadlyWall", "name": "blueBackWall" },
+    { "v0": 2, "v1": 3, "trait": "deadlyWall", "name": "bottomWall" },
+    { "v0": 3, "v1": 0, "trait": "deadlyWall", "name": "redBackWall" },
+    { "v0": 4, "v1": 5, "trait": "centerDivider", "name": "centerDivider" }
+  ],
+  "goals": [],
+  "discs": []
+}
