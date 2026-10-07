@@ -108,29 +108,18 @@ class PhysicsEngine:
                         diff = self.ball.pos - p.pos
                         norm = diff.normalized() if diff.length_sq() > 1e-9 else Vec2(1.0, 0.0)
 
-                        # Timing factor: crisp tap on contact yields max strength; holding X decays strength
-                        held = self.kick_held_ticks.get(p.player_id, 1)
-                        if held <= 4:
-                            timing_factor = 1.15
-                        else:
-                            # Gradual decay if held beforehand
-                            timing_factor = max(0.65, 1.15 - (held - 4) * 0.04)
-
-                        # Player forward momentum transfer towards ball (balanced for authentic HaxBall feel)
-                        p_speed_proj = max(0.0, p.speed.dot(norm))
-                        kick_impulse = norm * (p.kick_strength * timing_factor + p_speed_proj * 0.35)
-
-                        # Kick impulse on ball
+                        # Authentic HaxBall kick impulse (scaled by ball's inverse mass):
+                        kick_impulse = norm * (p.kick_strength * self.ball.invMass)
                         self.ball.speed = self.ball.speed + kick_impulse
 
-                        # Ball contact slows down player (momentum absorption & recoil)
-                        p.speed = p.speed * 0.55
+                        # Official kickBack (default is 0.0 in .hbs)
                         if p.kick_back > 0:
                             p.speed = p.speed - norm * p.kick_back
 
-                        # Trigger kick flash & cooldown (approx 200ms / 12 ticks)
-                        p.kick_flash = 8
-                        self.kick_cooldowns[p.player_id] = 12
+                        # Visual flash
+                        p.kick_flash = 6
+                        # Rate limit of 2 ticks to prevent duplicate impulse in consecutive frames if touching
+                        self.kick_cooldowns[p.player_id] = 2
 
                         events["kicks"].append({
                             "player_id": p.player_id,
@@ -236,12 +225,6 @@ class PhysicsEngine:
                             d_a.speed = d_a.speed + normal * (j_mag * w_a)
                             d_b.speed = d_b.speed - normal * (j_mag * w_b)
 
-                    # Player ball-contact resistance: ball slows down player upon physical collision
-                    if self.ball is not None:
-                        if d_a.is_player and d_b == self.ball:
-                            d_a.speed = d_a.speed * 0.92
-                        elif d_b.is_player and d_a == self.ball:
-                            d_b.speed = d_b.speed * 0.92
 
     def _resolve_segment_collisions(self):
         for d in self.discs:

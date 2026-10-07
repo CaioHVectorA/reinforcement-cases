@@ -15,6 +15,9 @@ import time
 import math
 import random
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
@@ -23,6 +26,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
+
+# Maximize multi-core efficiency
+torch.set_num_threads(min(14, os.cpu_count() or 4))
 
 
 from haxball.core.vector import Vec2
@@ -141,12 +147,14 @@ def generate_3v3_futsal_dataset(
 def train_3v3_behavioral_cloning(
     obs_tensor: torch.Tensor,
     act_tensor: torch.Tensor,
-    epochs: int = 15,
-    batch_size: int = 256,
+    epochs: int = 35,
+    batch_size: int = 1024,
     lr: float = 1e-3
 ) -> Tuple[EntityAttentionPolicy, Dict[str, Any]]:
     """
     Treina a EntityAttentionPolicy com Cross-Entropy Loss em PyTorch.
+    Otimizado para throughput maximo em CPU multi-core com batch_size=1024.
+    Salva periodicamente e armazena o melhor modelo conforme a perda de validacao.
     """
     print(f"\n=== [Treinamento BC 3v3] Arquitetura Entity-Attention (Multi-Head Attention) ===")
     num_samples = len(obs_tensor)
@@ -167,11 +175,19 @@ def train_3v3_behavioral_cloning(
 
     history = {"train_loss": [], "val_loss": [], "top1_acc": [], "top3_acc": []}
 
-    print(f"Amostras de Treino: {len(train_ds):,} | Amostras de Validação: {len(val_ds):,}")
-    print(f"Total de Parâmetros Neurais: {sum(p.numel() for p in model.parameters()):,}\n")
+    save_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "checkpoints")
+    os.makedirs(save_dir, exist_ok=True)
+    ckpt_path = os.path.join(save_dir, "bc_futsal_3v3.pt")
 
+    print(f"Amostras de Treino: {len(train_ds):,} | Amostras de Validacao: {len(val_ds):,}")
+    print(f"Total de Parametros Neurais: {sum(p.numel() for p in model.parameters()):,}")
+    print(f"Configuracao: {epochs} epocas | batch_size={batch_size} | threads={torch.get_num_threads()}\n")
+
+    best_val_loss = float("inf")
     start_time = time.time()
+
     for ep in range(epochs):
+        ep_start = time.time()
         model.train()
         total_loss = 0.0
         for x_b, y_b in train_loader:
@@ -186,7 +202,7 @@ def train_3v3_behavioral_cloning(
         scheduler.step()
         train_loss = total_loss / len(train_ds)
 
-        # Validação
+        # Validacao
         model.eval()
         val_loss = 0.0
         correct_top1 = 0
@@ -213,18 +229,30 @@ def train_3v3_behavioral_cloning(
         history["top1_acc"].append(top1_acc)
         history["top3_acc"].append(top3_acc)
 
-        print(f"Época [{ep+1:02d}/{epochs:02d}] | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | Top-1: {top1_acc:.2f}% | Top-3: {top3_acc:.2f}%")
+        ep_duration = time.time() - ep_start
+        total_elapsed = time.time() - start_time
+        remaining_eps = epochs - (ep + 1)
+        eta_secs = remaining_eps * ep_duration
+
+        is_best = val_loss < best_val_loss
+        if is_best:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), ckpt_path)
+
+        # Snapshot a cada 5 epocas
+        if (ep + 1) % 5 == 0 or (ep + 1) == epochs:
+            snap_path = os.path.join(save_dir, f"bc_futsal_3v3_ep{ep+1}.pt")
+            torch.save(model.state_dict(), snap_path)
+
+        star = "*" if is_best else " "
+        print(f"[{ep+1:02d}/{epochs:02d}]{star} Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} | Top-1: {top1_acc:.2f}% | Top-3: {top3_acc:.2f}% | Ep: {ep_duration:.1f}s | Elapsed: {total_elapsed/60.0:.1f}m | ETA: {eta_secs/60.0:.1f}m")
 
     total_time = time.time() - start_time
-    print(f"\nTreinamento concluído em {total_time:.1f} segundos!")
+    print(f"\nTreinamento concluido em {total_time/60.0:.2f} minutos ({total_time:.1f}s)!")
+    print(f"Melhor modelo salvo em: {ckpt_path} (Best Val Loss: {best_val_loss:.4f})")
 
-    # Salva checkpoint
-    save_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "checkpoints")
-    os.makedirs(save_dir, exist_ok=True)
-    ckpt_path = os.path.join(save_dir, "bc_futsal_3v3.pt")
-    torch.save(model.state_dict(), ckpt_path)
-    print(f"Modelo BC Futsal 3v3 salvo com sucesso em: {ckpt_path}")
-
+    # Garante que o modelo retornado tenha os melhores pesos
+    model.load_state_dict(torch.load(ckpt_path, map_location="cpu"))
     return model, history
 
 
@@ -339,14 +367,21 @@ def evaluate_3v3_match(
 
 
 def main():
-    # 1. Gerar dataset 3v3
-    obs_t, act_t = generate_3v3_futsal_dataset(num_matches=35, steps_per_match=500, augment_y=True)
+    print("=" * 60)
+    print("=== INICIANDO TREINO EXPANDIDO DE BEHAVIORAL CLONING (3v3 FUTSAL) ===")
+    print("Meta de duracao: ~40 minutos | Volume de dados: ~2.16 milhoes de amostras")
+    print("=" * 60 + "\n")
 
-    # 2. Treinar política de Auto-Atenção com BC
-    model, history = train_3v3_behavioral_cloning(obs_t, act_t, epochs=12, batch_size=256, lr=1e-3)
+    # 1. Gerar dataset 3v3 (300 partidas com cenarios ricos e simetria Y)
+    obs_t, act_t = generate_3v3_futsal_dataset(num_matches=300, steps_per_match=600, augment_y=True)
 
-    # 3. Avaliar confronto 3v3 no motor de física
-    eval_results = evaluate_3v3_match(model, duration_ticks=3000)
+    # 2. Treinar politica de Auto-Atencao com BC por 35 epocas em batch_size=1024
+    model, history = train_3v3_behavioral_cloning(obs_t, act_t, epochs=35, batch_size=1024, lr=1e-3)
+
+    # 3. Avaliar confronto 3v3 no motor de fisica
+    eval_results = evaluate_3v3_match(model, duration_ticks=3600)
+    print("\n=== TREINO E AVALIACAO CONCLUIDOS COM SUCESSO! ===")
 
 if __name__ == "__main__":
     main()
+
