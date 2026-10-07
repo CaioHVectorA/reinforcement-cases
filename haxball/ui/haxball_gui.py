@@ -148,8 +148,9 @@ class HaxBallStudioApp:
         self.red_shots = 0
         self.blue_shots = 0
 
-        # Suavização de Ação do BC (Momentum humano)
+        # Suavização de Ação do BC e RL (Momentum humano)
         self._bc_prev_action: Dict[int, Tuple[float, float]] = {}
+        self._rl_prev_action: Dict[int, Tuple[float, float]] = {}
 
         # Botões e Checkboxes clicáveis da UI
         self.ui_buttons: List[Dict[str, Any]] = []
@@ -168,12 +169,15 @@ class HaxBallStudioApp:
                 print(f"[Studio] Aviso ao carregar BC: {e}")
         self.bc_model.eval()
 
-        # 2. PPO Reinforcement Learning
-        self.rl_model = ActorCriticMLP(obs_dim=61, act_dim=18, is_discrete=True)
-        rl_path = PROJECT_ROOT / "checkpoints" / "haxball_rl_best.pt"
+        # 2. PPO Reinforcement Learning (Entity Attention)
+        self.rl_model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
+        rl_path = CHECKPOINT_DIR / "haxball_rl_best.pt"
+        if not rl_path.exists():
+            rl_path = CHECKPOINT_DIR / "haxball_rl_potente.pt"
         if rl_path.exists():
             try:
                 self.rl_model.load_state_dict(torch.load(str(rl_path), map_location="cpu"))
+                print(f"[Studio] Modelo RL carregado com sucesso: {rl_path.name}")
             except Exception as e:
                 print(f"[Studio] Aviso ao carregar RL: {e}")
         self.rl_model.eval()
@@ -347,9 +351,24 @@ class HaxBallStudioApp:
             with torch.no_grad():
                 obs = self.obs_builder.build_observation(self.game, player)
                 obs_t = torch.from_numpy(obs).unsqueeze(0)
-                logits = self.rl_model.actor(obs_t)
-                act_idx = torch.argmax(logits, dim=-1).item()
-                return self.action_handler.decode_discrete(act_idx)
+                logits = self.rl_model.actor(self.rl_model.forward_repr(obs_t))[0]
+                probs = torch.softmax(logits, dim=-1)
+
+                kick_prob = probs[9:].sum().item()
+                if kick_prob > 0.22:
+                    act_idx = 9 + torch.argmax(probs[9:]).item()
+                else:
+                    act_idx = torch.argmax(probs[:9]).item()
+
+                raw_act = self.action_handler.decode_discrete(act_idx)
+                rx, ry, rkick = raw_act
+
+                prev_x, prev_y = self._rl_prev_action.get(player.player_id, (0.0, 0.0))
+                smooth_x = prev_x * 0.65 + rx * 0.35
+                smooth_y = prev_y * 0.65 + ry * 0.35
+                self._rl_prev_action[player.player_id] = (smooth_x, smooth_y)
+
+                return (smooth_x, smooth_y, rkick)
 
         elif ctrl == "bot_fixo":
             coord = self.red_coord if team == Team.RED else self.blue_coord
@@ -840,6 +859,7 @@ class HaxBallStudioApp:
                         self.show_checkbox_panel = not self.show_checkbox_panel
                     elif event.key == pygame.K_r:
                         self.game.reset_round()
+                        self._init_models_and_bots()
                     elif event.key in (pygame.K_p, pygame.K_PAUSE):
                         self.is_paused = not self.is_paused
                     elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
