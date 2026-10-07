@@ -44,19 +44,16 @@ class PhysicsEngine:
     def apply_player_inputs(self, inputs: Dict[int, Tuple[float, float, bool]]):
         """
         Applies input commands (move_x, move_y, kick) for each player by player_id.
-        In HaxBall:
-        When holding kick: acceleration = kickingAcceleration, damping = kickingDamping.
-        Otherwise: acceleration = acceleration, damping = damping.
+        Faithful to official HaxBall:
+        - X and Y axes are processed independently (diagonal motion gives native sqrt(2) speed boost).
+        - Holding kick uses kickingAcceleration and kickingDamping.
+        - Kick flash fades smoothly.
         """
         for p in self.players:
             cmd = inputs.get(p.player_id, (0.0, 0.0, False))
             move_x, move_y, kick = cmd
 
-            move_vec = Vec2(move_x, move_y)
-            if move_vec.length_sq() > 1.0:
-                move_vec = move_vec.normalized()
-
-            # Decrement cooldown
+            # Decrement kick cooldown
             cd = self.kick_cooldowns.get(p.player_id, 0)
             if cd > 0:
                 self.kick_cooldowns[p.player_id] = cd - 1
@@ -75,15 +72,18 @@ class PhysicsEngine:
             if p.kick_flash > 0:
                 p.kick_flash -= 1
 
-            # HaxBall velocity update equation
-            p.speed = (p.speed + move_vec * acc) * damp
+            # Authentic HaxBall velocity update (independent axes, no diagonal clamping)
+            p.speed = Vec2(
+                (p.speed.x + move_x * acc) * damp,
+                (p.speed.y + move_y * acc) * damp
+            )
 
     def step(self, inputs: Dict[int, Tuple[float, float, bool]], game_state: int = 3) -> Dict[str, Any]:
         """
-        Executes a single physics tick (1/60s).
-        Returns a dict of events.
+        Executes a single authentic HaxBall physics tick (1/60s).
+        Returns a dict of events (kicks, contacts, wall bounces).
         """
-        events = {"kicks": [], "disc_ball_collisions": []}
+        events = {"kicks": [], "disc_ball_collisions": [], "bounces": []}
 
         # 1. Update player velocities from inputs
         self.apply_player_inputs(inputs)
@@ -96,7 +96,7 @@ class PhysicsEngine:
             if not d.is_player and d != self.ball and not d.is_static:
                 d.speed = d.speed * d.damping
 
-        # 3. Kicking mechanic (with rate limit to avoid continuous multi-frame spam)
+        # 3. Kicking mechanic: Authentic HaxBall kick trigger with 12-tick cooldown
         if self.ball:
             for p in self.players:
                 if p.is_kicking:
@@ -116,10 +116,9 @@ class PhysicsEngine:
                         if p.kick_back > 0:
                             p.speed = p.speed - norm * p.kick_back
 
-                        # Visual flash
                         p.kick_flash = 6
-                        # Rate limit of 2 ticks to prevent duplicate impulse in consecutive frames if touching
-                        self.kick_cooldowns[p.player_id] = 2
+                        # Rate limit of 12 ticks (~0.2s) prevents continuous machine-gun kick spam
+                        self.kick_cooldowns[p.player_id] = 12
 
                         events["kicks"].append({
                             "player_id": p.player_id,
@@ -127,22 +126,17 @@ class PhysicsEngine:
                             "pos": p.pos.to_tuple()
                         })
 
-        # 4. Integrate positions and solve collisions with 2 sub-steps to prevent tunneling
-        substeps = 2
-        inv_sub = 1.0 / substeps
-        for _ in range(substeps):
-            for d in self.discs:
-                if not d.is_static:
-                    d.pos = d.pos + d.speed * inv_sub
+        # 4. Integrate positions: Exactly 1 single tick faithful to official HaxBall
+        for d in self.discs:
+            if not d.is_static:
+                d.pos = d.pos + d.speed
 
-            self._resolve_kickoff_barriers(game_state)
-
-            for _ in range(self.solver_iterations):
-                self._resolve_disc_collisions(events)
-                self._resolve_segment_collisions()
-                self._resolve_plane_collisions()
-
-            self._resolve_kickoff_barriers(game_state)
+        # 5. Solve collisions in single pass
+        self._resolve_kickoff_barriers(game_state)
+        self._resolve_disc_collisions(events)
+        self._resolve_segment_collisions(events)
+        self._resolve_plane_collisions()
+        self._resolve_kickoff_barriers(game_state)
 
         return events
 
@@ -240,8 +234,12 @@ class PhysicsEngine:
                             d_a.speed = d_a.speed + normal * (j_mag * w_a)
                             d_b.speed = d_b.speed - normal * (j_mag * w_b)
 
+                            # Record goal post bounce
+                            if events is not None and (d_a.is_static or d_b.is_static) and (d_a == self.ball or d_b == self.ball) and abs(v_n) > 0.3:
+                                events["bounces"].append({"pos": (d_a.pos if d_a == self.ball else d_b.pos).to_tuple()})
 
-    def _resolve_segment_collisions(self):
+
+    def _resolve_segment_collisions(self, events: Optional[Dict[str, Any]] = None):
         for d in self.discs:
             if d.is_static:
                 continue
@@ -263,6 +261,10 @@ class PhysicsEngine:
                         e = d.bCoef * seg.bCoef
                         j_mag = -(1.0 + e) * v_n
                         d.speed = d.speed + normal * j_mag
+
+                        # Record ball wall bounce for audio/visual feedback
+                        if events is not None and d == self.ball and abs(v_n) > 0.3:
+                            events["bounces"].append({"pos": d.pos.to_tuple()})
 
     def _resolve_plane_collisions(self):
         for d in self.discs:
