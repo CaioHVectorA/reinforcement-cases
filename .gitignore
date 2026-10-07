@@ -13,14 +13,26 @@ test_checkpoints/
 
 # Case outputs
 snake/out/*
+snake/**/out/
+**/out/
 matrix.txt
 rewards.json
+*.log
+
 data/replays/*.hbr2
 data/replays/*.hbr
 data/clustered_replays/**/*.hbr2
 data/clustered_replays/**/*.hbr
+haxball/data/replays/*.hbr2
+haxball/data/replays/*.hbr
+haxball/data/clustered_replays/**/*.hbr2
+haxball/data/clustered_replays/**/*.hbr
+!haxball/data/filtered_replays_1v1/*.hbr2
+!haxball/data/replays/.gitkeep
 tools/haxball_analyzer.js
+haxball/tools/haxball_analyzer.js
 .discord_token
+
 
 
 # Environments & virtualenvs

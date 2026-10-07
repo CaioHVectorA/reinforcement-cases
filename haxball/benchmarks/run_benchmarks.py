@@ -18,9 +18,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
-project_root = Path(__file__).resolve().parents[1]
+haxball_dir = Path(__file__).resolve().parents[1]
+project_root = haxball_dir.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
+if str(haxball_dir) not in sys.path:
+    sys.path.insert(0, str(haxball_dir))
 
 from haxball.core.vector import Vec2
 from haxball.core.constants import Team, GameState
@@ -67,7 +70,10 @@ def run_benchmark_match(
     kick_threshold: float = 0.50, # 0.50 = standard argmax
     duration_ticks: int = 1800
 ) -> dict:
-    stad_path = project_root / "haxball" / "maps" / "futsal_3v3.hbs"
+    stad_path = haxball_dir / "maps" / "futsal_3v3.hbs"
+    if not stad_path.exists():
+        stad_path = project_root / "haxball" / "maps" / "futsal_3v3.hbs"
+
     stadium = Stadium.load_from_file(str(stad_path))
     game = HaxBallGame(stadium, score_limit=10, time_limit_secs=120, red_players_count=3, blue_players_count=3)
     game.reset_match()
@@ -153,16 +159,22 @@ def run_benchmark_match(
 
 def main():
     print("=== INICIANDO SUÍTE CIENTÍFICA DE BENCHMARKS E DIAGNÓSTICO DO BC ===")
-    benchmarks_dir = project_root / "benchmarks"
+    benchmarks_dir = haxball_dir / "benchmarks"
     benchmarks_dir.mkdir(exist_ok=True)
 
-    ckpt_path = project_root / "models" / "checkpoints" / "bc_futsal_3v3.pt"
+    ckpt_candidates = [
+        haxball_dir / "models" / "checkpoints" / "bc_futsal_3v3.pt",
+        haxball_dir / "checkpoints" / "bc_futsal_3v3.pt",
+        project_root / "models" / "checkpoints" / "bc_futsal_3v3.pt",
+    ]
+    ckpt_path = next((p for p in ckpt_candidates if p.exists()), None)
     model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
-    if ckpt_path.exists():
+    if ckpt_path and ckpt_path.exists():
         model.load_state_dict(torch.load(str(ckpt_path), map_location="cpu"))
         print(f"[OK] Modelo carregado com sucesso de: {ckpt_path}")
     else:
-        print(f"[Aviso] Checkpoint {ckpt_path} não encontrado, usando pesos padrão.")
+        print(f"[Aviso] Checkpoint bc_futsal_3v3.pt não encontrado, usando pesos padrão.")
+
 
     print("\nExecutando benchmark de calibração de limiar de chute...")
     # Testar limiares: 0.50 (Standard Argmax), 0.35, 0.22, 0.15

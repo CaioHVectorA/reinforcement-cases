@@ -17,11 +17,12 @@ def main():
     args = sys.argv[1:]
     
     if args and args[0].lower() in ("dodgeball", "dodge", "queimada"):
-        script = PROJECT_ROOT / "haxball-dodgeball" / "play.py"
+        script = PROJECT_ROOT / "haxball" / "dodgeball" / "play.py"
         forward_args = args[1:]
     elif args and args[0].lower() in ("match", "quick", "3v3"):
-        script = PROJECT_ROOT / "play_3v3_human_vs_bots.py"
+        script = PROJECT_ROOT / "haxball" / "scripts" / "play_3v3_human_vs_bots.py"
         forward_args = args[1:]
+
     else:
         # Default: Launch the full Interactive HaxBall Futsal Studio!
         script = PROJECT_ROOT / "main.py"

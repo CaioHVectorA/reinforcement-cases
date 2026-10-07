@@ -47,9 +47,16 @@ from haxball.rl.actions.action_space import ActionHandler
 from haxball.rl.models.entity_attention import EntityAttentionPolicy
 from haxball.rl.models.mlp_policy import ActorCriticMLP
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MAP_DIR = PROJECT_ROOT / "haxball" / "maps"
-CHECKPOINT_DIR = PROJECT_ROOT / "models" / "checkpoints"
+HAXBALL_DIR = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = HAXBALL_DIR.parent
+MAP_DIR = HAXBALL_DIR / "maps"
+if not MAP_DIR.exists():
+    MAP_DIR = PROJECT_ROOT / "haxball" / "maps"
+
+CHECKPOINT_DIR = HAXBALL_DIR / "models" / "checkpoints"
+if not CHECKPOINT_DIR.exists():
+    CHECKPOINT_DIR = HAXBALL_DIR / "checkpoints"
+
 
 STADIUM_CATALOG = {
     "futsal_3v3": {
@@ -161,8 +168,13 @@ class HaxBallStudioApp:
     def _init_models_and_bots(self):
         # 1. Behavioral Cloning (Entity Attention)
         self.bc_model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
-        bc_path = CHECKPOINT_DIR / "bc_futsal_3v3.pt"
-        if bc_path.exists():
+        bc_candidates = [
+            CHECKPOINT_DIR / "bc_futsal_3v3.pt",
+            HAXBALL_DIR / "models" / "checkpoints" / "bc_futsal_3v3.pt",
+            HAXBALL_DIR / "checkpoints" / "bc_futsal_3v3.pt",
+        ]
+        bc_path = next((p for p in bc_candidates if p.exists()), None)
+        if bc_path:
             try:
                 self.bc_model.load_state_dict(torch.load(str(bc_path), map_location="cpu"))
             except Exception as e:
@@ -171,16 +183,24 @@ class HaxBallStudioApp:
 
         # 2. PPO Reinforcement Learning (Entity Attention)
         self.rl_model = EntityAttentionPolicy(embed_dim=64, num_heads=4, act_dim=18, is_discrete=True)
-        rl_path = CHECKPOINT_DIR / "haxball_rl_best.pt"
-        if not rl_path.exists():
-            rl_path = CHECKPOINT_DIR / "haxball_rl_potente.pt"
-        if rl_path.exists():
+        rl_candidates = [
+            CHECKPOINT_DIR / "haxball_rl_best.pt",
+            CHECKPOINT_DIR / "haxball_rl_potente.pt",
+            HAXBALL_DIR / "models" / "checkpoints" / "haxball_rl_best.pt",
+            HAXBALL_DIR / "models" / "checkpoints" / "haxball_rl_potente.pt",
+            HAXBALL_DIR / "checkpoints" / "haxball_rl_best.pt",
+            HAXBALL_DIR / "checkpoints" / "haxball_rl_potente.pt",
+            HAXBALL_DIR / "checkpoints" / "haxball_rl_final.pt",
+        ]
+        rl_path = next((p for p in rl_candidates if p.exists()), None)
+        if rl_path:
             try:
                 self.rl_model.load_state_dict(torch.load(str(rl_path), map_location="cpu"))
                 print(f"[Studio] Modelo RL carregado com sucesso: {rl_path.name}")
             except Exception as e:
                 print(f"[Studio] Aviso ao carregar RL: {e}")
         self.rl_model.eval()
+
 
         # 3. Coordenadores e Bots Especialistas com Humanização
         self.red_coord = Futsal3v3Coordinator(Team.RED)

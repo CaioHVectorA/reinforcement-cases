@@ -22,7 +22,10 @@ from haxball.rl.actions.action_space import ActionHandler
 from haxball.rl.models.entity_attention import EntityAttentionPolicy
 from haxball.rl.algorithms.standard_rl.dqn_trainer import DQNTrainer
 
-MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "haxball", "maps")
+MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "maps")
+if not os.path.exists(MAP_DIR):
+    MAP_DIR = os.path.join(os.path.dirname(__file__), "..", "haxball", "maps")
+
 
 class TestVector(unittest.TestCase):
     def test_vector_operations(self):

@@ -18,9 +18,13 @@ import random
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+haxball_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+workspace_root = os.path.dirname(haxball_dir)
+if workspace_root not in sys.path:
+    sys.path.insert(0, workspace_root)
+if haxball_dir not in sys.path:
+    sys.path.insert(0, haxball_dir)
+
 
 import numpy as np
 import torch
@@ -64,7 +68,10 @@ def generate_3v3_futsal_dataset(
     Em cada tick, extrai a perspectiva ego (61 dimensões) e a ação de TODOS os 6 atletas em campo.
     """
     print(f"=== [Dataset 3v3] Gerando demonstrações em {num_matches} partidas ({steps_per_match} ticks cada) ===")
-    stad_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "haxball", "maps", "futsal_3v3.hbs")
+    stad_path = os.path.join(haxball_dir, "maps", "futsal_3v3.hbs")
+    if not os.path.exists(stad_path):
+        stad_path = os.path.join(workspace_root, "haxball", "maps", "futsal_3v3.hbs")
+
     stadium = Stadium.load_from_file(stad_path)
 
     obs_builder = DecoupledObservationBuilder()
@@ -175,8 +182,9 @@ def train_3v3_behavioral_cloning(
 
     history = {"train_loss": [], "val_loss": [], "top1_acc": [], "top3_acc": []}
 
-    save_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "checkpoints")
+    save_dir = os.path.join(haxball_dir, "models", "checkpoints")
     os.makedirs(save_dir, exist_ok=True)
+
     ckpt_path = os.path.join(save_dir, "bc_futsal_3v3.pt")
 
     print(f"Amostras de Treino: {len(train_ds):,} | Amostras de Validacao: {len(val_ds):,}")
@@ -268,8 +276,11 @@ def evaluate_3v3_match(
     print(f"\n=== [Avaliação em Partida 3v3 Real] IA BC (Red) vs Bots Coordenados (Blue) ===")
     print(f"Duração da simulação: {duration_ticks} ticks ({duration_ticks/60.0:.1f} segundos)")
 
-    stad_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "haxball", "maps", "futsal_3v3.hbs")
+    stad_path = os.path.join(haxball_dir, "maps", "futsal_3v3.hbs")
+    if not os.path.exists(stad_path):
+        stad_path = os.path.join(workspace_root, "haxball", "maps", "futsal_3v3.hbs")
     stadium = Stadium.load_from_file(stad_path)
+
     game = HaxBallGame(stadium=stadium, score_limit=10, time_limit_secs=180, red_players_count=3, blue_players_count=3)
 
     obs_builder = DecoupledObservationBuilder()
