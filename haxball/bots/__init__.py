@@ -12,6 +12,7 @@ from haxball.bots.archetypes import (
     HeuristicBot, WallReboundBot,
 )
 from haxball.bots.goalie_bot import GoalieBot
+from haxball.bots.futsal_3v3_team import Futsal3v3Bot, Futsal3v3Coordinator
 
 
 def __getattr__(name):
@@ -42,10 +43,12 @@ NPC_BOTS = {
                "Tudo ligado: pressão, mira, tabelas, fintas e jogo em equipe.", (200, 120, 255)),
     "goalie": (GoalieBot, "Goleiro", "GoalieBot (Goleiro)",
                "Fecha o ângulo do gol e rebate.", (160, 120, 255)),
+    "futsal3v3": (Futsal3v3Bot, "Futsal 3v3", "Futsal 3v3 Tático",
+                  "Triângulo tático coordenado: Fixo, Ala e Atacante.", (240, 180, 50)),
 }
 
 # Order used by the "play against every bot" gauntlet (roughly easiest -> hardest)
-GAUNTLET_ORDER = ["heuristic", "wall", "striker", "dribbler", "bank", "counter", "press", "master", "rl"]
+GAUNTLET_ORDER = ["heuristic", "wall", "striker", "dribbler", "bank", "counter", "press", "master", "futsal3v3", "rl"]
 
 # Aliases for compatibility
 PressingBot = PressBot
@@ -54,6 +57,7 @@ MasterProBot = MasterBot
 __all__ = [
     "BaseBot", "NPCBot", "NPCProfile", "HeuristicBot", "WallReboundBot", "GoalieBot", "RLBot",
     "PressBot", "StrikerBot", "BankBot", "DribblerBot", "CounterBot", "MasterBot",
-    "PressingBot", "MasterProBot",
+    "PressingBot", "MasterProBot", "Futsal3v3Bot", "Futsal3v3Coordinator",
     "NPC_BOTS", "GAUNTLET_ORDER",
 ]
+
