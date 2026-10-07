@@ -1,0 +1,49 @@
+{
+  "total_processados": 4683,
+  "stats": {
+    "futsal_3v3": 863,
+    "futsal_1v1": 26,
+    "real_soccer": 991,
+    "big_and_5v5": 1413,
+    "other_modes": 944,
+    "empty_discard": 442,
+    "corrupt": 4
+  },
+  "amostras_estadios": {
+    "futsal_3v3": [
+      "Futsal x3  by Bazinga from HaxMaps (55.7 KB, 792s)",
+      "Futsal x3  by Bazinga from HaxMaps (17.6 KB, 142s)",
+      "Futsal x3  by Bazinga from HaxMaps (30.4 KB, 381s)",
+      "Futsal 3x3 4x4 (89.9 KB, 1163s)",
+      "Futsal x3  by Bazinga from HaxMaps (118.9 KB, 1365s)"
+    ],
+    "futsal_1v1": [
+      "x1 duplo from HaxMaps (26.6 KB, 401s)",
+      "SANGUCHITO X1 (23.9 KB, 591s)",
+      "AHA Futsal x1 (Elo) (26.2 KB, 891s)",
+      "x1 duplo from HaxMaps (23.7 KB, 374s)",
+      "x1 duplo from HaxMaps (18.8 KB, 378s)"
+    ],
+    "real_soccer": [
+      "United Hax League x8+ (72.3 KB, 391s)",
+      "United Hax League x8+ (68.2 KB, 391s)",
+      "United Hax League x8+ (74.0 KB, 381s)",
+      "United Hax League x8+ (65.9 KB, 363s)",
+      "United Hax League x8+ (81.3 KB, 400s)"
+    ],
+    "big_and_5v5": [
+      "United Hax League - x5+ (56.1 KB, 309s)",
+      "United Hax League - x5+ (55.3 KB, 306s)",
+      "United Hax League - x5+ (65.1 KB, 314s)",
+      "United Hax League - x5+ (65.6 KB, 314s)",
+      "United Hax League - x5+ (51.6 KB, 286s)"
+    ],
+    "other_modes": [
+      "United Hax League - x4+ (17.6 KB, 123s)",
+      "United Hax League - x4+ (29.9 KB, 203s)",
+      "United Hax League - x4+ (25.8 KB, 185s)",
+      "United Hax League - x4+ (46.9 KB, 310s)",
+      "United Hax League - x4+ (31.0 KB, 201s)"
+    ]
+  }
+}

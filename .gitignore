@@ -17,8 +17,11 @@ matrix.txt
 rewards.json
 data/replays/*.hbr2
 data/replays/*.hbr
+data/clustered_replays/**/*.hbr2
+data/clustered_replays/**/*.hbr
 tools/haxball_analyzer.js
 .discord_token
+
 
 # Environments & virtualenvs
 .env
