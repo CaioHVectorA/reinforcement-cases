@@ -56,8 +56,8 @@ class DodgeballSelfPlayTrainer:
         self.lr = lr
 
         self.obs_builder = DodgeballObservationBuilder(
-            max_teammates=max(1, game.red_players_count - 1),
-            max_opponents=max(1, game.blue_players_count)
+            max_teammates=1,
+            max_opponents=2
         )
         self.reward_engine = DodgeballRewardEngine()
 

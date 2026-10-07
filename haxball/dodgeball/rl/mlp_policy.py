@@ -14,8 +14,10 @@ def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
     return layer
 
 class ActorCriticMLP(nn.Module):
-    def __init__(self, obs_dim: int = 30, act_dim: int = 3, hidden_dim: int = 128):
+    def __init__(self, obs_dim: int = 36, act_dim: int = 3, hidden_dim: int = 128):
         super().__init__()
+        self.obs_dim = obs_dim
+        self.act_dim = act_dim
         self.actor = nn.Sequential(
             layer_init(nn.Linear(obs_dim, hidden_dim)),
             nn.Tanh(),

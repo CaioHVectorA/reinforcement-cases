@@ -211,7 +211,7 @@ def main():
 
             if args.ai == "rl" and rl_policy is not None and rl_obs_builder is not None:
                 obs = rl_obs_builder.build_observation(game, p)
-                expected_dim = rl_policy.obs_dim
+                expected_dim = getattr(rl_policy, "obs_dim", expected_obs_dim)
                 if len(obs) < expected_dim:
                     obs = np.pad(obs, (0, expected_dim - len(obs)), mode='constant')
                 elif len(obs) > expected_dim:
