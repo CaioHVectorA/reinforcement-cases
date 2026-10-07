@@ -83,7 +83,7 @@ class PhysicsEngine:
         Executes a single physics tick (1/60s).
         Returns a dict of events.
         """
-        events = {"kicks": []}
+        events = {"kicks": [], "disc_ball_collisions": []}
 
         # 1. Update player velocities from inputs
         self.apply_player_inputs(inputs)
@@ -138,7 +138,7 @@ class PhysicsEngine:
             self._resolve_kickoff_barriers(game_state)
 
             for _ in range(self.solver_iterations):
-                self._resolve_disc_collisions()
+                self._resolve_disc_collisions(events)
                 self._resolve_segment_collisions()
                 self._resolve_plane_collisions()
 
@@ -186,7 +186,7 @@ class PhysicsEngine:
                         if v_rad < 0:
                             p.speed = p.speed - push * v_rad
 
-    def _resolve_disc_collisions(self):
+    def _resolve_disc_collisions(self, events: Optional[Dict[str, Any]] = None):
         n = len(self.discs)
         for i in range(n):
             d_a = self.discs[i]
@@ -205,6 +205,21 @@ class PhysicsEngine:
                         normal = diff / dist
                     else:
                         normal = Vec2(1.0, 0.0)
+
+                    # Record disc-ball contact if events dict is provided
+                    if events is not None and self.ball is not None:
+                        if d_a.is_player and d_b == self.ball:
+                            events["disc_ball_collisions"].append({
+                                "player_id": d_a.player_id,
+                                "disc": d_a,
+                                "ball_speed": d_b.speed.length()
+                            })
+                        elif d_b.is_player and d_a == self.ball:
+                            events["disc_ball_collisions"].append({
+                                "player_id": d_b.player_id,
+                                "disc": d_b,
+                                "ball_speed": d_a.speed.length()
+                            })
 
                     penetration = r_sum - dist
                     w_a = d_a.invMass
