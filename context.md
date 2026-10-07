@@ -117,3 +117,6 @@ A tentativa empírica de minerar milhares de replays de terceiros (`replay.theha
    * **Para Behavioral Cloning (BC) em 1v1:** Não depender de scraping público em massa. Utilizar exclusivamente gravações locais sob demanda do próprio usuário humano ou demonstrações sintéticas de alta performance geradas pelos bots heurísticos analíticos (`HeuristicBot`, `WallReboundBot`).
    * **Para Aprendizado Principal:** Foco total no **Aprendizado por Reforço por Auto-Confronto (PPO Self-Play)**, que aprende a física e as táticas do zero sem dependência de dados externos.
 
+> Para a engenharia reversa completa do protocolo binário, consulte: [`docs/HAXBALL_REPLAY_SPECIFICATION.md`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/docs/HAXBALL_REPLAY_SPECIFICATION.md).
+
+

@@ -226,4 +226,7 @@ Para evitar desperdício de tempo e alucinações com scraping de fontes descont
 * **Abordagem Principal:** O treinamento de agentes 1v1 apoia-se em **PPO Self-Play e currículo de baselines analíticos (`HeuristicBot`, `WallReboundBot`)**. O aprendizado por reforço descobre a mecânica ótima diretamente do motor de física sem depender de bancos de dados públicos viciados.
 * **Abordagem Secundária (BC Controlado):** Caso Behavioral Cloning seja empregado, os dados devem originar-se de sessões intencionais gravadas pelo próprio operador/usuário ou geradas sinteticamente por controladores especialistas, garantindo 100% de integridade e relevância.
 
+> Para detalhes completos sobre a estrutura binária, codificação LEB128, bitmask de input e ecossistema comunitário de replays, consulte a especificação técnica completa: [`docs/HAXBALL_REPLAY_SPECIFICATION.md`](file:///c:/Users/caihe/Documents/antigravity/agitated-hertz/docs/HAXBALL_REPLAY_SPECIFICATION.md).
+
+
 
