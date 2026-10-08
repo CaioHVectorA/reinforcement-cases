@@ -254,9 +254,7 @@ class RLBot(BaseBot):
         obs_tensor = torch.tensor(obs, dtype=torch.float32, device=self.device).unsqueeze(0)
 
         with torch.no_grad():
-            if hasattr(self.policy, "actor"):
-                out = self.policy.actor(obs_tensor)
-            elif hasattr(self.policy, "get_action_and_value"):
+            if hasattr(self.policy, "get_action_and_value") and not isinstance(self.policy, (ActorCriticMLP, EntityAttentionPolicy)):
                 out, _, _, _ = self.policy.get_action_and_value(obs_tensor)
             else:
                 out = self.policy(obs_tensor)

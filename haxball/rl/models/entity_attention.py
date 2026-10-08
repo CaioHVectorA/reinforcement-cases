@@ -103,6 +103,10 @@ class EntityAttentionPolicy(nn.Module):
         field_pooled = tokens.mean(dim=1)
         return torch.cat([ego_token, field_pooled], dim=-1)
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        context = self.forward_repr(x)
+        return self.actor(context)
+
     def get_value(self, x: torch.Tensor) -> torch.Tensor:
         context = self.forward_repr(x)
         return self.critic(context)
