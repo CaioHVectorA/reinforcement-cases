@@ -59,3 +59,18 @@ class NeuralBot:
         """obs (..., obs_dim) -> bins (M, len(n_acts))."""
         o = self._torch.as_tensor(obs.reshape(-1, obs.shape[-1]), dtype=self._torch.float32)
         return self.model.act(o, greedy=self.greedy).numpy().astype(np.int64)
+
+
+class RandomBot:
+    """Samples uniform random actions across movement and kick heads."""
+
+    def __init__(self, seed: int | None = None):
+        self.rng = np.random.default_rng(seed)
+
+    def act(self, obs: np.ndarray) -> np.ndarray:
+        shape = obs.shape[:-1] if obs.ndim > 1 else (1,)
+        m_x = self.rng.integers(0, 3, size=(*shape, 1))
+        m_y = self.rng.integers(0, 3, size=(*shape, 1))
+        kick = self.rng.integers(0, 2, size=(*shape, 1))
+        return np.concatenate([m_x, m_y, kick], axis=-1).astype(np.int64)
+
